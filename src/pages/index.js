@@ -1,114 +1,317 @@
-import Image from "next/image";
-import { Geist, Geist_Mono } from "next/font/google";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+import React, { useState, useEffect } from "react";
 
 export default function Home() {
-  return (
-    <div
-      className={`${geistSans.variable} ${geistMono.variable} grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]`}
-    >
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/pages/index.js
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const [provinces, setProvinces] = useState([]); // Lista de provincias
+  const [localities, setLocalities] = useState([]); // Lista de localidades según la provincia seleccionada
+  const [selectedProvince, setSelectedProvince] = useState(""); // Cambiar a ID de provincia en lugar del nombre
+  const [searchLocalidad, setSearchLocalidad] = useState("");
+  const [filteredProvinces, setFilteredProvinces] = useState([]);
+  const [filteredLocalities, setFilteredLocalities] = useState([]);
+  const [showProvinceResults, setShowProvinceResults] = useState(false);
+  const [showLocalityResults, setShowLocalityResults] = useState(false);
+  const [provinceInput, setProvinceInput] = useState("");
+  const [localityInput, setLocalityInput] = useState("");
+  const [formData, setFormData] = useState({
+    apellido: "",
+    nombre: "",
+    dni: "",
+    email: "",
+    telefono: "",
+    genero: "",
+  });
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
+  // Cargar las provincias al montar el componente
+  useEffect(() => {
+    const fetchProvinces = async () => {
+      try {
+        const response = await fetch(
+          "https://apis.datos.gob.ar/georef/api/provincias"
+        );
+        const data = await response.json();
+        setProvinces(
+          data.provincias.sort((a, b) => a.nombre.localeCompare(b.nombre))
+        ); // Ordenar provincias alfabéticamente
+      } catch (error) {
+        console.error("Error al cargar las provincias:", error);
+      }
+    };
+    fetchProvinces();
+  }, []);
+
+  // Cargar las localidades cada vez que cambia la provincia seleccionada
+  useEffect(() => {
+    if (selectedProvince) {
+      const fetchLocalities = async () => {
+        try {
+          const response = await fetch(
+            `https://apis.datos.gob.ar/georef/api/localidades?provincia=${selectedProvince}&campos=nombre,departamento&max=1000`
+          );
+          const data = await response.json();
+
+          // Procesar localidades y eliminar duplicados usando Set
+          const localitiesSet = new Set(
+            data.localidades.map((locality) => {
+              const department = locality.departamento
+                ? locality.departamento.nombre
+                : "";
+              return department
+                ? `${locality.nombre} (${department})`
+                : locality.nombre;
+            })
+          );
+
+          // Convertir Set a Array y ordenar
+          setLocalities([...localitiesSet].sort());
+        } catch (error) {
+          console.error("Error al cargar las localidades:", error);
+        }
+      };
+      fetchLocalities();
+    } else {
+      setLocalities([]);
+    }
+  }, [selectedProvince]);
+
+  // Función para filtrar provincias
+  const handleProvinceSearch = (value) => {
+    setProvinceInput(value);
+    const filtered = provinces.filter((province) =>
+      province.nombre.toLowerCase().includes(value.toLowerCase())
+    );
+    setFilteredProvinces(filtered);
+    setShowProvinceResults(true);
+  };
+
+  // Función para filtrar localidades
+  const handleLocalitySearch = (value) => {
+    setLocalityInput(value);
+    const filtered = localities.filter((locality) =>
+      locality.toLowerCase().includes(value.toLowerCase())
+    );
+    setFilteredLocalities(filtered);
+    setShowLocalityResults(true);
+  };
+
+  // Función para seleccionar provincia
+  const selectProvince = (province) => {
+    setProvinceInput(province.nombre);
+    setSelectedProvince(province.id);
+    setShowProvinceResults(false);
+  };
+
+  // Función para seleccionar localidad
+  const selectLocality = (locality) => {
+    setLocalityInput(locality);
+    setShowLocalityResults(false);
+  };
+
+  const handleInputChange = (e) => {
+    const { id, value } = e.target;
+    // Convertir a mayúsculas solo los campos de texto, no email ni teléfono
+    if (["apellido", "nombre", "dni"].includes(id)) {
+      setFormData({
+        ...formData,
+        [id]: value.toUpperCase(),
+      });
+    } else {
+      setFormData({
+        ...formData,
+        [id]: value,
+      });
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-blue-950 p-4">
+      <div className="max-w-lg mx-auto bg-white rounded-lg shadow-lg p-6 relative">
+        <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">
+          Formulario de Registro
+        </h2>
+
+        <p className="text-red-600 text-sm mb-4">
+          * Todos los campos son obligatorios
+        </p>
+
+        <form className="space-y-4">
+          <div>
+            <label
+              htmlFor="apellido"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Apellido
+            </label>
+            <input
+              type="text"
+              id="apellido"
+              required
+              value={formData.apellido}
+              onChange={handleInputChange}
+              autoComplete="off"
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-800 placeholder:text-sm placeholder-gray-400 p-2"
+              placeholder="INGRESE SU APELLIDO"
             />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+          </div>
+
+          <div>
+            <label
+              htmlFor="nombre"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Nombre
+            </label>
+            <input
+              type="text"
+              id="nombre"
+              required
+              value={formData.nombre}
+              onChange={handleInputChange}
+              autoComplete="off"
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-800 placeholder:text-sm placeholder-gray-400 p-2"
+              placeholder="INGRESE SU NOMBRE"
+            />
+          </div>
+
+          <div>
+            <label
+              htmlFor="dni"
+              className="block text-sm font-medium text-gray-700"
+            >
+              DNI
+            </label>
+            <input
+              type="text"
+              id="dni"
+              required
+              value={formData.dni}
+              onChange={handleInputChange}
+              autoComplete="off"
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-800 placeholder:text-sm placeholder-gray-400 p-2"
+              placeholder="INGRESE SU DNI"
+            />
+          </div>
+
+          <div className="relative">
+            <label
+              htmlFor="provincia"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Provincia
+            </label>
+            <input
+              type="text"
+              id="provincia"
+              required
+              value={provinceInput}
+              onChange={(e) => handleProvinceSearch(e.target.value)}
+              onFocus={() => setShowProvinceResults(true)}
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-800 placeholder-gray-400 p-2"
+              placeholder="Buscar provincia..."
+            />
+            {showProvinceResults && filteredProvinces.length > 0 && (
+              <div className="absolute z-10 w-full left-0 bg-white mt-1 rounded-md shadow-lg max-h-40 overflow-auto border border-gray-300">
+                {filteredProvinces.map((province) => (
+                  <div
+                    key={province.id}
+                    onClick={() => selectProvince(province)}
+                    className="p-2 hover:bg-blue-50 cursor-pointer text-gray-800 border-b border-gray-100"
+                  >
+                    {province.nombre}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {selectedProvince && (
+            <div className="relative">
+              <label
+                htmlFor="localidad"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Localidad
+              </label>
+              <input
+                type="text"
+                id="localidad"
+                required
+                value={localityInput}
+                onChange={(e) => handleLocalitySearch(e.target.value)}
+                onFocus={() => setShowLocalityResults(true)}
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-800 placeholder-gray-400 p-2"
+                placeholder="Buscar localidad..."
+              />
+              {showLocalityResults && filteredLocalities.length > 0 && (
+                <div className="absolute z-10 w-full left-0 bg-white mt-1 rounded-md shadow-lg max-h-40 overflow-auto border border-gray-300">
+                  {filteredLocalities.map((locality, index) => (
+                    <div
+                      key={index}
+                      onClick={() => selectLocality(locality)}
+                      className="p-2 hover:bg-blue-50 cursor-pointer text-gray-800 border-b border-gray-100"
+                    >
+                      {locality}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Género
+            </label>
+            <select
+              id="genero"
+              required
+              value={formData.genero}
+              onChange={handleInputChange}
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-800 p-2"
+            >
+              <option value="">SELECCIONE UN GÉNERO</option>
+              <option value="MASCULINO">MASCULINO</option>
+              <option value="FEMENINO">FEMENINO</option>
+              <option value="OTRO">OTRO</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Email
+            </label>
+            <input
+              type="email"
+              id="email"
+              required
+              value={formData.email}
+              onChange={handleInputChange}
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-800 placeholder-gray-400 p-2"
+              placeholder="ejemplo@correo.com"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Teléfono
+            </label>
+            <input
+              type="tel"
+              id="telefono"
+              required
+              value={formData.telefono}
+              onChange={handleInputChange}
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-800 placeholder-gray-400 p-2"
+              placeholder="Ej: 11-1234-5678"
+            />
+          </div>
+
+          <button
+            type="submit"
+            className="w-full bg-blue-950 text-white rounded-md py-2 px-4 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
           >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+            Enviar
+          </button>
+        </form>
+      </div>
     </div>
   );
 }
