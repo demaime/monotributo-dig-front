@@ -1,16 +1,13 @@
 import React, { useState, useEffect } from "react";
+import { useRouter } from "next/router";
+import Output from "./output";
 
 export default function Home() {
-  const [provinces, setProvinces] = useState([]); // Lista de provincias
-  const [localities, setLocalities] = useState([]); // Lista de localidades según la provincia seleccionada
-  const [selectedProvince, setSelectedProvince] = useState(""); // Cambiar a ID de provincia en lugar del nombre
-  const [searchLocalidad, setSearchLocalidad] = useState("");
-  const [filteredProvinces, setFilteredProvinces] = useState([]);
-  const [filteredLocalities, setFilteredLocalities] = useState([]);
-  const [showProvinceResults, setShowProvinceResults] = useState(false);
-  const [showLocalityResults, setShowLocalityResults] = useState(false);
-  const [provinceInput, setProvinceInput] = useState("");
-  const [localityInput, setLocalityInput] = useState("");
+  const router = useRouter();
+  const [provinces, setProvinces] = useState([]); // Lista completa de provincias
+  const [localities, setLocalities] = useState([]); // Lista de localidades de la provincia seleccionada
+  const [selectedProvince, setSelectedProvince] = useState(""); // ID de la provincia seleccionada
+  const [localityInput, setLocalityInput] = useState(""); // Valor del input de localidad
   const [formData, setFormData] = useState({
     apellido: "",
     nombre: "",
@@ -72,62 +69,82 @@ export default function Home() {
     }
   }, [selectedProvince]);
 
-  // Función para filtrar provincias
-  const handleProvinceSearch = (value) => {
-    setProvinceInput(value);
-    const filtered = provinces.filter((province) =>
-      province.nombre.toLowerCase().includes(value.toLowerCase())
-    );
-    setFilteredProvinces(filtered);
-    setShowProvinceResults(true);
+  // Agregar estas funciones de validación
+  const validateEmail = (email) => {
+    const regex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+    return regex.test(email);
   };
 
-  // Función para filtrar localidades
-  const handleLocalitySearch = (value) => {
-    setLocalityInput(value);
-    const filtered = localities.filter((locality) =>
-      locality.toLowerCase().includes(value.toLowerCase())
-    );
-    setFilteredLocalities(filtered);
-    setShowLocalityResults(true);
+  const validatePhone = (phone) => {
+    const regex = /^[0-9]{10}$/; // Acepta exactamente 10 dígitos
+    return regex.test(phone);
   };
 
-  // Función para seleccionar provincia
-  const selectProvince = (province) => {
-    setProvinceInput(province.nombre);
-    setSelectedProvince(province.id);
-    setShowProvinceResults(false);
+  const validateName = (name) => {
+    const regex = /^[a-zA-ZáéíóúüñÁÉÍÓÚÜÑ\s'-]+$/; // Letras, espacios, guiones y apóstrofes
+    return regex.test(name);
   };
 
-  // Función para seleccionar localidad
-  const selectLocality = (locality) => {
-    setLocalityInput(locality);
-    setShowLocalityResults(false);
-  };
-
+  // Modificar la función handleInputChange
   const handleInputChange = (e) => {
     const { id, value } = e.target;
-    // Convertir a mayúsculas solo los campos de texto, no email ni teléfono
-    if (["apellido", "nombre", "dni"].includes(id)) {
-      setFormData({
-        ...formData,
-        [id]: value.toUpperCase(),
-      });
-    } else {
-      setFormData({
-        ...formData,
-        [id]: value,
-      });
+
+    // Validaciones específicas por campo
+    switch (id) {
+      case "telefono":
+        if (value === "" || /^[0-9]*$/.test(value)) {
+          setFormData({ ...formData, [id]: value });
+        }
+        break;
+
+      case "apellido":
+      case "nombre":
+        if (value === "" || validateName(value)) {
+          setFormData({ ...formData, [id]: value.toUpperCase() });
+        }
+        break;
+
+      case "dni":
+        if (value === "" || /^[0-9]*$/.test(value)) {
+          setFormData({ ...formData, [id]: value });
+        }
+        break;
+
+      default:
+        setFormData({ ...formData, [id]: value });
     }
   };
 
+  // Modificar la función handleSubmit
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Validaciones antes de enviar
+    if (!validateName(formData.apellido)) {
+      alert("El apellido solo puede contener letras, espacios y guiones");
+      return;
+    }
+    if (!validateName(formData.nombre)) {
+      alert("El nombre solo puede contener letras, espacios y guiones");
+      return;
+    }
+    if (!/^[0-9]{7,8}$/.test(formData.dni)) {
+      alert("El DNI debe contener entre 7 y 8 números");
+      return;
+    }
+    if (!validateEmail(formData.email)) {
+      alert("Por favor ingrese un email válido");
+      return;
+    }
+    if (!validatePhone(formData.telefono)) {
+      alert("El teléfono debe contener 10 números");
+      return;
+    }
 
     // Validar que todos los campos estén completos
     const formFields = {
       ...formData,
-      provincia: provinceInput,
+      provincia: selectedProvince,
       localidad: localityInput,
     };
 
@@ -146,19 +163,7 @@ export default function Home() {
       });
 
       if (response.ok) {
-        alert("Formulario enviado exitosamente");
-        // Limpiar el formulario
-        setFormData({
-          apellido: "",
-          nombre: "",
-          dni: "",
-          email: "",
-          telefono: "",
-          genero: "",
-        });
-        setProvinceInput("");
-        setLocalityInput("");
-        setSelectedProvince("");
+        router.push("/output");
       } else {
         throw new Error("Error al enviar el formulario");
       }
@@ -169,7 +174,7 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-blue-950 p-4">
+    <div className="min-h-screen bg-blue p-4 text-sm">
       <div className="max-w-lg mx-auto bg-white rounded-lg shadow-lg p-6 relative">
         <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">
           Formulario de Registro
@@ -194,8 +199,8 @@ export default function Home() {
               value={formData.apellido}
               onChange={handleInputChange}
               autoComplete="off"
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-800 placeholder:text-sm placeholder-gray-400 p-2"
-              placeholder="INGRESE SU APELLIDO"
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-800 placeholder:text-xs placeholder-gray-400 p-2"
+              placeholder="Ingrese su apellido"
             />
           </div>
 
@@ -213,8 +218,8 @@ export default function Home() {
               value={formData.nombre}
               onChange={handleInputChange}
               autoComplete="off"
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-800 placeholder:text-sm placeholder-gray-400 p-2"
-              placeholder="INGRESE SU NOMBRE"
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-800 placeholder:text-xs placeholder-gray-400 p-2"
+              placeholder="Ingrese su nombre"
             />
           </div>
 
@@ -232,74 +237,58 @@ export default function Home() {
               value={formData.dni}
               onChange={handleInputChange}
               autoComplete="off"
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-800 placeholder:text-sm placeholder-gray-400 p-2"
-              placeholder="INGRESE SU DNI"
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-800 placeholder:text-xs placeholder-gray-400 p-2"
+              placeholder="Ingrese su DNI"
             />
           </div>
 
-          <div className="relative">
+          <div>
             <label
               htmlFor="provincia"
               className="block text-sm font-medium text-gray-700"
             >
               Provincia
             </label>
-            <input
-              type="text"
+            <select
               id="provincia"
               required
-              value={provinceInput}
-              onChange={(e) => handleProvinceSearch(e.target.value)}
-              onFocus={() => setShowProvinceResults(true)}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-800 placeholder-gray-400 p-2"
-              placeholder="Buscar provincia..."
-            />
-            {showProvinceResults && filteredProvinces.length > 0 && (
-              <div className="absolute z-10 w-full left-0 bg-white mt-1 rounded-md shadow-lg max-h-40 overflow-auto border border-gray-300">
-                {filteredProvinces.map((province) => (
-                  <div
-                    key={province.id}
-                    onClick={() => selectProvince(province)}
-                    className="p-2 hover:bg-blue-50 cursor-pointer text-gray-800 border-b border-gray-100"
-                  >
-                    {province.nombre}
-                  </div>
-                ))}
-              </div>
-            )}
+              value={selectedProvince}
+              onChange={(e) => {
+                setSelectedProvince(e.target.value);
+              }}
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-800 p-2"
+            >
+              <option value="">Seleccione una provincia</option>
+              {provinces.map((province) => (
+                <option key={province.id} value={province.id}>
+                  {province.nombre}
+                </option>
+              ))}
+            </select>
           </div>
 
           {selectedProvince && (
-            <div className="relative">
+            <div>
               <label
                 htmlFor="localidad"
                 className="block text-sm font-medium text-gray-700"
               >
                 Localidad
               </label>
-              <input
-                type="text"
+              <select
                 id="localidad"
                 required
                 value={localityInput}
-                onChange={(e) => handleLocalitySearch(e.target.value)}
-                onFocus={() => setShowLocalityResults(true)}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-800 placeholder-gray-400 p-2"
-                placeholder="Buscar localidad..."
-              />
-              {showLocalityResults && filteredLocalities.length > 0 && (
-                <div className="absolute z-10 w-full left-0 bg-white mt-1 rounded-md shadow-lg max-h-40 overflow-auto border border-gray-300">
-                  {filteredLocalities.map((locality, index) => (
-                    <div
-                      key={index}
-                      onClick={() => selectLocality(locality)}
-                      className="p-2 hover:bg-blue-50 cursor-pointer text-gray-800 border-b border-gray-100"
-                    >
-                      {locality}
-                    </div>
-                  ))}
-                </div>
-              )}
+                onChange={(e) => setLocalityInput(e.target.value)}
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-800 p-2"
+              >
+                <option value="">Seleccione una localidad</option>
+                {localities.map((locality, index) => (
+                  <option key={index} value={locality}>
+                    {locality}
+                  </option>
+                ))}
+              </select>
             </div>
           )}
 
@@ -314,10 +303,10 @@ export default function Home() {
               onChange={handleInputChange}
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-800 p-2"
             >
-              <option value="">SELECCIONE UN GÉNERO</option>
-              <option value="MASCULINO">MASCULINO</option>
-              <option value="FEMENINO">FEMENINO</option>
-              <option value="OTRO">OTRO</option>
+              <option value="">Seleccione un género</option>
+              <option value="MASCULINO">Masculino</option>
+              <option value="FEMENINO">Femenino</option>
+              <option value="OTRO">Otro</option>
             </select>
           </div>
 
@@ -331,7 +320,7 @@ export default function Home() {
               required
               value={formData.email}
               onChange={handleInputChange}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-800 placeholder-gray-400 p-2"
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-800 placeholder:text-xs placeholder-gray-400 p-2"
               placeholder="ejemplo@correo.com"
             />
           </div>
@@ -346,14 +335,14 @@ export default function Home() {
               required
               value={formData.telefono}
               onChange={handleInputChange}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-800 placeholder-gray-400 p-2"
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-800 placeholder:text-xs placeholder-gray-400 p-2"
               placeholder="Ej: 11-1234-5678"
             />
           </div>
 
           <button
             type="submit"
-            className="w-full bg-blue-950 text-white rounded-md py-2 px-4 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            className="w-full bg-blue text-white rounded-md py-2 px-4 hover:bg-green focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
           >
             Enviar
           </button>
