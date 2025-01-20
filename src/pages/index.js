@@ -121,6 +121,53 @@ export default function Home() {
     }
   };
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    // Validar que todos los campos estén completos
+    const formFields = {
+      ...formData,
+      provincia: provinceInput,
+      localidad: localityInput,
+    };
+
+    if (Object.values(formFields).some((field) => field === "")) {
+      alert("Por favor complete todos los campos");
+      return;
+    }
+
+    try {
+      const response = await fetch("/api/submit-form", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formFields),
+      });
+
+      if (response.ok) {
+        alert("Formulario enviado exitosamente");
+        // Limpiar el formulario
+        setFormData({
+          apellido: "",
+          nombre: "",
+          dni: "",
+          email: "",
+          telefono: "",
+          genero: "",
+        });
+        setProvinceInput("");
+        setLocalityInput("");
+        setSelectedProvince("");
+      } else {
+        throw new Error("Error al enviar el formulario");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      alert("Error al enviar el formulario");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-blue-950 p-4">
       <div className="max-w-lg mx-auto bg-white rounded-lg shadow-lg p-6 relative">
@@ -132,7 +179,7 @@ export default function Home() {
           * Todos los campos son obligatorios
         </p>
 
-        <form className="space-y-4">
+        <form className="space-y-4" onSubmit={handleSubmit}>
           <div>
             <label
               htmlFor="apellido"
