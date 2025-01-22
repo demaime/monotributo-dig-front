@@ -1,353 +1,85 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
+
+import { ArrowRight, BarChart2, LineChart, PieChart } from "lucide-react";
 import { useRouter } from "next/router";
-import Output from "./output";
 
-export default function Home() {
+function App() {
   const router = useRouter();
-  const [provinces, setProvinces] = useState([]); // Lista completa de provincias
-  const [localities, setLocalities] = useState([]); // Lista de localidades de la provincia seleccionada
-  const [selectedProvince, setSelectedProvince] = useState(""); // ID de la provincia seleccionada
-  const [localityInput, setLocalityInput] = useState(""); // Valor del input de localidad
-  const [formData, setFormData] = useState({
-    apellido: "",
-    nombre: "",
-    dni: "",
-    email: "",
-    telefono: "",
-    genero: "",
-  });
-
-  // Cargar las provincias al montar el componente
-  useEffect(() => {
-    const fetchProvinces = async () => {
-      try {
-        const response = await fetch(
-          "https://apis.datos.gob.ar/georef/api/provincias"
-        );
-        const data = await response.json();
-        setProvinces(
-          data.provincias.sort((a, b) => a.nombre.localeCompare(b.nombre))
-        ); // Ordenar provincias alfabéticamente
-      } catch (error) {
-        console.error("Error al cargar las provincias:", error);
-      }
-    };
-    fetchProvinces();
-  }, []);
-
-  // Cargar las localidades cada vez que cambia la provincia seleccionada
-  useEffect(() => {
-    if (selectedProvince) {
-      const fetchLocalities = async () => {
-        try {
-          const response = await fetch(
-            `https://apis.datos.gob.ar/georef/api/localidades?provincia=${selectedProvince}&campos=nombre,departamento&max=1000`
-          );
-          const data = await response.json();
-
-          // Procesar localidades y eliminar duplicados usando Set
-          const localitiesSet = new Set(
-            data.localidades.map((locality) => {
-              const department = locality.departamento
-                ? locality.departamento.nombre
-                : "";
-              return department
-                ? `${locality.nombre} (${department})`
-                : locality.nombre;
-            })
-          );
-
-          // Convertir Set a Array y ordenar
-          setLocalities([...localitiesSet].sort());
-        } catch (error) {
-          console.error("Error al cargar las localidades:", error);
-        }
-      };
-      fetchLocalities();
-    } else {
-      setLocalities([]);
-    }
-  }, [selectedProvince]);
-
-  // Agregar estas funciones de validación
-  const validateEmail = (email) => {
-    const regex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
-    return regex.test(email);
-  };
-
-  const validatePhone = (phone) => {
-    const regex = /^[0-9]{10}$/; // Acepta exactamente 10 dígitos
-    return regex.test(phone);
-  };
-
-  const validateName = (name) => {
-    const regex = /^[a-zA-ZáéíóúüñÁÉÍÓÚÜÑ\s'-]+$/; // Letras, espacios, guiones y apóstrofes
-    return regex.test(name);
-  };
-
-  // Modificar la función handleInputChange
-  const handleInputChange = (e) => {
-    const { id, value } = e.target;
-
-    // Validaciones específicas por campo
-    switch (id) {
-      case "telefono":
-        if (value === "" || /^[0-9]*$/.test(value)) {
-          setFormData({ ...formData, [id]: value });
-        }
-        break;
-
-      case "apellido":
-      case "nombre":
-        if (value === "" || validateName(value)) {
-          setFormData({ ...formData, [id]: value.toUpperCase() });
-        }
-        break;
-
-      case "dni":
-        if (value === "" || /^[0-9]*$/.test(value)) {
-          setFormData({ ...formData, [id]: value });
-        }
-        break;
-
-      default:
-        setFormData({ ...formData, [id]: value });
-    }
-  };
-
-  // Modificar la función handleSubmit
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    // Validaciones antes de enviar
-    if (!validateName(formData.apellido)) {
-      alert("El apellido solo puede contener letras, espacios y guiones");
-      return;
-    }
-    if (!validateName(formData.nombre)) {
-      alert("El nombre solo puede contener letras, espacios y guiones");
-      return;
-    }
-    if (!/^[0-9]{7,8}$/.test(formData.dni)) {
-      alert("El DNI debe contener entre 7 y 8 números");
-      return;
-    }
-    if (!validateEmail(formData.email)) {
-      alert("Por favor ingrese un email válido");
-      return;
-    }
-    if (!validatePhone(formData.telefono)) {
-      alert("El teléfono debe contener 10 números");
-      return;
-    }
-
-    // Validar que todos los campos estén completos
-    const formFields = {
-      ...formData,
-      provincia: selectedProvince,
-      localidad: localityInput,
-    };
-
-    if (Object.values(formFields).some((field) => field === "")) {
-      alert("Por favor complete todos los campos");
-      return;
-    }
-
-    try {
-      const response = await fetch("/api/submit-form", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formFields),
-      });
-
-      if (response.ok) {
-        router.push("/output");
-      } else {
-        throw new Error("Error al enviar el formulario");
-      }
-    } catch (error) {
-      console.error("Error:", error);
-      alert("Error al enviar el formulario");
-    }
-  };
 
   return (
-    <div className="min-h-screen bg-blue p-4 text-sm">
-      <div className="max-w-lg mx-auto bg-white rounded-lg shadow-lg p-6 relative">
-        <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">
-          Formulario de Registro
-        </h2>
+    <div className="min-h-screen bg-gradient-to-br from-[#072a30] to-[#43d685]/90 relative overflow-hidden">
+      {/* Background blur circles */}
+      <div className="absolute top-[-20%] left-[-10%] w-[500px] h-[500px] rounded-full bg-[#43d685]/30 blur-[120px]" />
+      <div className="absolute bottom-[-20%] right-[-10%] w-[500px] h-[500px] rounded-full bg-[#072a30]/30 blur-[120px]" />
 
-        <p className="text-red-600 text-sm mb-4">
-          * Todos los campos son obligatorios
-        </p>
+      {/* Content container */}
+      <div className="relative z-10 container mx-auto px-4 py-10">
+        <nav className="flex justify-between items-center mb-20">
+          <div className="text-white font-bold text-2xl flex items-center gap-2">
+            <BarChart2 className="w-8 h-8" />
+            Encuestas 2025
+          </div>
+        </nav>
 
-        <form className="space-y-4" onSubmit={handleSubmit}>
-          <div>
-            <label
-              htmlFor="apellido"
-              className="block text-sm font-medium text-gray-700"
+        <div className="grid lg:grid-cols-2 gap-12 items-center">
+          <div className="space-y-8">
+            <h1 className="text-5xl lg:text-7xl font-bold text-white leading-tight">
+              Tu opinión tiene poder. Sumate.
+            </h1>
+            <p className="text-xl text-white/80 flex flex-col">
+              Participá en el relevamiento online más grande y significativo del
+              país. <strong>Tu opinión cuenta.</strong>
+            </p>
+            <button
+              onClick={() => router.push("/registro")}
+              className="group flex items-center gap-2 bg-white text-[#072a30] px-8 py-4 rounded-full font-semibold text-lg hover:bg-[#43d685] hover:text-white transition-all duration-300"
             >
-              Apellido
-            </label>
-            <input
-              type="text"
-              id="apellido"
-              required
-              value={formData.apellido}
-              onChange={handleInputChange}
-              autoComplete="off"
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-800 placeholder:text-xs placeholder-gray-400 p-2"
-              placeholder="Ingrese su apellido"
-            />
+              Registrarme
+              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+            </button>
           </div>
 
-          <div>
-            <label
-              htmlFor="nombre"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Nombre
-            </label>
-            <input
-              type="text"
-              id="nombre"
-              required
-              value={formData.nombre}
-              onChange={handleInputChange}
-              autoComplete="off"
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-800 placeholder:text-xs placeholder-gray-400 p-2"
-              placeholder="Ingrese su nombre"
-            />
-          </div>
+          <div className="relative">
+            <div className="absolute inset-0 bg-gradient-to-r from-[#43d685]/10 to-transparent blur-2xl rounded-full" />
+            <div className="relative bg-white/10 backdrop-blur-lg rounded-2xl p-8 border border-white/20">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div className="space-y-4 p-6 bg-white/5 rounded-xl">
+                  <LineChart className="w-8 h-8 text-[#43d685]" />
+                  <div className="flex"></div>
 
-          <div>
-            <label
-              htmlFor="dni"
-              className="block text-sm font-medium text-gray-700"
-            >
-              DNI
-            </label>
-            <input
-              type="text"
-              id="dni"
-              required
-              value={formData.dni}
-              onChange={handleInputChange}
-              autoComplete="off"
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-800 placeholder:text-xs placeholder-gray-400 p-2"
-              placeholder="Ingrese su DNI"
-            />
-          </div>
+                  <h3 className="text-white font-semibold">
+                    Resultados analíticos{" "}
+                  </h3>
+                  <p className="text-white/70 text-sm">
+                    Informese con los resultados de las encuestas.
+                  </p>
+                </div>
+                <div className="space-y-4 p-6 bg-white/5 rounded-xl">
+                  <PieChart className="w-8 h-8 text-[#43d685]" />
 
-          <div>
-            <label
-              htmlFor="provincia"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Provincia
-            </label>
-            <select
-              id="provincia"
-              required
-              value={selectedProvince}
-              onChange={(e) => {
-                setSelectedProvince(e.target.value);
-              }}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-800 p-2"
-            >
-              <option value="">Seleccione una provincia</option>
-              {provinces.map((province) => (
-                <option key={province.id} value={province.id}>
-                  {province.nombre}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {selectedProvince && (
-            <div>
-              <label
-                htmlFor="localidad"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Localidad
-              </label>
-              <select
-                id="localidad"
-                required
-                value={localityInput}
-                onChange={(e) => setLocalityInput(e.target.value)}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-800 p-2"
-              >
-                <option value="">Seleccione una localidad</option>
-                {localities.map((locality, index) => (
-                  <option key={index} value={locality}>
-                    {locality}
-                  </option>
-                ))}
-              </select>
+                  <div className="flex"></div>
+                  <h3 className="text-white font-semibold">
+                    Posicionamiento político{" "}
+                  </h3>
+                  <p className="text-white/70 text-sm">
+                    Descubra sus estadísticas dentro del total encuestado{" "}
+                  </p>
+                </div>
+              </div>
+              <div className="mt-6 p-6 bg-white/5 rounded-xl">
+                <img
+                  src="/assets/congreso.jpg"
+                  alt="Elecciones legislativas 2025"
+                  className="rounded-lg w-full h-48 object-cover"
+                  style={{ objectPosition: "center 35%" }}
+                />
+              </div>
             </div>
-          )}
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Género
-            </label>
-            <select
-              id="genero"
-              required
-              value={formData.genero}
-              onChange={handleInputChange}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-800 p-2"
-            >
-              <option value="">Seleccione un género</option>
-              <option value="MASCULINO">Masculino</option>
-              <option value="FEMENINO">Femenino</option>
-              <option value="OTRO">Otro</option>
-            </select>
           </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Email
-            </label>
-            <input
-              type="email"
-              id="email"
-              required
-              value={formData.email}
-              onChange={handleInputChange}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-800 placeholder:text-xs placeholder-gray-400 p-2"
-              placeholder="ejemplo@correo.com"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Teléfono
-            </label>
-            <input
-              type="tel"
-              id="telefono"
-              required
-              value={formData.telefono}
-              onChange={handleInputChange}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-800 placeholder:text-xs placeholder-gray-400 p-2"
-              placeholder="Ej: 11-1234-5678"
-            />
-          </div>
-
-          <button
-            type="submit"
-            className="w-full bg-blue text-white rounded-md py-2 px-4 hover:bg-green focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-          >
-            Enviar
-          </button>
-        </form>
+        </div>
       </div>
     </div>
   );
 }
+
+export default App;
