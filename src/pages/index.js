@@ -31,7 +31,7 @@ function App() {
               país. <strong>Tu opinión cuenta.</strong>
             </p>
             <button
-              onClick={() => router.push("/registro")}
+              onClick={() => router.push("/autenticar")}
               className="group flex items-center gap-2 bg-white text-[#072a30] px-8 py-4 rounded-full font-semibold text-lg hover:bg-[#43d685] hover:text-white transition-all duration-300"
             >
               Registrarme

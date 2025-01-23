@@ -7,6 +7,7 @@ import {
   Mail,
   Users,
 } from "lucide-react";
+import { useRouter } from "next/router";
 
 function Registro() {
   const [provinces, setProvinces] = useState([]);
@@ -24,6 +25,8 @@ function Registro() {
 
   const [localitiesCache, setLocalitiesCache] = useState({});
   const [isLoading, setIsLoading] = useState(false);
+
+  const router = useRouter();
 
   const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -125,6 +128,15 @@ function Registro() {
     fetchLocalities();
   }, [selectedProvince, isLoading]);
 
+  useEffect(() => {
+    const storedDni = localStorage.getItem("tempDni");
+    if (storedDni) {
+      setFormData((prev) => ({ ...prev, dni: storedDni }));
+    } else {
+      router.push("/autenticar");
+    }
+  }, []);
+
   const validateEmail = (email) => {
     const regex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
     return regex.test(email);
@@ -213,6 +225,7 @@ function Registro() {
       });
 
       if (response.ok) {
+        localStorage.removeItem("tempDni");
         window.location.href = "/output";
       } else {
         throw new Error("Error al enviar el formulario");
@@ -293,10 +306,8 @@ function Registro() {
                   id="dni"
                   required
                   value={formData.dni}
-                  onChange={handleInputChange}
-                  autoComplete="off"
-                  className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white placeholder:text-white/50 focus:border-[#43d685] focus:ring-1 focus:ring-[#43d685] transition-colors"
-                  placeholder="Ingrese su DNI"
+                  readOnly
+                  className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white placeholder:text-white/50 focus:border-[#43d685] focus:ring-1 focus:ring-[#43d685] transition-colors cursor-not-allowed opacity-70"
                 />
               </div>
 
