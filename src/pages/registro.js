@@ -153,11 +153,26 @@ function Registro() {
 
   useEffect(() => {
     const loadRecaptcha = () => {
+      if (document.querySelector('script[src*="recaptcha"]')) {
+        return;
+      }
+
       const script = document.createElement("script");
       script.src = `https://www.google.com/recaptcha/api.js?render=${process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY}`;
       script.async = true;
-      document.body.appendChild(script);
+      script.defer = true;
+
+      script.onerror = () => {
+        console.error("Error loading reCAPTCHA script");
+      };
+
+      script.onload = () => {
+        console.log("reCAPTCHA script loaded successfully");
+      };
+
+      document.head.appendChild(script);
     };
+
     loadRecaptcha();
   }, []);
 
@@ -307,6 +322,11 @@ function Registro() {
       username.charAt(username.length - 1);
     return `${maskedUsername}@${domain}`;
   };
+
+  console.log(
+    "RECAPTCHA_SITE_KEY:",
+    !!process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY
+  );
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#072a30] to-[#43d685]/90 relative overflow-hidden">
