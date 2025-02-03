@@ -5,6 +5,16 @@ function Output() {
   const [countdown, setCountdown] = useState(5);
 
   useEffect(() => {
+    // Verificar si viene de un registro exitoso
+    const registroExitoso = localStorage.getItem("registroExitoso");
+    if (!registroExitoso) {
+      window.location.href = "/";
+      return;
+    }
+
+    // Limpiar el flag después de verificarlo
+    localStorage.removeItem("registroExitoso");
+
     // Prevent back navigation
     window.history.pushState(null, "", window.location.href);
     const handlePopState = function (event) {

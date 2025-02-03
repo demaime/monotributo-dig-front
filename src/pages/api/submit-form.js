@@ -13,8 +13,20 @@ export default async function handler(req, res) {
     const db = client.db(process.env.MONGODB_DB);
 
     const data = req.body;
-    const result = await db.collection("registros").insertOne(data);
 
+    // Verificar si el DNI ya existe
+    const existingUser = await db
+      .collection("registros")
+      .findOne({ dni: data.dni });
+    if (existingUser) {
+      return res.status(409).json({
+        message: "Ya existe un registro con este DNI",
+        email: existingUser.email,
+      });
+    }
+
+    // Si no existe, crear el nuevo registro
+    const result = await db.collection("registros").insertOne(data);
     res
       .status(201)
       .json({ message: "Registro creado exitosamente", id: result.insertedId });
