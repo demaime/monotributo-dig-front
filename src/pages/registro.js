@@ -6,6 +6,7 @@ import {
   Phone,
   Mail,
   Users,
+  AlertCircle,
 } from "lucide-react";
 import { useRouter } from "next/router";
 
@@ -305,33 +306,24 @@ function Registro() {
                 </p>
 
                 <form className="space-y-6" onSubmit={handleSubmit}>
-                  <div className="grid md:grid-cols-2 gap-6">
-                    <div>
-                      <label className="block text-white text-sm font-medium mb-2">
-                        <div className="flex items-center gap-2">
-                          <UserRound className="w-4 h-4" />
-                          Apellido
-                        </div>
-                      </label>
-                      <input
-                        type="text"
-                        id="apellido"
-                        required
-                        value={formData.apellido}
-                        onChange={handleInputChange}
-                        autoComplete="off"
-                        className={`w-full bg-white/5 border ${
-                          errors.apellido ? "border-red-500" : "border-white/10"
-                        } rounded-lg px-4 py-2.5 text-white placeholder:text-white/50 focus:border-[#43d685] focus:ring-1 focus:ring-[#43d685] transition-colors`}
-                        placeholder="Ingrese su apellido"
-                      />
-                      {errors.apellido && (
-                        <p className="text-red-400 text-sm mt-1">
-                          {errors.apellido}
-                        </p>
-                      )}
-                    </div>
+                  <div>
+                    <label className="block text-white text-sm font-medium mb-2">
+                      <div className="flex items-center gap-2">
+                        <UserRound className="w-4 h-4" />
+                        DNI
+                      </div>
+                    </label>
+                    <input
+                      type="text"
+                      id="dni"
+                      required
+                      value={formData.dni}
+                      readOnly
+                      className="w-full bg-white/20 border border-white/10 rounded-lg px-4 py-2.5 text-gray-300 placeholder:text-white/50 focus:border-[#43d685] focus:ring-1 focus:ring-[#43d685] transition-colors cursor-not-allowed"
+                    />
+                  </div>
 
+                  <div className="grid md:grid-cols-2 gap-6">
                     <div>
                       <label className="block text-white text-sm font-medium mb-2">
                         <div className="flex items-center gap-2">
@@ -352,28 +344,39 @@ function Registro() {
                         placeholder="Ingrese su nombre"
                       />
                       {errors.nombre && (
-                        <p className="text-red-400 text-sm mt-1">
+                        <p className="flex items-center gap-2 text-red-100 bg-red-900/20 px-3 py-1 rounded-md mt-2 text-sm font-medium">
+                          <AlertCircle className="w-4 h-4" />
                           {errors.nombre}
                         </p>
                       )}
                     </div>
-                  </div>
 
-                  <div>
-                    <label className="block text-white text-sm font-medium mb-2">
-                      <div className="flex items-center gap-2">
-                        <UserRound className="w-4 h-4" />
-                        DNI
-                      </div>
-                    </label>
-                    <input
-                      type="text"
-                      id="dni"
-                      required
-                      value={formData.dni}
-                      readOnly
-                      className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white placeholder:text-white/50 focus:border-[#43d685] focus:ring-1 focus:ring-[#43d685] transition-colors cursor-not-allowed opacity-70"
-                    />
+                    <div>
+                      <label className="block text-white text-sm font-medium mb-2">
+                        <div className="flex items-center gap-2">
+                          <UserRound className="w-4 h-4" />
+                          Apellido
+                        </div>
+                      </label>
+                      <input
+                        type="text"
+                        id="apellido"
+                        required
+                        value={formData.apellido}
+                        onChange={handleInputChange}
+                        autoComplete="off"
+                        className={`w-full bg-white/5 border ${
+                          errors.apellido ? "border-red-500" : "border-white/10"
+                        } rounded-lg px-4 py-2.5 text-white placeholder:text-white/50 focus:border-[#43d685] focus:ring-1 focus:ring-[#43d685] transition-colors`}
+                        placeholder="Ingrese su apellido"
+                      />
+                      {errors.apellido && (
+                        <p className="flex items-center gap-2 text-red-100 bg-red-900/20 px-3 py-1 rounded-md mt-2 text-sm font-medium">
+                          <AlertCircle className="w-4 h-4" />
+                          {errors.apellido}
+                        </p>
+                      )}
+                    </div>
                   </div>
 
                   <div className="grid md:grid-cols-2 gap-6">
@@ -466,7 +469,8 @@ function Registro() {
                       placeholder="ejemplo@correo.com"
                     />
                     {errors.email && (
-                      <p className="text-red-400 text-sm mt-1">
+                      <p className="flex items-center gap-2 text-red-100 bg-red-900/20 px-3 py-1 rounded-md mt-2 text-sm font-medium">
+                        <AlertCircle className="w-4 h-4" />
                         {errors.email}
                       </p>
                     )}
@@ -491,7 +495,8 @@ function Registro() {
                       placeholder="Ej: 1112345678"
                     />
                     {errors.telefono && (
-                      <p className="text-red-400 text-sm mt-1">
+                      <p className="flex items-center gap-2 text-red-100 bg-red-900/20 px-3 py-1 rounded-md mt-2 text-sm font-medium">
+                        <AlertCircle className="w-4 h-4" />
                         {errors.telefono}
                       </p>
                     )}
