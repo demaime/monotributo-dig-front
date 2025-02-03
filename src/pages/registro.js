@@ -38,6 +38,8 @@ function Registro() {
     genero: "",
   });
 
+  const [recaptchaToken, setRecaptchaToken] = useState(null);
+
   const router = useRouter();
 
   const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -149,6 +151,16 @@ function Registro() {
     }
   }, []);
 
+  useEffect(() => {
+    const loadRecaptcha = () => {
+      const script = document.createElement("script");
+      script.src = `https://www.google.com/recaptcha/api.js?render=${process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY}`;
+      script.async = true;
+      document.body.appendChild(script);
+    };
+    loadRecaptcha();
+  }, []);
+
   const validateEmail = (email) => {
     const regex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
     return regex.test(email);
@@ -195,63 +207,70 @@ function Registro() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Reset errors
-    setErrors({});
-    let hasErrors = false;
-    let newErrors = {};
-
-    if (!validateName(formData.apellido)) {
-      newErrors.apellido =
-        "El apellido solo puede contener letras, espacios y guiones";
-      hasErrors = true;
-    }
-    if (!validateName(formData.nombre)) {
-      newErrors.nombre =
-        "El nombre solo puede contener letras, espacios y guiones";
-      hasErrors = true;
-    }
-    if (!/^[0-9]{7,8}$/.test(formData.dni)) {
-      newErrors.dni = "El DNI debe contener entre 7 y 8 números";
-      hasErrors = true;
-    }
-    if (!validateEmail(formData.email)) {
-      newErrors.email = "Por favor ingrese un email válido";
-      hasErrors = true;
-    }
-    if (!validatePhone(formData.telefono)) {
-      newErrors.telefono = "El teléfono debe contener 10 números";
-      hasErrors = true;
-    }
-    if (!selectedProvince) {
-      newErrors.provincia = "Seleccione una provincia";
-      hasErrors = true;
-    }
-    if (!localityInput) {
-      newErrors.localidad = "Seleccione una localidad";
-      hasErrors = true;
-    }
-    if (!formData.genero) {
-      newErrors.genero = "Seleccione un género";
-      hasErrors = true;
-    }
-
-    if (hasErrors) {
-      setErrors(newErrors);
-      return;
-    }
-
-    const formFields = {
-      ...formData,
-      provincia: selectedProvince,
-      localidad: localityInput,
-    };
-
-    if (Object.values(formFields).some((field) => field === "")) {
-      alert("Por favor complete todos los campos");
-      return;
-    }
-
     try {
+      const token = await window.grecaptcha.execute(
+        process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY,
+        {
+          action: "submit",
+        }
+      );
+
+      setErrors({});
+      let hasErrors = false;
+      let newErrors = {};
+
+      if (!validateName(formData.apellido)) {
+        newErrors.apellido =
+          "El apellido solo puede contener letras, espacios y guiones";
+        hasErrors = true;
+      }
+      if (!validateName(formData.nombre)) {
+        newErrors.nombre =
+          "El nombre solo puede contener letras, espacios y guiones";
+        hasErrors = true;
+      }
+      if (!/^[0-9]{7,8}$/.test(formData.dni)) {
+        newErrors.dni = "El DNI debe contener entre 7 y 8 números";
+        hasErrors = true;
+      }
+      if (!validateEmail(formData.email)) {
+        newErrors.email = "Por favor ingrese un email válido";
+        hasErrors = true;
+      }
+      if (!validatePhone(formData.telefono)) {
+        newErrors.telefono = "El teléfono debe contener 10 números";
+        hasErrors = true;
+      }
+      if (!selectedProvince) {
+        newErrors.provincia = "Seleccione una provincia";
+        hasErrors = true;
+      }
+      if (!localityInput) {
+        newErrors.localidad = "Seleccione una localidad";
+        hasErrors = true;
+      }
+      if (!formData.genero) {
+        newErrors.genero = "Seleccione un género";
+        hasErrors = true;
+      }
+
+      if (hasErrors) {
+        setErrors(newErrors);
+        return;
+      }
+
+      const formFields = {
+        ...formData,
+        provincia: selectedProvince,
+        localidad: localityInput,
+        recaptchaToken: token,
+      };
+
+      if (Object.values(formFields).some((field) => field === "")) {
+        alert("Por favor complete todos los campos");
+        return;
+      }
+
       const response = await fetch("/api/submit-form", {
         method: "POST",
         headers: {
@@ -272,8 +291,11 @@ function Registro() {
         throw new Error(data.message || "Error al enviar el formulario");
       }
     } catch (error) {
-      console.error("Error:", error);
-      alert("Error al enviar el formulario. Por favor, intente nuevamente.");
+      console.error("Error al verificar reCAPTCHA:", error);
+      setErrors((prev) => ({
+        ...prev,
+        captcha: "Error al verificar reCAPTCHA",
+      }));
     }
   };
 
@@ -502,13 +524,22 @@ function Registro() {
                     )}
                   </div>
 
-                  <button
-                    type="submit"
-                    className="w-full bg-[#43d685] text-white rounded-lg py-3 px-4 font-medium hover:bg-[#43d685]/90 focus:outline-none focus:ring-2 focus:ring-[#43d685] focus:ring-offset-2 focus:ring-offset-[#072a30] transition-colors flex items-center justify-center gap-2 group"
-                  >
-                    Enviar
-                    <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                  </button>
+                  <div className="space-y-4">
+                    <div id="recaptcha" className="g-recaptcha"></div>
+                    {errors.captcha && (
+                      <p className="flex items-center gap-2 text-red-100 bg-red-900/20 px-3 py-1 rounded-md text-sm font-medium">
+                        <AlertCircle className="w-4 h-4" />
+                        {errors.captcha}
+                      </p>
+                    )}
+                    <button
+                      type="submit"
+                      className="w-full bg-[#43d685] text-white rounded-lg py-3 px-4 font-medium hover:bg-[#43d685]/90 focus:outline-none focus:ring-2 focus:ring-[#43d685] focus:ring-offset-2 focus:ring-offset-[#072a30] transition-colors flex items-center justify-center gap-2 group"
+                    >
+                      Enviar
+                      <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                    </button>
+                  </div>
                 </form>
               </>
             ) : (

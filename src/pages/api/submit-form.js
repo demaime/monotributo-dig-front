@@ -9,15 +9,37 @@ export default async function handler(req, res) {
   }
 
   try {
+    const { recaptchaToken, ...formData } = req.body;
+
+    // Verificar reCAPTCHA v3
+    const recaptchaResponse = await fetch(
+      "https://www.google.com/recaptcha/api/siteverify",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: `secret=${process.env.RECAPTCHA_SECRET_KEY}&response=${recaptchaToken}`,
+      }
+    );
+
+    const recaptchaData = await recaptchaResponse.json();
+
+    // En v3, además de verificar success, también deberías verificar el score
+    if (!recaptchaData.success || recaptchaData.score < 0.5) {
+      return res.status(400).json({
+        message:
+          "La verificación de reCAPTCHA falló. Por favor, intente nuevamente.",
+      });
+    }
+
     const client = await clientPromise;
     const db = client.db(process.env.MONGODB_DB);
-
-    const data = req.body;
 
     // Verificar si el DNI ya existe
     const existingUser = await db
       .collection("registros")
-      .findOne({ dni: data.dni });
+      .findOne({ dni: formData.dni });
     if (existingUser) {
       return res.status(409).json({
         message: "Ya existe un registro con este DNI",
@@ -26,7 +48,7 @@ export default async function handler(req, res) {
     }
 
     // Si no existe, crear el nuevo registro
-    const result = await db.collection("registros").insertOne(data);
+    const result = await db.collection("registros").insertOne(formData);
     res
       .status(201)
       .json({ message: "Registro creado exitosamente", id: result.insertedId });
