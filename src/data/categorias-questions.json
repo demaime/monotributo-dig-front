@@ -12,10 +12,15 @@
       "tipo": "seleccion",
       "descripcion": "Solo debes considerar los ingresos del Monotributo, no tengas en cuenta relación de dependencia o jubilación, etc.",
       "opciones": [
-        "Menos de $1.104.166,67",
-        "Entre $1.104.166,67 y $1.370.833,33",
-        "Entre $1.370.833,34 y $2.200.000,00",
-        "Más de $2.200.000,00"
+        "Menos de $1.414.762,58",
+        "Entre $1.414.762,58 y $2.103.613,77",
+        "Entre $2.103.613,77 y $2.944.406,27",
+        "Entre $2.944.406,27 y $3.656.603,38",
+        "Entre $3.656.603,38 y $4.305.799,15",
+        "Entre $4.305.799,15 y $5.011.724,62",
+        "Entre $5.011.724,62 y $5.646.559,47",
+        "Entre $5.646.559,47 y $6.304.729,33",
+        "Más de $6.304.729,33"
       ]
     },
     {

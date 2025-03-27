@@ -18,12 +18,12 @@ const CalcularCategoria = () => {
     switch (pregunta.tipo) {
       case "seleccion":
         return (
-          <div className="space-y-4">
+          <div className="space-y-4 overflow-y-auto overflow-x-hidden px-4">
             {pregunta.opciones.map((opcion, index) => (
               <motion.button
                 key={index}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
+                whileHover={{ scale: 1.01 }}
+                whileTap={{ scale: 0.99 }}
                 onClick={() => handleResponse(pregunta.id, opcion)}
                 className={`w-full text-left p-4 rounded-xl border transition-all ${
                   respuestas[pregunta.id] === opcion
@@ -39,26 +39,28 @@ const CalcularCategoria = () => {
 
       case "numero":
         return (
-          <input
-            type="number"
-            min={pregunta.min}
-            max={pregunta.max}
-            value={respuestas[pregunta.id] || ""}
-            onChange={(e) => handleResponse(pregunta.id, e.target.value)}
-            className="w-full bg-white/10 border border-white/20 rounded-xl p-4 text-white focus:outline-none focus:border-[#43d685] focus:ring-1 focus:ring-[#43d685]"
-          />
+          <div className="px-4">
+            <input
+              type="number"
+              min={pregunta.min}
+              max={pregunta.max}
+              value={respuestas[pregunta.id] || ""}
+              onChange={(e) => handleResponse(pregunta.id, e.target.value)}
+              className="w-full bg-white/10 border border-white/20 rounded-xl p-4 text-white focus:outline-none focus:border-[#43d685] focus:ring-1 focus:ring-[#43d685]"
+            />
+          </div>
         );
 
       case "checkbox":
         return (
-          <div className="space-y-4">
+          <div className="space-y-4 overflow-y-auto overflow-x-hidden px-4">
             {pregunta.opciones.map((opcion, index) => {
               const isChecked = respuestas[pregunta.id]?.includes(opcion);
               return (
                 <motion.button
                   key={index}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
+                  whileHover={{ scale: 1.01 }}
+                  whileTap={{ scale: 0.99 }}
                   onClick={() => {
                     const currentSelections = respuestas[pregunta.id] || [];
                     const newSelections = isChecked
@@ -88,7 +90,7 @@ const CalcularCategoria = () => {
                         />
                       )}
                     </div>
-                    {opcion}
+                    <span className="flex-1">{opcion}</span>
                   </div>
                 </motion.button>
               );
@@ -104,15 +106,15 @@ const CalcularCategoria = () => {
   const preguntaActual = preguntas.preguntas[currentStep];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#072a30] to-[#43d685]/90 py-20">
-      <div className="container mx-auto px-4">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="max-w-3xl mx-auto bg-white/10 backdrop-blur-lg rounded-2xl p-8 border border-white/20"
-        >
-          {/* Progress bar */}
-          <div className="w-full h-2 bg-white/10 rounded-full mb-8">
+    <div className="min-h-screen h-screen bg-gradient-to-br from-[#072a30] to-[#43d685]/90 flex items-center justify-center p-4">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="w-full max-w-3xl h-[90vh] bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20 flex flex-col overflow-hidden"
+      >
+        {/* Progress bar */}
+        <div className="p-8 pb-0">
+          <div className="w-full h-2 bg-white/10 rounded-full">
             <motion.div
               initial={{ width: 0 }}
               animate={{
@@ -123,26 +125,33 @@ const CalcularCategoria = () => {
               className="h-full bg-[#43d685] rounded-full"
             />
           </div>
+        </div>
 
-          {/* Pregunta */}
+        {/* Content container with flex layout */}
+        <div className="flex flex-col flex-1 min-h-0 p-8">
+          {/* Pregunta header - fixed height */}
           <motion.div
             key={currentStep}
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -20 }}
-            className="space-y-6"
+            className="mb-6"
           >
             <h2 className="text-2xl font-bold text-white mb-2">
               {preguntaActual.texto}
             </h2>
             {preguntaActual.descripcion && (
-              <p className="text-white/70 mb-6">{preguntaActual.descripcion}</p>
+              <p className="text-white/70">{preguntaActual.descripcion}</p>
             )}
-            {renderPregunta(preguntaActual)}
           </motion.div>
 
-          {/* Navigation buttons */}
-          <div className="flex justify-between mt-8">
+          {/* Respuestas container - scrollable */}
+          <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden">
+            {renderPregunta(preguntaActual)}
+          </div>
+
+          {/* Navigation buttons - fixed height */}
+          <div className="flex justify-between mt-6 pt-4 border-t border-white/10">
             <button
               onClick={() => setCurrentStep((prev) => prev - 1)}
               disabled={currentStep === 0}
@@ -179,8 +188,8 @@ const CalcularCategoria = () => {
               <ArrowRight className="w-5 h-5" />
             </button>
           </div>
-        </motion.div>
-      </div>
+        </div>
+      </motion.div>
     </div>
   );
 };

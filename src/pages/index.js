@@ -302,7 +302,7 @@ function App() {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => router.push("/calcular-categoria")}
-            className="inline-flex items-center gap-3 bg-[#43d685] text-white px-12 py-6 rounded-2xl font-bold text-2xl hover:bg-[#43d685]/90 transition-colors shadow-lg shadow-[#43d685]/20 border border-white/10"
+            className="inline-flex items-center gap-3 bg-[#072a30] text-white px-12 py-6 rounded-2xl font-bold text-2xl hover:bg-[#43d685]/90 transition-colors shadow-lg shadow-[#43d685]/20 border border-white/10"
           >
             <Calculator className="w-8 h-8" />
             Calculá tu categoría
