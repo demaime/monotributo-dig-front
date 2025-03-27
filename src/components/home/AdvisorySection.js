@@ -98,7 +98,7 @@ const advisoryCards = [
           son elementos fundamentales para cualquier contribuyente. Te
           explicamos cómo obtenerlos:
         </p>
-        <h3 className="text-xl font-semibold text-white mt-6">
+        <h3 className="text-xl font-semibold text-[#1E293B] mt-6">
           Obtención del CUIT:
         </h3>
         <ul className="list-disc list-inside space-y-2">
@@ -107,7 +107,7 @@ const advisoryCards = [
           <li>El CUIT se te asignará automáticamente</li>
           <li>Recibirás el comprobante por correo electrónico</li>
         </ul>
-        <h3 className="text-xl font-semibold text-white mt-6">
+        <h3 className="text-xl font-semibold text-[#1E293B] mt-6">
           Obtención de la Clave Fiscal:
         </h3>
         <ul className="list-disc list-inside space-y-2">
@@ -130,13 +130,13 @@ const AdvisorySection = () => {
   const [selectedCard, setSelectedCard] = useState(null);
 
   return (
-    <section className="py-16">
+    <section className="py-16 bg-[#E5F0FF]">
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-white mb-4">
+          <h2 className="text-3xl font-bold text-[#1E293B] mb-4">
             Asesorate sobre el Monotributo
           </h2>
-          <p className="text-lg text-white/80 max-w-2xl mx-auto">
+          <p className="text-lg text-[#6B7280] max-w-2xl mx-auto">
             Encuentra respuestas a las preguntas más frecuentes sobre el
             Monotributo
           </p>
@@ -147,13 +147,13 @@ const AdvisorySection = () => {
             <div
               key={index}
               onClick={() => setSelectedCard(card)}
-              className="bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-white/20 hover:bg-white/20 transition-all duration-300 cursor-pointer"
+              className="bg-white shadow-lg rounded-xl p-6 hover:shadow-xl transition-all duration-300 cursor-pointer"
             >
-              <card.icon className="w-12 h-12 text-[#43d685] mb-4" />
-              <h3 className="text-xl font-semibold text-white mb-3">
+              <card.icon className="w-12 h-12 text-[#0066FF] mb-4" />
+              <h3 className="text-xl font-semibold text-[#1E293B] mb-3">
                 {card.title}
               </h3>
-              <p className="text-white/70">{card.shortDescription}</p>
+              <p className="text-[#6B7280]">{card.shortDescription}</p>
             </div>
           ))}
         </div>

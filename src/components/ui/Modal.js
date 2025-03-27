@@ -13,7 +13,7 @@ const Modal = ({ isOpen, onClose, title, children }) => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="absolute inset-0 bg-black/90 backdrop-blur-md"
+            className="absolute inset-0 bg-[#1E293B]/50 backdrop-blur-sm"
           />
 
           {/* Modal */}
@@ -21,18 +21,18 @@ const Modal = ({ isOpen, onClose, title, children }) => {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
-            className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-white/10 backdrop-blur-lg rounded-2xl p-8 mx-4 border border-white/20"
+            className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-white rounded-2xl p-8 mx-4 shadow-xl"
           >
-            <div className="flex justify-between items-start mb-6 sticky top-0 py-2 -mt-2 -mx-2 px-2 rounded-t-xl">
-              <h2 className="text-2xl font-bold text-white">{title}</h2>
+            <div className="flex justify-between items-start mb-6 sticky top-0 py-2 -mt-2 -mx-2 px-2 rounded-t-xl bg-white">
+              <h2 className="text-2xl font-bold text-[#1E293B]">{title}</h2>
               <button
                 onClick={onClose}
-                className="text-white/70 hover:text-white transition-colors"
+                className="text-[#6B7280] hover:text-[#1E293B] transition-colors"
               >
                 <X className="w-6 h-6" />
               </button>
             </div>
-            <div className="text-white/80 space-y-4">{children}</div>
+            <div className="text-[#6B7280] space-y-4">{children}</div>
           </motion.div>
         </div>
       )}

@@ -3,31 +3,45 @@
 @tailwind utilities;
 
 /* paleta de colores 
-verde agua: #43d685 
-azul: #072a30
+azul principal: #0066FF
+azul claro: #E5F0FF
+gris: #6B7280
+azul oscuro: #1E293B
 */
 
 @layer components {
-  .text-blue {
-    @apply text-[#072a30];
+  .text-primary {
+    @apply text-[#0066FF];
   }
 
-  .bg-blue {
-    @apply bg-[#072a30];
+  .bg-primary {
+    @apply bg-[#0066FF];
   }
 
-  .text-green {
-    @apply text-[#43d685];
+  .text-secondary {
+    @apply text-[#6B7280];
   }
 
-  .bg-green {
-    @apply bg-[#43d685];
+  .bg-secondary {
+    @apply bg-[#6B7280];
+  }
+
+  .text-dark {
+    @apply text-[#1E293B];
+  }
+
+  .bg-dark {
+    @apply bg-[#1E293B];
+  }
+
+  .bg-light {
+    @apply bg-[#E5F0FF];
   }
 }
 
 ::-webkit-scrollbar {
   width: 3px;
-  background: #072a30;
+  background: #e5f0ff;
 }
 
 ::-webkit-scrollbar-track {
@@ -40,5 +54,5 @@ azul: #072a30
   pointer-events: none;
   background-color: transparent;
   background-clip: content-box;
-  background-color: #43d685;
+  background-color: #0066ff;
 }

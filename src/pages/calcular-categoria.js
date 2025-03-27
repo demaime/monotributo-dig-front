@@ -27,8 +27,8 @@ const CalcularCategoria = () => {
                 onClick={() => handleResponse(pregunta.id, opcion)}
                 className={`w-full text-left p-4 rounded-xl border transition-all ${
                   respuestas[pregunta.id] === opcion
-                    ? "bg-[#43d685] border-white/20 text-white"
-                    : "bg-white/10 border-white/10 text-white/80 hover:bg-white/20"
+                    ? "bg-[#0066FF] border-[#0066FF] text-white"
+                    : "bg-white border-[#E5F0FF] text-[#6B7280] hover:bg-[#E5F0FF]"
                 }`}
               >
                 {opcion}
@@ -46,7 +46,7 @@ const CalcularCategoria = () => {
               max={pregunta.max}
               value={respuestas[pregunta.id] || ""}
               onChange={(e) => handleResponse(pregunta.id, e.target.value)}
-              className="w-full bg-white/10 border border-white/20 rounded-xl p-4 text-white focus:outline-none focus:border-[#43d685] focus:ring-1 focus:ring-[#43d685]"
+              className="w-full bg-white border border-[#E5F0FF] rounded-xl p-4 text-[#1E293B] focus:outline-none focus:border-[#0066FF] focus:ring-1 focus:ring-[#0066FF]"
             />
           </div>
         );
@@ -70,8 +70,8 @@ const CalcularCategoria = () => {
                   }}
                   className={`w-full text-left p-4 rounded-xl border transition-all ${
                     isChecked
-                      ? "bg-[#43d685] border-white/20 text-white"
-                      : "bg-white/10 border-white/10 text-white/80 hover:bg-white/20"
+                      ? "bg-[#0066FF] border-[#0066FF] text-white"
+                      : "bg-white border-[#E5F0FF] text-[#6B7280] hover:bg-[#E5F0FF]"
                   }`}
                 >
                   <div className="flex items-center gap-3">
@@ -79,7 +79,7 @@ const CalcularCategoria = () => {
                       className={`w-6 h-6 rounded-md border-2 flex items-center justify-center ${
                         isChecked
                           ? "border-white bg-white/20"
-                          : "border-white/50"
+                          : "border-[#6B7280]"
                       }`}
                     >
                       {isChecked && (
@@ -106,15 +106,15 @@ const CalcularCategoria = () => {
   const preguntaActual = preguntas.preguntas[currentStep];
 
   return (
-    <div className="min-h-screen h-screen bg-gradient-to-br from-[#072a30] to-[#43d685]/90 flex items-center justify-center p-4">
+    <div className="min-h-screen h-screen bg-white flex items-center justify-center p-4">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-3xl h-[90vh] bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20 flex flex-col overflow-hidden"
+        className="w-full max-w-3xl h-[90vh] bg-white shadow-xl rounded-2xl flex flex-col overflow-hidden"
       >
         {/* Progress bar */}
         <div className="p-8 pb-0">
-          <div className="w-full h-2 bg-white/10 rounded-full">
+          <div className="w-full h-2 bg-[#E5F0FF] rounded-full">
             <motion.div
               initial={{ width: 0 }}
               animate={{
@@ -122,7 +122,7 @@ const CalcularCategoria = () => {
                   ((currentStep + 1) / preguntas.preguntas.length) * 100
                 }%`,
               }}
-              className="h-full bg-[#43d685] rounded-full"
+              className="h-full bg-[#0066FF] rounded-full"
             />
           </div>
         </div>
@@ -137,11 +137,11 @@ const CalcularCategoria = () => {
             exit={{ opacity: 0, x: -20 }}
             className="mb-6"
           >
-            <h2 className="text-2xl font-bold text-white mb-2">
+            <h2 className="text-2xl font-bold text-[#1E293B] mb-2">
               {preguntaActual.texto}
             </h2>
             {preguntaActual.descripcion && (
-              <p className="text-white/70">{preguntaActual.descripcion}</p>
+              <p className="text-[#6B7280]">{preguntaActual.descripcion}</p>
             )}
           </motion.div>
 
@@ -151,18 +151,18 @@ const CalcularCategoria = () => {
           </div>
 
           {/* Navigation buttons - fixed height */}
-          <div className="flex justify-between mt-6 pt-4 border-t border-white/10">
+          <div className="flex justify-between mt-6 pt-4 border-t border-[#E5F0FF]">
             <button
               onClick={() => setCurrentStep((prev) => prev - 1)}
               disabled={currentStep === 0}
               className={`flex items-center gap-2 px-6 py-3 rounded-xl transition-all ${
                 currentStep === 0
                   ? "opacity-50 cursor-not-allowed"
-                  : "hover:bg-white/10"
+                  : "hover:bg-[#E5F0FF]"
               }`}
             >
-              <ArrowLeft className="w-5 h-5 text-white" />
-              <span className="text-white">Anterior</span>
+              <ArrowLeft className="w-5 h-5 text-[#6B7280]" />
+              <span className="text-[#6B7280]">Anterior</span>
             </button>
             <button
               onClick={() => {
@@ -174,10 +174,10 @@ const CalcularCategoria = () => {
                 }
               }}
               disabled={!respuestas[preguntaActual.id]}
-              className={`flex items-center gap-2 px-6 py-3 rounded-xl bg-[#43d685] text-white transition-all ${
+              className={`flex items-center gap-2 px-6 py-3 rounded-xl bg-[#0066FF] text-white transition-all ${
                 !respuestas[preguntaActual.id]
                   ? "opacity-50 cursor-not-allowed"
-                  : "hover:bg-[#43d685]/90"
+                  : "hover:bg-[#0066FF]/90"
               }`}
             >
               <span>
