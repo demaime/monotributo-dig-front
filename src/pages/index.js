@@ -297,16 +297,23 @@ function App() {
         </div>
 
         {/* Botón Calcula tu categoría */}
-        <div className="py-12 text-center">
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => router.push("/calcular-categoria")}
-            className="inline-flex items-center gap-3 bg-[#072a30] text-white px-12 py-6 rounded-2xl font-bold text-2xl hover:bg-[#43d685]/90 transition-colors shadow-lg shadow-[#43d685]/20 border border-white/10"
+        <div className="py-8 text-center mt-10">
+          <motion.div
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
           >
-            <Calculator className="w-8 h-8" />
-            Calculá tu categoría
-          </motion.button>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => router.push("/calcular-categoria")}
+              className="inline-flex items-center gap-3 bg-[#072a30] text-white px-12 py-6 rounded-2xl font-bold text-2xl hover:bg-[#43d685]/90 transition-colors shadow-lg shadow-[#43d685]/20 border border-white/10"
+            >
+              <Calculator className="w-8 h-8" />
+              Calculá tu categoría
+            </motion.button>
+          </motion.div>
         </div>
 
         {/* Servicios Section */}
