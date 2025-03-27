@@ -1,14 +1,24 @@
 import React, { useState, useEffect } from "react";
-import { ArrowRight, BarChart2, LineChart, PieChart, CheckCircle2, CreditCard, FileText, HelpCircle } from "lucide-react";
+import {
+  ArrowRight,
+  BarChart2,
+  Calculator,
+  PieChart,
+  CheckCircle2,
+  CreditCard,
+  FileText,
+  HelpCircle,
+} from "lucide-react";
 import { useRouter } from "next/router";
 import { motion, AnimatePresence, useInView } from "framer-motion";
 import { useRef } from "react";
+import AdvisorySection from "../components/home/AdvisorySection";
 
 function App() {
   const router = useRouter();
   const [currentImage, setCurrentImage] = useState(0);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const images = ['/1.jpg', '/2.jpeg', '/3.jpeg', '/4.jpeg'];
+  const images = ["/1.jpg", "/2.jpeg", "/3.jpeg", "/4.jpeg"];
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -35,31 +45,57 @@ function App() {
               Monotributo Digital
             </div>
             <div className="flex gap-6">
-              <a href="#servicios" className="text-white/80 hover:text-white transition-colors">Servicios</a>
-              <a href="#precios" className="text-white/80 hover:text-white transition-colors">Precios</a>
-              <a href="#contacto" className="text-white/80 hover:text-white transition-colors">Contacto</a>
+              <a
+                href="#servicios"
+                className="text-white/80 hover:text-white transition-colors"
+              >
+                Servicios
+              </a>
+              <a
+                href="#precios"
+                className="text-white/80 hover:text-white transition-colors"
+              >
+                Precios
+              </a>
+              <a
+                href="#contacto"
+                className="text-white/80 hover:text-white transition-colors"
+              >
+                Contacto
+              </a>
             </div>
           </nav>
 
           {/* Mobile Navigation */}
           <nav className="lg:hidden flex flex-col">
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               className="flex justify-between items-center mb-20"
             >
               <div className="flex items-center gap-4">
-                <motion.button 
+                <motion.button
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
                   onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                   className="text-white"
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-6 w-6"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M4 6h16M4 12h16M4 18h16"
+                    />
                   </svg>
                 </motion.button>
-                <motion.div 
+                <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   className="text-white font-bold text-2xl flex items-center gap-2"
@@ -69,32 +105,32 @@ function App() {
                 </motion.div>
               </div>
             </motion.div>
-            
+
             <AnimatePresence>
               {isMobileMenuOpen && (
-                <motion.div 
+                <motion.div
                   initial={{ opacity: 0, y: -20 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -20 }}
                   className="flex-col gap-4 bg-white/90 backdrop-blur-lg rounded-xl p-6 mb-8 absolute top-20 left-4 right-4 z-50 border border-white/20"
                 >
-                  <motion.a 
+                  <motion.a
                     whileHover={{ x: 10 }}
-                    href="#servicios" 
+                    href="#servicios"
                     className="text-[#072a30] text-lg py-2 block"
                   >
                     Servicios
                   </motion.a>
-                  <motion.a 
+                  <motion.a
                     whileHover={{ x: 10 }}
-                    href="#precios" 
+                    href="#precios"
                     className="text-[#072a30] text-lg py-2 block"
                   >
                     Precios
                   </motion.a>
-                  <motion.a 
+                  <motion.a
                     whileHover={{ x: 10 }}
-                    href="#contacto" 
+                    href="#contacto"
                     className="text-[#072a30] text-lg py-2 block"
                   >
                     Contacto
@@ -105,14 +141,14 @@ function App() {
           </nav>
 
           {/* Desktop Hero Section */}
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
             className="hidden lg:grid lg:grid-cols-3 gap-12 items-center bg-white/10 backdrop-blur-lg rounded-2xl"
           >
             <div className="space-y-8 pl-14 lg:col-span-1">
-              <motion.h1 
+              <motion.h1
                 initial={{ opacity: 0, x: -50 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.2 }}
@@ -120,31 +156,37 @@ function App() {
               >
                 Simplifica tu monotributo
               </motion.h1>
-              <motion.h1 
+              <motion.h1
                 initial={{ opacity: 0, x: -50 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.4 }}
                 className="text-xl text-white/80 flex flex-col"
               >
-                Gestioná tu monotributo de forma digital y eficiente. <strong>Sin complicaciones.</strong>
+                Gestioná tu monotributo de forma digital y eficiente.{" "}
+                <strong>Sin complicaciones.</strong>
               </motion.h1>
-              <motion.button 
+              <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 className="group flex items-center gap-2 bg-white text-[#072a30] px-8 py-4 rounded-full font-semibold text-lg hover:bg-[#43d685] hover:text-white transition-all duration-300"
               >
-                Comenzar ahora
+                Registrate
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </motion.button>
             </div>
 
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.4 }}
               className="relative lg:col-span-2"
             >
-              <div className="relative h-[400px] w-full overflow-hidden rounded-2xl" style={{ clipPath: 'polygon(15% 0, 100% 0, 100% 100%, 0% 100%)' }}>
+              <div
+                className="relative h-[400px] w-full overflow-hidden rounded-2xl"
+                style={{
+                  clipPath: "polygon(15% 0, 100% 0, 100% 100%, 0% 100%)",
+                }}
+              >
                 {images.map((img, index) => (
                   <motion.div
                     key={img}
@@ -154,34 +196,38 @@ function App() {
                     className="absolute inset-0 w-full h-full"
                     style={{
                       backgroundImage: `url(/assets${img})`,
-                      backgroundSize: 'cover',
-                      backgroundPosition: 'center',
+                      backgroundSize: "cover",
+                      backgroundPosition: "center",
                     }}
                   />
                 ))}
               </div>
-              <motion.div 
+              <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.6 }}
                 className="grid grid-cols-2 gap-4 absolute -bottom-20 right-4"
               >
-                <motion.div 
+                <motion.div
                   whileHover={{ y: -5 }}
                   className="bg-white/10 backdrop-blur-lg rounded-xl p-4 border border-white/20"
                 >
                   <FileText className="w-6 h-6 text-[#43d685] mb-2" />
-                  <h3 className="text-white font-semibold text-sm">Gestión Digital</h3>
+                  <h3 className="text-white font-semibold text-sm">
+                    Gestión Digital
+                  </h3>
                   <p className="text-white/70 text-xs">
                     Todo tu monotributo en un solo lugar
                   </p>
                 </motion.div>
-                <motion.div 
+                <motion.div
                   whileHover={{ y: -5 }}
                   className="bg-white/10 backdrop-blur-lg rounded-xl p-4 border border-white/20"
                 >
                   <CreditCard className="w-6 h-6 text-[#43d685] mb-2" />
-                  <h3 className="text-white font-semibold text-sm">Pagos Online</h3>
+                  <h3 className="text-white font-semibold text-sm">
+                    Pagos Online
+                  </h3>
                   <p className="text-white/70 text-xs">
                     Paga tus impuestos de forma segura
                   </p>
@@ -191,7 +237,7 @@ function App() {
           </motion.div>
 
           {/* Mobile Hero Section */}
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
@@ -202,7 +248,8 @@ function App() {
                 Simplifica tu monotributo
               </h1>
               <p className="text-xl text-white/80 flex flex-col">
-                Gestioná tu monotributo de forma digital y eficiente. <strong>Sin complicaciones.</strong>
+                Gestioná tu monotributo de forma digital y eficiente.{" "}
+                <strong>Sin complicaciones.</strong>
               </p>
               <button className="group flex items-center gap-2 bg-white text-[#072a30] px-8 py-4 rounded-full font-semibold text-lg hover:bg-[#43d685] hover:text-white transition-all duration-300">
                 Comenzar ahora
@@ -219,8 +266,8 @@ function App() {
                     style={{
                       opacity: currentImage === index ? 1 : 0,
                       backgroundImage: `url(/assets${img})`,
-                      backgroundSize: 'cover',
-                      backgroundPosition: 'center',
+                      backgroundSize: "cover",
+                      backgroundPosition: "center",
                     }}
                   />
                 ))}
@@ -228,14 +275,18 @@ function App() {
               <div className="grid grid-cols-2 gap-4 absolute -bottom-20 mx-4 w-[calc(100%-2rem)]">
                 <div className="bg-white/10 backdrop-blur-lg rounded-xl p-4 border border-white/20">
                   <FileText className="w-6 h-6 text-[#43d685] mb-2" />
-                  <h3 className="text-white font-semibold text-sm">Gestión Digital</h3>
+                  <h3 className="text-white font-semibold text-sm">
+                    Gestión Digital
+                  </h3>
                   <p className="text-white/70 text-xs">
                     Todo tu monotributo en un solo lugar
                   </p>
                 </div>
                 <div className="bg-white/10 backdrop-blur-lg rounded-xl p-4 border border-white/20">
                   <CreditCard className="w-6 h-6 text-[#43d685] mb-2" />
-                  <h3 className="text-white font-semibold text-sm">Pagos Online</h3>
+                  <h3 className="text-white font-semibold text-sm">
+                    Pagos Online
+                  </h3>
                   <p className="text-white/70 text-xs">
                     Paga tus impuestos de forma segura
                   </p>
@@ -245,235 +296,131 @@ function App() {
           </motion.div>
         </div>
 
+        {/* Botón Calcula tu categoría */}
+        <div className="py-12 text-center">
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => router.push("/calcular-categoria")}
+            className="inline-flex items-center gap-3 bg-[#43d685] text-white px-12 py-6 rounded-2xl font-bold text-2xl hover:bg-[#43d685]/90 transition-colors shadow-lg shadow-[#43d685]/20 border border-white/10"
+          >
+            <Calculator className="w-8 h-8" />
+            Calculá tu categoría
+          </motion.button>
+        </div>
+
         {/* Servicios Section */}
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
-          viewport={{ once: true, margin: "-100px" }}
-          id="servicios" 
-          className="container mx-auto px-4 py-20"
+          viewport={{ once: true }}
+          className="py-10"
         >
-          <motion.h2 
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-            className="text-4xl font-bold text-white text-center mb-12"
-          >
-            Nuestros Servicios
-          </motion.h2>
-          <div className="grid md:grid-cols-3 gap-8">
-            <motion.div 
-              initial={{ opacity: 0, x: -50 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20"
-            >
-              <FileText className="w-12 h-12 text-[#43d685] mb-4" />
-              <h3 className="text-white font-semibold text-xl mb-2">Gestión Digital</h3>
-              <p className="text-white/70">Accede a todos tus trámites en un solo lugar</p>
-            </motion.div>
-            <motion.div 
-              initial={{ opacity: 0, y: 50 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: 0.3 }}
-              className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20"
-            >
-              <CreditCard className="w-12 h-12 text-[#43d685] mb-4" />
-              <h3 className="text-white font-semibold text-xl mb-2">Pagos Online</h3>
-              <p className="text-white/70">Realiza tus pagos de forma segura y rápida</p>
-            </motion.div>
-            <motion.div 
-              initial={{ opacity: 0, x: 50 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: 0.4 }}
-              className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20"
-            >
-              <HelpCircle className="w-12 h-12 text-[#43d685] mb-4" />
-              <h3 className="text-white font-semibold text-xl mb-2">Asesoramiento</h3>
-              <p className="text-white/70">Soporte técnico y asesoramiento personalizado</p>
-            </motion.div>
+          <div className="container mx-auto px-4">
+            <div className="text-center mb-16">
+              <h2 className="text-3xl font-bold text-white mb-4">
+                Nuestros Servicios
+              </h2>
+              <p className="text-lg text-white/80 max-w-2xl mx-auto">
+                Todo lo que necesitas para gestionar tu monotributo de forma
+                eficiente
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <motion.div
+                whileHover={{ y: -5 }}
+                className="bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-white/20 hover:bg-white/20 transition-all duration-300"
+              >
+                <FileText className="w-12 h-12 text-[#43d685] mb-4" />
+                <h3 className="text-xl font-semibold text-white mb-3">
+                  Gestión Digital
+                </h3>
+                <p className="text-white/70">
+                  Gestiona todos tus trámites de monotributo de forma digital y
+                  sin complicaciones.
+                </p>
+              </motion.div>
+
+              <motion.div
+                whileHover={{ y: -5 }}
+                className="bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-white/20 hover:bg-white/20 transition-all duration-300"
+              >
+                <CreditCard className="w-12 h-12 text-[#43d685] mb-4" />
+                <h3 className="text-xl font-semibold text-white mb-3">
+                  Pagos Online
+                </h3>
+                <p className="text-white/70">
+                  Realiza tus pagos de forma segura y rápida a través de nuestra
+                  plataforma.
+                </p>
+              </motion.div>
+
+              <motion.div
+                whileHover={{ y: -5 }}
+                className="bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-white/20 hover:bg-white/20 transition-all duration-300"
+              >
+                <HelpCircle className="w-12 h-12 text-[#43d685] mb-4" />
+                <h3 className="text-xl font-semibold text-white mb-3">
+                  Asesoramiento
+                </h3>
+                <p className="text-white/70">
+                  Recibe ayuda y asesoramiento personalizado para todas tus
+                  dudas.
+                </p>
+              </motion.div>
+            </div>
           </div>
         </motion.div>
 
-        {/* Precios Section */}
-        <motion.div 
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true, margin: "-100px" }}
-          id="precios" 
-          className="container mx-auto px-4 py-20"
-        >
-          <motion.h2 
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-            className="text-4xl font-bold text-white text-center mb-12"
-          >
-            Planes y Precios
-          </motion.h2>
-          <div className="grid md:grid-cols-3 gap-8">
-            <motion.div 
-              initial={{ opacity: 0, y: 50 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              whileHover={{ scale: 1.02 }}
-              className="bg-white/10 backdrop-blur-lg rounded-2xl p-8 border border-white/20"
-            >
-              <h3 className="text-white font-semibold text-2xl mb-4">Básico</h3>
-              <p className="text-[#43d685] text-3xl font-bold mb-6">$0</p>
-              <ul className="space-y-4 mb-8">
-                <li className="flex items-center gap-2 text-white/70">
-                  <CheckCircle2 className="w-5 h-5 text-[#43d685]" />
-                  Gestión básica
-                </li>
-                <li className="flex items-center gap-2 text-white/70">
-                  <CheckCircle2 className="w-5 h-5 text-[#43d685]" />
-                  Pagos online
-                </li>
-              </ul>
-              <motion.button 
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="w-full bg-white text-[#072a30] py-3 rounded-full font-semibold hover:bg-[#43d685] hover:text-white transition-all duration-300"
-              >
-                Comenzar
-              </motion.button>
-            </motion.div>
-            <motion.div 
-              initial={{ opacity: 0, y: 50 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: 0.3 }}
-              whileHover={{ scale: 1.02 }}
-              className="bg-white/10 backdrop-blur-lg rounded-2xl p-8 border border-white/20"
-            >
-              <h3 className="text-white font-semibold text-2xl mb-4">Pro</h3>
-              <p className="text-[#43d685] text-3xl font-bold mb-6">$999</p>
-              <ul className="space-y-4 mb-8">
-                <li className="flex items-center gap-2 text-white/70">
-                  <CheckCircle2 className="w-5 h-5 text-[#43d685]" />
-                  Todo lo del plan básico
-                </li>
-                <li className="flex items-center gap-2 text-white/70">
-                  <CheckCircle2 className="w-5 h-5 text-[#43d685]" />
-                  Asesoramiento personalizado
-                </li>
-                <li className="flex items-center gap-2 text-white/70">
-                  <CheckCircle2 className="w-5 h-5 text-[#43d685]" />
-                  Reportes avanzados
-                </li>
-              </ul>
-              <button className="w-full bg-white text-[#072a30] py-3 rounded-full font-semibold hover:bg-[#43d685] hover:text-white transition-all duration-300">
-                Comenzar
-              </button>
-            </motion.div>
-            <motion.div 
-              initial={{ opacity: 0, y: 50 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: 0.4 }}
-              whileHover={{ scale: 1.02 }}
-              className="bg-white/10 backdrop-blur-lg rounded-2xl p-8 border border-white/20"
-            >
-              <h3 className="text-white font-semibold text-2xl mb-4">Empresarial</h3>
-              <p className="text-[#43d685] text-3xl font-bold mb-6">$1999</p>
-              <ul className="space-y-4 mb-8">
-                <li className="flex items-center gap-2 text-white/70">
-                  <CheckCircle2 className="w-5 h-5 text-[#43d685]" />
-                  Todo lo del plan Pro
-                </li>
-                <li className="flex items-center gap-2 text-white/70">
-                  <CheckCircle2 className="w-5 h-5 text-[#43d685]" />
-                  API personalizada
-                </li>
-                <li className="flex items-center gap-2 text-white/70">
-                  <CheckCircle2 className="w-5 h-5 text-[#43d685]" />
-                  Soporte prioritario
-                </li>
-              </ul>
-              <button className="w-full bg-white text-[#072a30] py-3 rounded-full font-semibold hover:bg-[#43d685] hover:text-white transition-all duration-300">
-                Comenzar
-              </button>
-            </motion.div>
-          </div>
-        </motion.div>
+        {/* Asesoramiento Section */}
+        <AdvisorySection />
 
         {/* Contacto Section */}
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
-          viewport={{ once: true, margin: "-100px" }}
-          id="contacto" 
-          className="container mx-auto px-4 py-20"
+          viewport={{ once: true }}
+          className="py-20 bg-gradient-to-br from-[#072a30] to-[#43d685]/90"
         >
-          <motion.h2 
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-            className="text-4xl font-bold text-white text-center mb-12"
-          >
-            Contacto
-          </motion.h2>
-          <motion.div 
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.7 }}
-            className="max-w-2xl mx-auto"
-          >
-            <form className="space-y-6">
-              <motion.div
-                initial={{ opacity: 0, x: -30 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: 0.2 }}
-              >
-                <input
-                  type="text"
-                  placeholder="Nombre"
-                  className="w-full bg-white/10 backdrop-blur-lg rounded-xl p-4 text-white placeholder-white/50 border border-white/20 focus:outline-none focus:border-[#43d685]"
-                />
-              </motion.div>
-              <motion.div
-                initial={{ opacity: 0, x: 30 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: 0.3 }}
-              >
-                <input
-                  type="email"
-                  placeholder="Email"
-                  className="w-full bg-white/10 backdrop-blur-lg rounded-xl p-4 text-white placeholder-white/50 border border-white/20 focus:outline-none focus:border-[#43d685]"
-                />
-              </motion.div>
-              <motion.div
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: 0.4 }}
-              >
+          <div className="container mx-auto px-4">
+            <div className="text-center mb-16">
+              <h2 className="text-3xl font-bold text-white mb-4">
+                ¡ CONTACTANOS !
+              </h2>
+              <p className="text-lg text-white/80 max-w-2xl mx-auto">
+                Estamos aquí para ayudarte con cualquier duda que tengas
+              </p>
+            </div>
+
+            <div className="max-w-2xl mx-auto">
+              <form className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <input
+                    type="text"
+                    placeholder="Nombre"
+                    className="w-full px-4 py-3 rounded-lg bg-white/10 backdrop-blur-lg border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-[#43d685]"
+                  />
+                  <input
+                    type="email"
+                    placeholder="Email"
+                    className="w-full px-4 py-3 rounded-lg bg-white/10 backdrop-blur-lg border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-[#43d685]"
+                  />
+                </div>
                 <textarea
-                  placeholder="Mensaje"
+                  placeholder="Tu mensaje"
                   rows="4"
-                  className="w-full bg-white/10 backdrop-blur-lg rounded-xl p-4 text-white placeholder-white/50 border border-white/20 focus:outline-none focus:border-[#43d685]"
+                  className="w-full px-4 py-3 rounded-lg bg-white/10 backdrop-blur-lg border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-[#43d685]"
                 ></textarea>
-              </motion.div>
-              <motion.button 
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className="w-full bg-white text-[#072a30] py-4 rounded-full font-semibold hover:bg-[#43d685] hover:text-white transition-all duration-300"
-              >
-                Enviar mensaje
-              </motion.button>
-            </form>
-          </motion.div>
+                <button
+                  type="submit"
+                  className="w-full bg-white text-[#072a30] px-8 py-4 rounded-lg font-semibold text-lg hover:bg-[#43d685] hover:text-white transition-all duration-300"
+                >
+                  Enviar mensaje
+                </button>
+              </form>
+            </div>
+          </div>
         </motion.div>
       </div>
     </div>
