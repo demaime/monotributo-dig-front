@@ -20,6 +20,23 @@ function App() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const images = ["/1.jpg", "/2.jpeg", "/3.jpeg", "/4.jpeg"];
 
+  const scrollToSection = (e, sectionId) => {
+    e.preventDefault();
+    const element = document.getElementById(sectionId);
+    const offset = 100; // Offset de 100px para compensar la navegación
+    if (element) {
+      const elementPosition = element.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.pageYOffset - offset;
+
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: "smooth"
+      });
+    }
+    // Close mobile menu if open
+    setIsMobileMenuOpen(false);
+  };
+
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentImage((current) => (current + 1) % images.length);
@@ -34,12 +51,11 @@ function App() {
       <div className="absolute top-[-20%] left-[-10%] w-[500px] h-[500px] rounded-full bg-[#E5F0FF] blur-[120px]" />
       <div className="absolute bottom-[-20%] right-[-10%] w-[500px] h-[500px] rounded-full bg-[#0066FF]/10 blur-[120px]" />
 
-      {/* Content container */}
-      <div className="relative z-10">
-        {/* Hero Section */}
-        <div className="container mx-auto px-4 py-10">
+      {/* Navigation - Make it fixed */}
+      <div className="fixed top-0 left-0 right-0 bg-white/80 backdrop-blur-lg z-50 py-4">
+        <div className="container mx-auto px-4">
           {/* Desktop Navigation */}
-          <nav className="hidden lg:flex justify-between items-center mb-20">
+          <nav className="hidden lg:flex justify-between items-center">
             <div className="text-[#1E293B] font-bold text-2xl flex items-center gap-2">
               <BarChart2 className="w-8 h-8 text-[#0066FF]" />
               Monotributo Digital
@@ -47,18 +63,21 @@ function App() {
             <div className="flex gap-6">
               <a
                 href="#servicios"
+                onClick={(e) => scrollToSection(e, 'servicios')}
                 className="text-[#6B7280] hover:text-[#1E293B] transition-colors"
               >
                 Servicios
               </a>
               <a
-                href="#precios"
+                href="#asesorate"
+                onClick={(e) => scrollToSection(e, 'asesorate')}
                 className="text-[#6B7280] hover:text-[#1E293B] transition-colors"
               >
-                Precios
+                Información
               </a>
               <a
                 href="#contacto"
+                onClick={(e) => scrollToSection(e, 'contacto')}
                 className="text-[#6B7280] hover:text-[#1E293B] transition-colors"
               >
                 Contacto
@@ -71,14 +90,14 @@ function App() {
             <motion.div
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="flex justify-between items-center mb-20"
+              className="flex justify-between items-center"
             >
               <div className="flex items-center gap-4">
                 <motion.button
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
                   onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                  className="text-white"
+                  className="text-[#0066FF]"
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -112,26 +131,29 @@ function App() {
                   initial={{ opacity: 0, y: -20 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -20 }}
-                  className="flex-col gap-4 bg-white shadow-lg rounded-xl p-6 mb-8 absolute top-20 left-4 right-4 z-50"
+                  className="flex-col gap-4 bg-white/95 backdrop-blur-lg shadow-2xl rounded-2xl p-8 mb-8 absolute top-20 left-4 right-4 z-50 border border-[#E5F0FF]"
                 >
                   <motion.a
-                    whileHover={{ x: 10 }}
+                    whileHover={{ x: 10, backgroundColor: "#E5F0FF" }}
+                    href="#asesorate"
+                    onClick={(e) => scrollToSection(e, 'asesorate')}
+                    className="text-[#6B7280] hover:text-[#1E293B] text-lg py-3 px-4 block rounded-xl transition-all duration-300"
+                  >
+                    Información
+                  </motion.a>
+                  <motion.a
+                    whileHover={{ x: 10, backgroundColor: "#E5F0FF" }}
                     href="#servicios"
-                    className="text-[#6B7280] hover:text-[#1E293B] text-lg py-2 block"
+                    onClick={(e) => scrollToSection(e, 'servicios')}
+                    className="text-[#6B7280] hover:text-[#1E293B] text-lg py-3 px-4 block rounded-xl transition-all duration-300"
                   >
                     Servicios
                   </motion.a>
                   <motion.a
-                    whileHover={{ x: 10 }}
-                    href="#precios"
-                    className="text-[#6B7280] hover:text-[#1E293B] text-lg py-2 block"
-                  >
-                    Precios
-                  </motion.a>
-                  <motion.a
-                    whileHover={{ x: 10 }}
+                    whileHover={{ x: 10, backgroundColor: "#E5F0FF" }}
                     href="#contacto"
-                    className="text-[#6B7280] hover:text-[#1E293B] text-lg py-2 block"
+                    onClick={(e) => scrollToSection(e, 'contacto')}
+                    className="text-[#6B7280] hover:text-[#1E293B] text-lg py-3 px-4 block rounded-xl transition-all duration-300"
                   >
                     Contacto
                   </motion.a>
@@ -139,7 +161,13 @@ function App() {
               )}
             </AnimatePresence>
           </nav>
+        </div>
+      </div>
 
+      {/* Content container - Add padding top to account for fixed nav */}
+      <div className="relative z-10 pt-24">
+        {/* Hero Section */}
+        <div className="container mx-auto px-4 py-10">
           {/* Desktop Hero Section */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -168,6 +196,7 @@ function App() {
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
+                onClick={() => router.push("/registro")}
                 className="group flex items-center gap-2 bg-[#0066FF] text-white px-8 py-4 rounded-full font-semibold text-lg hover:bg-[#0066FF]/90 transition-all duration-300"
               >
                 Registrate
@@ -318,10 +347,11 @@ function App() {
 
         {/* Servicios Section */}
         <motion.div
+          id="servicios"
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
-          className="py-10"
+          className="py-20"
         >
           <div className="container mx-auto px-4">
             <div className="text-center mb-16">
@@ -337,43 +367,43 @@ function App() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               <motion.div
                 whileHover={{ y: -5 }}
-                className="bg-white shadow-lg rounded-xl p-6 hover:shadow-xl transition-all duration-300"
+                onClick={() => router.push("/registro?servicio=alta")}
+                className="bg-white shadow-lg rounded-xl p-6 hover:shadow-xl transition-all duration-300 cursor-pointer"
               >
                 <FileText className="w-12 h-12 text-[#0066FF] mb-4" />
                 <h3 className="text-xl font-semibold text-[#1E293B] mb-3">
-                  Gestión Digital
+                  Inscripción
                 </h3>
                 <p className="text-[#6B7280]">
-                  Gestiona todos tus trámites de monotributo de forma digital y
-                  sin complicaciones.
+                  Te guiamos en todo el proceso de inscripción al Monotributo, desde la obtención del CUIT hasta la categorización inicial.
                 </p>
               </motion.div>
 
               <motion.div
                 whileHover={{ y: -5 }}
-                className="bg-white shadow-lg rounded-xl p-6 hover:shadow-xl transition-all duration-300"
+                onClick={() => router.push("/registro?servicio=baja")}
+                className="bg-white shadow-lg rounded-xl p-6 hover:shadow-xl transition-all duration-300 cursor-pointer"
               >
                 <CreditCard className="w-12 h-12 text-[#0066FF] mb-4" />
                 <h3 className="text-xl font-semibold text-[#1E293B] mb-3">
-                  Pagos Online
+                  Baja de Monotributo
                 </h3>
                 <p className="text-[#6B7280]">
-                  Realiza tus pagos de forma segura y rápida a través de nuestra
-                  plataforma.
+                  Asistencia completa en el proceso de baja del Monotributo, asegurando el cumplimiento de todas las obligaciones pendientes.
                 </p>
               </motion.div>
 
               <motion.div
                 whileHover={{ y: -5 }}
-                className="bg-white shadow-lg rounded-xl p-6 hover:shadow-xl transition-all duration-300"
+                onClick={() => router.push("/registro?servicio=recategorizacion")}
+                className="bg-white shadow-lg rounded-xl p-6 hover:shadow-xl transition-all duration-300 cursor-pointer"
               >
                 <HelpCircle className="w-12 h-12 text-[#0066FF] mb-4" />
                 <h3 className="text-xl font-semibold text-[#1E293B] mb-3">
-                  Asesoramiento
+                  Recategorización
                 </h3>
                 <p className="text-[#6B7280]">
-                  Recibe ayuda y asesoramiento personalizado para todas tus
-                  dudas.
+                  Te ayudamos a realizar el cambio de categoría cuando tus ingresos o gastos superen los límites establecidos.
                 </p>
               </motion.div>
             </div>
@@ -381,10 +411,19 @@ function App() {
         </motion.div>
 
         {/* Asesoramiento Section */}
-        <AdvisorySection />
+        <motion.div
+          id="asesorate"
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          className="py-16 bg-[#E5F0FF]"
+        >
+          <AdvisorySection />
+        </motion.div>
 
         {/* Contacto Section */}
         <motion.div
+          id="contacto"
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}

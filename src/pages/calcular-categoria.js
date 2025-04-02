@@ -1,9 +1,11 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { ArrowLeft, ArrowRight } from "lucide-react";
+import { ArrowLeft, ArrowRight, X } from "lucide-react";
+import { useRouter } from "next/router";
 import preguntas from "../data/categorias-questions.json";
 
 const CalcularCategoria = () => {
+  const router = useRouter();
   const [currentStep, setCurrentStep] = useState(0);
   const [respuestas, setRespuestas] = useState({});
 
@@ -106,7 +108,7 @@ const CalcularCategoria = () => {
   const preguntaActual = preguntas.preguntas[currentStep];
 
   return (
-    <div className="min-h-screen h-screen bg-white flex items-center justify-center p-4">
+    <div className="min-h-screen h-screen bg-blue-100 flex items-center justify-center p-4">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -152,18 +154,27 @@ const CalcularCategoria = () => {
 
           {/* Navigation buttons - fixed height */}
           <div className="flex justify-between mt-6 pt-4 border-t border-[#E5F0FF]">
-            <button
-              onClick={() => setCurrentStep((prev) => prev - 1)}
-              disabled={currentStep === 0}
-              className={`flex items-center gap-2 px-6 py-3 rounded-xl transition-all ${
-                currentStep === 0
-                  ? "opacity-50 cursor-not-allowed"
-                  : "hover:bg-[#E5F0FF]"
-              }`}
-            >
-              <ArrowLeft className="w-5 h-5 text-[#6B7280]" />
-              <span className="text-[#6B7280]">Anterior</span>
-            </button>
+            <div className="flex gap-4">
+              <button
+                onClick={() => router.push("/")}
+                className="flex items-center gap-2 px-6 py-3 rounded-xl text-red-300 hover:bg-red-100 transition-all"
+              >
+                <X className="w-5 h-5" />
+                <span>Cancelar</span>
+              </button>
+              <button
+                onClick={() => setCurrentStep((prev) => prev - 1)}
+                disabled={currentStep === 0}
+                className={`flex items-center gap-2 px-6 py-3 rounded-xl transition-all ${
+                  currentStep === 0
+                    ? "opacity-50 cursor-not-allowed"
+                    : "hover:bg-[#E5F0FF]"
+                }`}
+              >
+                <ArrowLeft className="w-5 h-5 text-[#6B7280]" />
+                <span className="text-[#6B7280]">Anterior</span>
+              </button>
+            </div>
             <button
               onClick={() => {
                 if (currentStep < preguntas.preguntas.length - 1) {

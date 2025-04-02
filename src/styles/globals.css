@@ -2,6 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
+html {
+  scroll-behavior: smooth;
+}
+
 /* paleta de colores 
 azul principal: #0066FF
 azul claro: #E5F0FF
