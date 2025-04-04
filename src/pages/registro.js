@@ -4,9 +4,9 @@ import { motion } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
 
 const servicios = [
-  { id: "alta", label: "Alta de Monotributo" },
-  { id: "recategorizacion", label: "Recategorización" },
-  { id: "baja", label: "Baja de Monotributo" },
+  { id: "alta", label: "Alta de Monotributo", price: 5000 },
+  { id: "recategorizacion", label: "Recategorización", price: 3000 },
+  { id: "baja", label: "Baja de Monotributo", price: 2000 },
 ];
 
 export default function Registro() {
@@ -20,6 +20,7 @@ export default function Registro() {
     telefono: "",
     mensaje: "",
   });
+  const [selectedService, setSelectedService] = useState(null);
 
   useEffect(() => {
     if (servicio) {
@@ -27,6 +28,8 @@ export default function Registro() {
         ...prev,
         tipoServicio: servicio
       }));
+      const service = servicios.find(s => s.id === servicio);
+      setSelectedService(service);
     }
   }, [servicio]);
 
@@ -36,12 +39,34 @@ export default function Registro() {
       ...prev,
       [name]: value
     }));
+    
+    if (name === 'tipoServicio') {
+      const service = servicios.find(s => s.id === value);
+      setSelectedService(service);
+    }
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Aquí iría la lógica para enviar el formulario
-    console.log(formData);
+    console.log('Datos del formulario:', formData);
+    console.log('Servicio seleccionado:', selectedService);
+    
+    if (selectedService) {
+      console.log('Redirigiendo a la página de pago con:', {
+        service: selectedService.label,
+        price: selectedService.price
+      });
+      
+      router.push({
+        pathname: '/payment',
+        query: {
+          service: selectedService.label,
+          price: selectedService.price
+        }
+      });
+    } else {
+      console.error('No hay servicio seleccionado');
+    }
   };
 
   return (
@@ -82,7 +107,7 @@ export default function Registro() {
                 <option value="">Seleccione un servicio</option>
                 {servicios.map(servicio => (
                   <option key={servicio.id} value={servicio.id}>
-                    {servicio.label}
+                    {servicio.label} - ${servicio.price}
                   </option>
                 ))}
               </select>
@@ -159,13 +184,21 @@ export default function Registro() {
               ></textarea>
             </div>
 
+            {selectedService && (
+              <div className="bg-[#F8FAFC] p-4 rounded-lg border border-[#E2E8F0]">
+                <p className="text-[#1E293B] font-medium">
+                  Total a pagar: ${selectedService.price}
+                </p>
+              </div>
+            )}
+
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               type="submit"
               className="w-full bg-[#0066FF] text-white px-8 py-4 rounded-lg font-semibold text-lg hover:bg-[#0066FF]/90 transition-all duration-300 shadow-lg hover:shadow-xl"
             >
-              Enviar solicitud
+              Proceder al pago
             </motion.button>
           </form>
         </motion.div>
