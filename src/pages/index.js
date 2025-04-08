@@ -30,7 +30,7 @@ function App() {
 
       window.scrollTo({
         top: offsetPosition,
-        behavior: "smooth"
+        behavior: "smooth",
       });
     }
     // Close mobile menu if open
@@ -63,21 +63,21 @@ function App() {
             <div className="flex gap-6">
               <a
                 href="#servicios"
-                onClick={(e) => scrollToSection(e, 'servicios')}
+                onClick={(e) => scrollToSection(e, "servicios")}
                 className="text-[#6B7280] hover:text-[#1E293B] transition-colors"
               >
                 Servicios
               </a>
               <a
                 href="#asesorate"
-                onClick={(e) => scrollToSection(e, 'asesorate')}
+                onClick={(e) => scrollToSection(e, "asesorate")}
                 className="text-[#6B7280] hover:text-[#1E293B] transition-colors"
               >
                 Información
               </a>
               <a
                 href="#contacto"
-                onClick={(e) => scrollToSection(e, 'contacto')}
+                onClick={(e) => scrollToSection(e, "contacto")}
                 className="text-[#6B7280] hover:text-[#1E293B] transition-colors"
               >
                 Contacto
@@ -136,7 +136,7 @@ function App() {
                   <motion.a
                     whileHover={{ x: 10, backgroundColor: "#E5F0FF" }}
                     href="#asesorate"
-                    onClick={(e) => scrollToSection(e, 'asesorate')}
+                    onClick={(e) => scrollToSection(e, "asesorate")}
                     className="text-[#6B7280] hover:text-[#1E293B] text-lg py-3 px-4 block rounded-xl transition-all duration-300"
                   >
                     Información
@@ -144,7 +144,7 @@ function App() {
                   <motion.a
                     whileHover={{ x: 10, backgroundColor: "#E5F0FF" }}
                     href="#servicios"
-                    onClick={(e) => scrollToSection(e, 'servicios')}
+                    onClick={(e) => scrollToSection(e, "servicios")}
                     className="text-[#6B7280] hover:text-[#1E293B] text-lg py-3 px-4 block rounded-xl transition-all duration-300"
                   >
                     Servicios
@@ -152,7 +152,7 @@ function App() {
                   <motion.a
                     whileHover={{ x: 10, backgroundColor: "#E5F0FF" }}
                     href="#contacto"
-                    onClick={(e) => scrollToSection(e, 'contacto')}
+                    onClick={(e) => scrollToSection(e, "contacto")}
                     className="text-[#6B7280] hover:text-[#1E293B] text-lg py-3 px-4 block rounded-xl transition-all duration-300"
                   >
                     Contacto
@@ -280,10 +280,15 @@ function App() {
                 Gestioná tu monotributo de forma digital y eficiente.{" "}
                 <strong>Sin complicaciones.</strong>
               </p>
-              <button className="group flex items-center gap-2 bg-[#0066FF] text-white px-8 py-4 rounded-full font-semibold text-lg hover:bg-[#0066FF]/90 transition-all duration-300">
-                Comenzar ahora
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => router.push("/registro")}
+                className="group flex items-center gap-2 bg-[#0066FF] text-white px-8 py-4 rounded-full font-semibold text-lg hover:bg-[#0066FF]/90 transition-all duration-300"
+              >
+                Registrate
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </button>
+              </motion.button>
             </div>
 
             <div className="relative">
@@ -375,7 +380,8 @@ function App() {
                   Inscripción
                 </h3>
                 <p className="text-[#6B7280]">
-                  Te guiamos en todo el proceso de inscripción al Monotributo, desde la obtención del CUIT hasta la categorización inicial.
+                  Te guiamos en todo el proceso de inscripción al Monotributo,
+                  desde la obtención del CUIT hasta la categorización inicial.
                 </p>
               </motion.div>
 
@@ -389,13 +395,17 @@ function App() {
                   Baja de Monotributo
                 </h3>
                 <p className="text-[#6B7280]">
-                  Asistencia completa en el proceso de baja del Monotributo, asegurando el cumplimiento de todas las obligaciones pendientes.
+                  Asistencia completa en el proceso de baja del Monotributo,
+                  asegurando el cumplimiento de todas las obligaciones
+                  pendientes.
                 </p>
               </motion.div>
 
               <motion.div
                 whileHover={{ y: -5 }}
-                onClick={() => router.push("/registro?servicio=recategorizacion")}
+                onClick={() =>
+                  router.push("/registro?servicio=recategorizacion")
+                }
                 className="bg-white shadow-lg rounded-xl p-6 hover:shadow-xl transition-all duration-300 cursor-pointer"
               >
                 <HelpCircle className="w-12 h-12 text-[#0066FF] mb-4" />
@@ -403,7 +413,8 @@ function App() {
                   Recategorización
                 </h3>
                 <p className="text-[#6B7280]">
-                  Te ayudamos a realizar el cambio de categoría cuando tus ingresos o gastos superen los límites establecidos.
+                  Te ayudamos a realizar el cambio de categoría cuando tus
+                  ingresos o gastos superen los límites establecidos.
                 </p>
               </motion.div>
             </div>
