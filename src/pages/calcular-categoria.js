@@ -443,7 +443,7 @@ const CalcularCategoria = () => {
                 }`}
               >
                 <option value="" disabled>
-                  {pregunta.placeholder || "-- Seleccione --"}
+                  {pregunta.placeholder || "Seleccionar"}
                 </option>
                 {pregunta.opciones.map((opcion, index) => (
                   <option key={`${pregunta.id}-opt-${index}`} value={opcion}>
@@ -585,12 +585,6 @@ const CalcularCategoria = () => {
               </p>
             )}
           </div>
-
-          <p className="text-xs text-[#6B7280] mb-6">
-            Recordá que este cálculo es una estimación basada en los topes
-            vigentes y los datos proporcionados. La categoría final puede
-            variar.
-          </p>
 
           <div className="flex flex-col sm:flex-row justify-center gap-4">
             <button

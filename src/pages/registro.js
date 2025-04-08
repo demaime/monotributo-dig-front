@@ -255,7 +255,7 @@ export default function Registro() {
   };
 
   return (
-    <div className="min-h-screen bg-[#E5F0FF] py-12 px-4">
+    <div className="min-h-screen bg-[#E5F0FF] p-4">
       <div className="container mx-auto max-w-3xl">
         <motion.button
           initial={{ opacity: 0, x: -10 }}
@@ -323,7 +323,7 @@ export default function Registro() {
                           className="flex-grow px-4 py-3 rounded-lg bg-[#F8FAFC] border border-[#E2E8F0] text-[#1E293B] focus:outline-none focus:ring-2 focus:ring-[#0066FF] focus:border-transparent transition-all duration-300"
                           required
                         >
-                          <option value="">-- Seleccione --</option>
+                          <option value="">Seleccionar</option>
                           {categoriasOptions.map((cat) => (
                             <option key={cat} value={cat}>
                               Categoría {cat}
@@ -385,7 +385,7 @@ export default function Registro() {
                         className="w-full px-4 py-3 rounded-lg bg-[#F8FAFC] border border-[#E2E8F0] text-[#1E293B] focus:outline-none focus:ring-2 focus:ring-[#0066FF] focus:border-transparent transition-all duration-300"
                         required
                       >
-                        <option value="">-- Seleccione Mes --</option>
+                        <option value="">Seleccionar mes</option>
                         {mesesOptions.map((mes) => (
                           <option key={mes} value={mes}>
                             {mes}
