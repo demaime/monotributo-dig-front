@@ -367,14 +367,8 @@ const CalcularCategoria = () => {
   };
 
   const handlePrevious = () => {
-    // Si estamos viendo resultados, volver al último paso del wizard
-    if (resultadoCalculo) {
-      setResultadoCalculo(null);
-      // No necesitamos cambiar el currentVisibleIndex aquí,
-      // porque al poner resultadoCalculo a null, se volverá a renderizar
-      // el último paso del wizard que ya está en currentVisibleIndex.
-      return;
-    }
+    // Si estamos viendo resultados, esta función no debería llamarse desde ahí
+    // Mantenemos la lógica para volver atrás *dentro* del wizard
     const prevVisibleIndex = currentVisibleIndex - 1;
     if (prevVisibleIndex >= 0) {
       setCurrentVisibleIndex(prevVisibleIndex);
@@ -581,20 +575,20 @@ const CalcularCategoria = () => {
             variar.
           </p>
 
-          <div className="flex justify-center gap-4">
+          <div className="flex flex-col sm:flex-row justify-center gap-4">
             <button
-              onClick={handlePrevious} // Reutilizamos handlePrevious para volver
-              className={`flex items-center gap-2 px-6 py-3 rounded-xl hover:bg-[#E5F0FF] text-[#6B7280] transition-all`}
+              onClick={() => router.push("/")} // Navega a Home
+              className={`flex items-center justify-center gap-2 px-6 py-3 rounded-xl hover:bg-gray-100 text-[#6B7280] border border-gray-300 transition-all w-full sm:w-auto`}
             >
               <ArrowLeft className="w-5 h-5" />
-              <span>Volver a Editar</span>
+              <span>Volver al inicio</span>
             </button>
             <button
-              onClick={() => router.push("/")} // O a dónde quieras dirigir al usuario
-              className={`flex items-center gap-2 px-6 py-3 rounded-xl bg-[#0066FF] text-white hover:bg-[#0066FF]/90 transition-all`}
+              onClick={() => router.push("/registro")} // Navega a Registro
+              className={`flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-[#0066FF] text-white hover:bg-[#0066FF]/90 transition-all w-full sm:w-auto`}
             >
-              <span>Finalizar</span>
-              <CheckCircle className="w-5 h-5" />
+              <span>Continuar trámite</span>
+              <ArrowRight className="w-5 h-5" />
             </button>
           </div>
         </motion.div>
