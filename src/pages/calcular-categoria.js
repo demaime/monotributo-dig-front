@@ -250,7 +250,7 @@ const CalcularCategoria = () => {
   const router = useRouter();
   const [respuestas, setRespuestas] = useState({});
   const [currentVisibleIndex, setCurrentVisibleIndex] = useState(0);
-  const [resultadoCalculo, setResultadoCalculo] = useState(null); // Estado para el resultado
+  const [resultadoCalculo, setResultadoCalculo] = useState(null);
 
   const allQuestions = preguntasData.preguntas;
 
@@ -359,7 +359,7 @@ const CalcularCategoria = () => {
     if (nextVisibleIndex < totalVisibleSteps) {
       setCurrentVisibleIndex(nextVisibleIndex);
     } else {
-      // Último paso: Calcular y mostrar resultados
+      // Último paso: Calcular y mostrar resultados (YA NO GUARDA EN STORAGE)
       const resultado = calcularCategoriaYCuota(respuestas);
       setResultadoCalculo(resultado);
       console.log("Resultado del cálculo:", resultado);
@@ -519,9 +519,26 @@ const CalcularCategoria = () => {
       ? ((currentVisibleIndex + 1) / totalVisibleSteps) * 100
       : 0;
 
-  // --- START: Renderizado Condicional (Wizard o Resultados) ---
+  // Renderizado condicional (Resultados)
   if (resultadoCalculo) {
-    // Mostrar pantalla de resultados
+    const handleContinuarTramite = () => {
+      // 1. Obtener categoría
+      const categoria = resultadoCalculo?.categoriaDeterminada;
+      if (!categoria) {
+        console.error(
+          "No se pudo obtener la categoría calculada para la navegación."
+        );
+        // Quizás mostrar un error al usuario
+        return;
+      }
+
+      // 2. Navegar con parámetros en URL
+      console.log(
+        `Navegando a /registro con servicio=alta y categoria=${categoria}`
+      );
+      router.push(`/registro?servicio=alta&categoria=${categoria}`);
+    };
+
     return (
       <div className="min-h-screen h-screen bg-blue-100 flex items-center justify-center p-4">
         <motion.div
@@ -577,14 +594,14 @@ const CalcularCategoria = () => {
 
           <div className="flex flex-col sm:flex-row justify-center gap-4">
             <button
-              onClick={() => router.push("/")} // Navega a Home
+              onClick={() => router.push("/")}
               className={`flex items-center justify-center gap-2 px-6 py-3 rounded-xl hover:bg-gray-100 text-[#6B7280] border border-gray-300 transition-all w-full sm:w-auto`}
             >
               <ArrowLeft className="w-5 h-5" />
               <span>Volver al inicio</span>
             </button>
             <button
-              onClick={() => router.push("/registro")} // Navega a Registro
+              onClick={handleContinuarTramite}
               className={`flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-[#0066FF] text-white hover:bg-[#0066FF]/90 transition-all w-full sm:w-auto`}
             >
               <span>Continuar trámite</span>
@@ -595,7 +612,6 @@ const CalcularCategoria = () => {
       </div>
     );
   }
-  // --- END: Renderizado Condicional ---
 
   // Si no hay resultado, mostrar el wizard normal
   if (!currentVisibleQuestion) {
