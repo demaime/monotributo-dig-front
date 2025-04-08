@@ -13,7 +13,7 @@
     {
       "id": 2,
       "texto": "¿Cuál es el mínimo que estimás facturar por mes?",
-      "tipo": "seleccion",
+      "tipo": "seleccion_desplegable",
       "descripcion": "Solo debes considerar los ingresos del Monotributo, no tengas en cuenta relación de dependencia o jubilación, etc.",
       "opciones": [
         "Hasta $651.088",
@@ -104,7 +104,7 @@
     {
       "id": 6,
       "texto": "Seleccioná la provincia (o jurisdicción) dónde vas a ejercer tu actividad",
-      "tipo": "seleccion",
+      "tipo": "seleccion_desplegable",
       "opciones": [
         "Ciudad Autónoma de Buenos Aires",
         "Buenos Aires",

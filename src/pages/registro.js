@@ -315,7 +315,7 @@ export default function Registro() {
                       <label className="block text-sm font-medium text-[#1E293B] mb-2">
                         Categoría de Monotributo
                       </label>
-                      <div className="flex items-center gap-4">
+                      <div className="flex flex-wrap items-center gap-2 sm:gap-4">
                         <select
                           name="categoria"
                           value={formData.categoria}

@@ -540,7 +540,7 @@ const CalcularCategoria = () => {
     };
 
     return (
-      <div className="min-h-screen h-screen bg-blue-100 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-blue-100 flex items-center justify-center p-4">
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -616,18 +616,18 @@ const CalcularCategoria = () => {
   // Si no hay resultado, mostrar el wizard normal
   if (!currentVisibleQuestion) {
     return (
-      <div className="min-h-screen h-screen bg-blue-100 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-blue-100 flex items-center justify-center p-4">
         <p>Cargando o estado inválido...</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen h-screen bg-blue-100 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-blue-100 flex items-center justify-center p-4">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-3xl h-[90vh] bg-white shadow-xl rounded-2xl flex flex-col overflow-hidden"
+        className="w-full max-w-3xl bg-white shadow-xl rounded-2xl flex flex-col overflow-hidden"
       >
         <div className="p-8 pb-0">
           <div className="w-full h-2 bg-[#E5F0FF] rounded-full">
@@ -662,11 +662,11 @@ const CalcularCategoria = () => {
             {renderPregunta(currentVisibleQuestion)}
           </div>
 
-          <div className="flex justify-between mt-6 pt-4 border-t border-[#E5F0FF]">
-            <div className="flex gap-4">
+          <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mt-6 pt-4 border-t border-[#E5F0FF]">
+            <div className="flex gap-4 w-full sm:w-auto">
               <button
                 onClick={() => router.push("/")}
-                className="flex items-center gap-2 px-6 py-3 rounded-xl text-red-300 hover:bg-red-100 transition-all"
+                className="flex flex-1 sm:flex-initial items-center justify-center gap-2 px-6 py-3 rounded-xl text-red-500 hover:bg-red-100 transition-all border border-red-200"
               >
                 <X className="w-5 h-5" />
                 <span>Cancelar</span>
@@ -674,7 +674,7 @@ const CalcularCategoria = () => {
               <button
                 onClick={handlePrevious}
                 disabled={currentVisibleIndex === 0}
-                className={`flex items-center gap-2 px-6 py-3 rounded-xl transition-all ${
+                className={`flex flex-1 sm:flex-initial items-center justify-center gap-2 px-6 py-3 rounded-xl transition-all border border-gray-300 ${
                   currentVisibleIndex === 0
                     ? "opacity-50 cursor-not-allowed text-gray-400"
                     : "hover:bg-[#E5F0FF] text-[#6B7280]"
@@ -687,7 +687,7 @@ const CalcularCategoria = () => {
             <button
               onClick={handleNext}
               disabled={!isCurrentQuestionAnswered()}
-              className={`flex items-center gap-2 px-6 py-3 rounded-xl bg-[#0066FF] text-white transition-all ${
+              className={`flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-[#0066FF] text-white transition-all w-full sm:w-auto ${
                 !isCurrentQuestionAnswered()
                   ? "opacity-50 cursor-not-allowed"
                   : "hover:bg-[#0066FF]/90"
