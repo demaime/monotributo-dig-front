@@ -569,7 +569,7 @@ const CalcularCategoria = () => {
             </p>
           </div>
 
-          <div className="bg-[#F3F4F6] rounded-xl p-6 mb-8">
+          <div className="bg-[#F3F4F6] rounded-xl p-6 mb-6">
             <p className="text-sm text-[#6B7280] font-semibold mb-1">
               CUOTA MENSUAL ESTIMADA
             </p>
@@ -657,10 +657,13 @@ const CalcularCategoria = () => {
           </div>
 
           <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mt-6 pt-4 border-t border-[#E5F0FF]">
-            <div className="flex gap-4 w-full sm:w-auto">
+            {/* Grupo Izquierdo (Cancelar + Anterior) */}
+            <div className="flex gap-4 order-2 sm:order-none">
+              {" "}
+              {/* Order 2 on mobile */}
               <button
                 onClick={() => router.push("/")}
-                className="flex flex-1 sm:flex-initial items-center justify-center gap-2 px-6 py-3 rounded-xl text-red-500 hover:bg-red-100 transition-all border border-red-200"
+                className="flex items-center justify-center gap-2 px-6 py-3 rounded-xl text-red-500 hover:bg-red-100 transition-all border border-red-200"
               >
                 <X className="w-5 h-5" />
                 <span>Cancelar</span>
@@ -668,7 +671,7 @@ const CalcularCategoria = () => {
               <button
                 onClick={handlePrevious}
                 disabled={currentVisibleIndex === 0}
-                className={`flex flex-1 sm:flex-initial items-center justify-center gap-2 px-6 py-3 rounded-xl transition-all border border-gray-300 ${
+                className={`flex items-center justify-center gap-2 px-6 py-3 rounded-xl transition-all border border-gray-300 ${
                   currentVisibleIndex === 0
                     ? "opacity-50 cursor-not-allowed text-gray-400"
                     : "hover:bg-[#E5F0FF] text-[#6B7280]"
@@ -678,10 +681,13 @@ const CalcularCategoria = () => {
                 <span>Anterior</span>
               </button>
             </div>
+
+            {/* Botón Derecho (Siguiente/Calcular) */}
             <button
               onClick={handleNext}
               disabled={!isCurrentQuestionAnswered()}
-              className={`flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-[#0066FF] text-white transition-all w-full sm:w-auto ${
+              className={`flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-[#0066FF] text-white transition-all w-full sm:w-auto order-1 sm:order-none ${
+                // Added w-full, sm:w-auto, order-1, sm:order-none
                 !isCurrentQuestionAnswered()
                   ? "opacity-50 cursor-not-allowed"
                   : "hover:bg-[#0066FF]/90"
