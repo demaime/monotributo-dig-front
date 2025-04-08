@@ -60,3 +60,100 @@ azul oscuro: #1E293B
   background-clip: content-box;
   background-color: #0066ff;
 }
+
+/* Custom Datepicker Styles */
+.react-datepicker {
+  @apply font-sans border-none rounded-lg shadow-lg bg-white;
+}
+
+.react-datepicker__header {
+  @apply bg-blue-600 text-white border-b-0 rounded-t-lg pt-3 pb-2;
+}
+
+.react-datepicker__current-month {
+  @apply text-lg font-semibold text-white pb-1;
+}
+
+.react-datepicker__navigation {
+  @apply top-3;
+}
+
+.react-datepicker__navigation--previous {
+  @apply border-r-white;
+}
+
+.react-datepicker__navigation--next {
+  @apply border-l-white;
+}
+
+.react-datepicker__day-name {
+  @apply text-gray-500 font-medium w-8 m-1;
+}
+
+.react-datepicker__month {
+  @apply m-0 p-2;
+}
+
+.react-datepicker__day {
+  @apply w-8 h-8 leading-8 m-1 rounded-full text-gray-700 transition-colors duration-150;
+}
+
+.react-datepicker__day:hover {
+  @apply bg-blue-100 text-blue-700;
+}
+
+.react-datepicker__day--selected,
+.react-datepicker__day--keyboard-selected {
+  @apply bg-blue-600 text-white font-semibold;
+}
+
+.react-datepicker__day--selected:hover,
+.react-datepicker__day--keyboard-selected:hover {
+  @apply bg-blue-700;
+}
+
+.react-datepicker__day--outside-month {
+  @apply text-gray-300;
+}
+
+.react-datepicker__day--disabled {
+  @apply text-gray-300 cursor-not-allowed;
+}
+
+.react-datepicker__day--disabled:hover {
+  @apply bg-transparent text-gray-300;
+}
+
+/* Month/Year Picker specific styles */
+.react-datepicker__month-year-picker {
+  @apply grid grid-cols-3 gap-2 px-2 py-3;
+}
+
+.react-datepicker__month-text,
+.react-datepicker__year-text {
+  @apply inline-block w-full p-2 text-center rounded-md text-gray-700 cursor-pointer transition-colors duration-150;
+}
+
+.react-datepicker__month-text:hover,
+.react-datepicker__year-text:hover {
+  @apply bg-blue-100 text-blue-700;
+}
+
+.react-datepicker__month-text--selected,
+.react-datepicker__month-text--keyboard-selected,
+.react-datepicker__year-text--selected,
+.react-datepicker__year-text--keyboard-selected {
+  @apply bg-blue-600 text-white font-semibold;
+}
+
+.react-datepicker__month-text--selected:hover,
+.react-datepicker__month-text--keyboard-selected:hover,
+.react-datepicker__year-text--selected:hover,
+.react-datepicker__year-text--keyboard-selected:hover {
+  @apply bg-blue-700;
+}
+
+/* Style for select options */
+select option {
+  @apply font-sans text-sm;
+}

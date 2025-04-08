@@ -2,6 +2,9 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import { motion } from "framer-motion";
 import { ArrowLeft, ArrowRight, Calculator, Check } from "lucide-react";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import Modal from "../components/Modal";
 
 const servicios = [
   { id: "alta", label: "Alta de Monotributo", price: 5000 },
@@ -24,22 +27,6 @@ const categoriasOptions = [
   "K",
 ];
 
-// Opciones para Mes de Inicio
-const mesesOptions = [
-  "Enero",
-  "Febrero",
-  "Marzo",
-  "Abril",
-  "Mayo",
-  "Junio",
-  "Julio",
-  "Agosto",
-  "Septiembre",
-  "Octubre",
-  "Noviembre",
-  "Diciembre",
-];
-
 export default function Registro() {
   const router = useRouter();
   const { servicio, categoria: categoriaUrl } = router.query;
@@ -54,7 +41,7 @@ export default function Registro() {
     mensaje: "",
     // Campos Alta - Step 1
     actividad: "",
-    mesInicio: "",
+    mesInicio: null,
     // Campos Alta - Step 2
     cuit: "",
     claveFiscal: "",
@@ -65,6 +52,24 @@ export default function Registro() {
     apellido: "",
   });
   const [selectedService, setSelectedService] = useState(null);
+  // Modal State
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalTitle, setModalTitle] = useState("");
+  const [modalMessage, setModalMessage] = useState("");
+
+  // --- Modal Functions ---
+  const openModal = (title, message) => {
+    setModalTitle(title);
+    setModalMessage(message);
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setModalTitle("");
+    setModalMessage("");
+  };
+  // --- End Modal Functions ---
 
   useEffect(() => {
     console.log("Query Params recibidos:", router.query);
@@ -94,7 +99,7 @@ export default function Registro() {
       telefono: "",
       mensaje: "",
       actividad: "",
-      mesInicio: "",
+      mesInicio: null,
       cuit: "",
       claveFiscal: "",
       nombreCompleto: "",
@@ -139,7 +144,7 @@ export default function Registro() {
         ...prev,
         categoria: "",
         actividad: "",
-        mesInicio: "",
+        mesInicio: null,
         cuit: "",
         claveFiscal: "",
         nombreCompleto: "",
@@ -150,27 +155,67 @@ export default function Registro() {
     }
   };
 
+  // Handler specifically for DatePicker
+  const handleDateChange = (date) => {
+    setFormData((prev) => ({
+      ...prev,
+      mesInicio: date,
+    }));
+  };
+
   const handleNavigateToCalculator = () => {
     router.push("/calcular-categoria");
   };
 
   // --- Lógica Multi-step ---
   const handleNextStep = () => {
-    // Validar campos del paso 1 para 'alta'
-    if (!formData.actividad || !formData.telefono || !formData.mesInicio) {
-      alert("Por favor, complete todos los campos obligatorios del paso 1.");
-      return;
+    if (formData.tipoServicio === "alta") {
+      if (currentStep === 1) {
+        // Validar campos del paso 1 para 'alta'
+        if (
+          !formData.actividad ||
+          !formData.telefono ||
+          !formData.mesInicio ||
+          !formData.categoria
+        ) {
+          openModal(
+            "Campos Incompletos",
+            "Por favor, complete todos los campos obligatorios del paso 1."
+          );
+          return;
+        }
+        setCurrentStep(2);
+      } else if (currentStep === 2) {
+        // Validar campos del paso 2 para 'alta'
+        if (
+          !formData.cuit ||
+          !formData.email ||
+          !formData.claveFiscal ||
+          !formData.nombreCompleto
+        ) {
+          openModal(
+            "Campos Incompletos",
+            "Por favor, complete todos los campos."
+          );
+          return;
+        }
+        setCurrentStep(3);
+      }
+    } else {
+      // Si no es alta, solo hay 1 paso (implícitamente), se va directo a submit
+      // O si hubiera otros flujos multi-step, se manejarían aquí
+      // Por ahora, este botón no debería aparecer si no es alta
     }
-    if (!formData.categoria) {
-      // Validar categoría también aquí
-      alert("Por favor, seleccione o calcule su categoría.");
-      return;
-    }
-    setCurrentStep(2);
   };
 
   const handlePreviousStep = () => {
-    setCurrentStep(1);
+    if (formData.tipoServicio === "alta") {
+      if (currentStep > 1) {
+        setCurrentStep(currentStep - 1);
+      }
+    } else {
+      // Logica para otros tipos si fuera necesario
+    }
   };
   // --- Fin Lógica Multi-step ---
 
@@ -178,23 +223,19 @@ export default function Registro() {
     e.preventDefault();
     console.log("Datos del formulario:", formData);
 
-    // Validaciones específicas para 'alta' en paso 2
+    // Validaciones finales antes de submit (ahora en paso 3 para alta)
     if (formData.tipoServicio === "alta") {
-      if (
-        !formData.cuit ||
-        !formData.email ||
-        !formData.claveFiscal ||
-        !formData.nombreCompleto
-      ) {
-        alert("Por favor, complete todos los campos obligatorios del paso 2.");
-        return;
-      }
+      // Los campos ya fueron validados en handleNextStep
+      // Solo validar terminos
       if (!formData.aceptaTerminos) {
-        alert("Debe aceptar los términos y condiciones.");
+        openModal(
+          "Términos y Condiciones",
+          "Debe aceptar los términos y condiciones para continuar."
+        );
         return;
       }
     }
-    // Validaciones para otros servicios (si fueran necesarias)
+    // Validaciones para otros servicios
     else if (
       formData.tipoServicio === "recategorizacion" ||
       formData.tipoServicio === "baja"
@@ -205,19 +246,33 @@ export default function Registro() {
         !formData.email ||
         !formData.telefono
       ) {
-        alert(
+        openModal(
+          "Campos Incompletos",
           "Por favor, complete Nombre, Apellido, Email y Teléfono para este trámite."
         );
         return;
       }
-    } else {
+    } else if (!formData.tipoServicio) {
       // Si no hay servicio seleccionado
-      alert("Por favor, seleccione un tipo de servicio.");
+      openModal(
+        "Servicio Requerido",
+        "Por favor, seleccione un tipo de servicio."
+      );
       return;
     }
 
     // Proceder si todo es válido
     if (selectedService) {
+      // Format the Date object to month name string for submission
+      const mesInicioString = formData.mesInicio
+        ? new Intl.DateTimeFormat("es-ES", { month: "long" }).format(
+            formData.mesInicio
+          )
+        : "";
+      // Capitalize the first letter of the month
+      const formattedMesInicio =
+        mesInicioString.charAt(0).toUpperCase() + mesInicioString.slice(1);
+
       const queryData = {
         service: selectedService.label,
         price: selectedService.price,
@@ -225,12 +280,11 @@ export default function Registro() {
         ...(formData.tipoServicio === "alta" && {
           categoria: formData.categoria,
           actividad: formData.actividad,
-          mesInicio: formData.mesInicio,
+          mesInicio: formattedMesInicio,
           cuit: formData.cuit,
-          email: formData.email, // Email se pide en paso 2 para alta
-          telefono: formData.telefono, // Teléfono se pide en paso 1 para alta
+          email: formData.email,
+          telefono: formData.telefono,
           nombreCompleto: formData.nombreCompleto,
-          // No enviar clave fiscal por seguridad
         }),
         ...(formData.tipoServicio !== "alta" && {
           nombre: formData.nombre,
@@ -273,7 +327,7 @@ export default function Registro() {
           className="bg-white rounded-2xl shadow-xl p-8"
         >
           <h1 className="text-3xl font-bold text-[#1E293B] mb-2">Registro</h1>
-          <p className="text-[#6B7280] mb-8">
+          <p className="text-[#6B7280] mb-4 text-xs">
             Complete el formulario para comenzar con el trámite
           </p>
 
@@ -288,10 +342,8 @@ export default function Registro() {
                   name="tipoServicio"
                   value={formData.tipoServicio}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 rounded-lg bg-[#F8FAFC] border border-[#E2E8F0] text-[#1E293B] focus:outline-none focus:ring-2 focus:ring-[#0066FF] focus:border-transparent transition-all duration-300"
+                  className="w-full px-4 py-3 rounded-lg bg-[#F8FAFC] border border-[#E2E8F0] text-[#1E293B] focus:outline-none focus:ring-2 focus:ring-[#0066FF] focus:border-transparent transition-all duration-300 text-sm font-sans"
                   required
-                  // Deshabilitar si ya estamos en el flujo de alta (paso 1) para evitar cambios accidentales?
-                  // Opcional: podrías añadir disabled={formData.tipoServicio === 'alta'}
                 >
                   <option value="">Seleccione un servicio</option>
                   {servicios.map((s) => (
@@ -360,38 +412,39 @@ export default function Registro() {
                       />
                     </div>
 
-                    <div>
-                      <label className="block text-sm font-medium text-[#1E293B] mb-2">
-                        Teléfono
-                      </label>
-                      <input
-                        type="tel"
-                        name="telefono"
-                        value={formData.telefono}
-                        onChange={handleChange}
-                        className="w-full px-4 py-3 rounded-lg bg-[#F8FAFC] border border-[#E2E8F0] text-[#1E293B] focus:outline-none focus:ring-2 focus:ring-[#0066FF] focus:border-transparent transition-all duration-300"
-                        required
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-[#1E293B] mb-2">
-                        Mes Estimado de Inicio de Actividad
-                      </label>
-                      <select
-                        name="mesInicio"
-                        value={formData.mesInicio}
-                        onChange={handleChange}
-                        className="w-full px-4 py-3 rounded-lg bg-[#F8FAFC] border border-[#E2E8F0] text-[#1E293B] focus:outline-none focus:ring-2 focus:ring-[#0066FF] focus:border-transparent transition-all duration-300"
-                        required
-                      >
-                        <option value="">Seleccionar mes</option>
-                        {mesesOptions.map((mes) => (
-                          <option key={mes} value={mes}>
-                            {mes}
-                          </option>
-                        ))}
-                      </select>
+                    {/* Teléfono y Mes de Inicio en la misma fila */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div>
+                        <label className="block text-sm font-medium text-[#1E293B] mb-2">
+                          Teléfono
+                        </label>
+                        <input
+                          type="tel"
+                          name="telefono"
+                          value={formData.telefono}
+                          onChange={handleChange}
+                          className="w-full px-4 py-3 rounded-lg bg-[#F8FAFC] border border-[#E2E8F0] text-[#1E293B] focus:outline-none focus:ring-2 focus:ring-[#0066FF] focus:border-transparent transition-all duration-300"
+                          required
+                        />
+                      </div>
+                      <div>
+                        <label
+                          htmlFor="mesInicio"
+                          className="block text-sm font-medium text-[#1E293B] mb-2"
+                        >
+                          Mes Estimado de Inicio de Actividad
+                        </label>
+                        <DatePicker
+                          selected={formData.mesInicio}
+                          onChange={handleDateChange}
+                          dateFormat="MM/yyyy"
+                          showMonthYearPicker
+                          placeholderText="Seleccione Mes y Año"
+                          className="w-full px-4 py-3 rounded-lg bg-[#F8FAFC] border border-[#E2E8F0] text-[#1E293B] focus:outline-none focus:ring-2 focus:ring-[#0066FF] focus:border-transparent transition-all duration-300"
+                          locale="es"
+                          required // Ensure datepicker is also required if phone is
+                        />
+                      </div>
                     </div>
 
                     <div className="flex justify-end">
@@ -413,6 +466,7 @@ export default function Registro() {
                     animate={{ opacity: 1 }}
                     className="space-y-6"
                   >
+                    {/* Campos del Nuevo Paso 2 */}
                     <div>
                       <label className="block text-sm font-medium text-[#1E293B] mb-2">
                         CUIT
@@ -465,7 +519,36 @@ export default function Registro() {
                         required
                       />
                     </div>
-                    <div className="flex items-start gap-3">
+                    {/* Botones para Paso 2 */}
+                    <div className="flex justify-between items-center">
+                      <button
+                        type="button"
+                        onClick={handlePreviousStep}
+                        className="flex items-center gap-2 px-6 py-3 rounded-lg hover:bg-gray-100 text-[#6B7280] transition-colors"
+                      >
+                        <ArrowLeft className="w-5 h-5" />
+                        <span>Anterior</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleNextStep} // Va al paso 3
+                        className="flex items-center gap-2 px-6 py-3 rounded-lg bg-[#0066FF] text-white hover:bg-[#0066FF]/90 transition-all duration-300"
+                      >
+                        <span>Siguiente</span>
+                        <ArrowRight className="w-5 h-5" />
+                      </button>
+                    </div>
+                  </motion.div>
+                )}
+
+                {currentStep === 3 && (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="space-y-6"
+                  >
+                    {/* Contenido del Nuevo Paso 3 */}
+                    <div className="flex items-start gap-3 pt-4 border-t border-gray-200">
                       <input
                         type="checkbox"
                         id="aceptaTerminos"
@@ -501,13 +584,14 @@ export default function Registro() {
                       <p className="text-sm text-center text-[#6B7280] pt-4 border-t border-gray-200">
                         El costo del servicio es de{" "}
                         <strong>${selectedService.price}</strong> y lo pagarás
-                        por MercadoPago a nombre de Sanstag SAS.
+                        por MercadoPago a nombre de Juanfer Fernandez.
                       </p>
                     )}
-                    <div className="flex justify-between items-center">
+                    {/* Botones para Paso 3 */}
+                    <div className="flex justify-between items-center pt-4">
                       <button
                         type="button"
-                        onClick={handlePreviousStep}
+                        onClick={handlePreviousStep} // Vuelve al paso 2
                         className="flex items-center gap-2 px-6 py-3 rounded-lg hover:bg-gray-100 text-[#6B7280] transition-colors"
                       >
                         <ArrowLeft className="w-5 h-5" />
@@ -516,7 +600,7 @@ export default function Registro() {
                       <motion.button
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
-                        type="submit"
+                        type="submit" // Ahora el submit está aquí
                         className="bg-[#0066FF] text-white px-8 py-3 rounded-lg font-semibold text-lg hover:bg-[#0066FF]/90 transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
                         disabled={!formData.aceptaTerminos}
                       >
@@ -622,6 +706,9 @@ export default function Registro() {
           </form>
         </motion.div>
       </div>
+      <Modal isOpen={isModalOpen} onClose={closeModal} title={modalTitle}>
+        <p>{modalMessage}</p>
+      </Modal>
     </div>
   );
 }
