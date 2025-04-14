@@ -8,6 +8,7 @@ import {
   Check,
   AlertTriangle,
   KeyRound,
+  UploadCloud,
 } from "lucide-react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -64,10 +65,21 @@ export default function Registro() {
   const [modalTitle, setModalTitle] = useState("");
   const [modalMessage, setModalMessage] = useState("");
   const [modalActions, setModalActions] = useState([]); // State for modal actions
+  // --- State for Upload Modal ---
+  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+  const [files, setFiles] = useState({
+    frontDni: null,
+    backDni: null,
+    selfie: null,
+  });
+  const [uploading, setUploading] = useState(false); // Optional: for loading state
+  const [documentosCargados, setDocumentosCargados] = useState(false); // <-- Nuevo estado
 
   // --- Modal Functions ---
   // Updated openModal to accept actions
   const openModal = (title, message, actions = null) => {
+    // Ensure other modals are closed when opening a general info modal
+    setIsUploadModalOpen(false);
     setModalTitle(title);
     setModalMessage(message);
     setModalActions(actions || []); // Use provided actions or empty array (Modal will use default)
@@ -84,13 +96,79 @@ export default function Registro() {
 
   // --- Action for Modal Button ---
   const handleObtenerCredenciales = () => {
-    // Redirect to AFIP or a help page
-    // For now, let's just log it and close the modal
-    console.log("Redirecting to AFIP for credentials...");
-    window.open("https://www.afip.gob.ar/claveFiscal/", "_blank"); // Open AFIP link in new tab
-    closeModal();
+    closeModal(); // Close the first modal (info modal)
+    setIsUploadModalOpen(true); // Open the second (upload) modal
   };
   // --- End Action ---
+
+  // --- File Handling Logic ---
+  const handleFileChange = (e) => {
+    const { name, files: inputFiles } = e.target;
+    if (inputFiles && inputFiles.length > 0) {
+      setFiles((prev) => ({ ...prev, [name]: inputFiles[0] }));
+    } else {
+      // Handle case where user cancels file selection (optional)
+      setFiles((prev) => ({ ...prev, [name]: null }));
+    }
+  };
+
+  const handleUploadSubmit = async () => {
+    // Basic validation
+    if (!files.frontDni || !files.backDni || !files.selfie) {
+      openModal(
+        "Archivos Faltantes",
+        "Por favor, cargue los tres archivos requeridos."
+      );
+      return;
+    }
+
+    setUploading(true); // Indicate loading
+    console.log("Archivos seleccionados:", files);
+
+    // --- TODO: Backend Integration ---
+    // const uploadData = new FormData();
+    // uploadData.append('frontDni', files.frontDni);
+    // uploadData.append('backDni', files.backDni);
+    // uploadData.append('selfie', files.selfie);
+    // // Append other relevant form data if needed by the backend
+    // // uploadData.append('email', formData.email); // Example
+
+    try {
+      // Simulate API call delay
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+
+      // Replace with your actual API endpoint call
+      // const response = await fetch('/api/upload-documents', {
+      //   method: 'POST',
+      //   body: uploadData,
+      // });
+      // if (!response.ok) throw new Error('Upload failed');
+      // const result = await response.json();
+      // console.log('Upload successful:', result);
+
+      // --- Success Handling (Simulated) ---
+      setUploading(false);
+      setDocumentosCargados(true); // <-- Marcar documentos como cargados
+      openModal(
+        "¡Carga Exitosa!",
+        "Sus documentos han sido cargados. Uno de nuestros representantes se pondrá en contacto a la brevedad para continuar con el trámite."
+      );
+      setIsUploadModalOpen(false); // Close upload modal
+      setFiles({ frontDni: null, backDni: null, selfie: null }); // Reset files state
+      // Do NOT reset formData or change step here, keep the user on Step 1
+    } catch (error) {
+      setUploading(false);
+      console.error("Upload error:", error);
+      // Use the standard modal for showing the error to the user
+      openModal(
+        "Error de Carga",
+        "Hubo un problema al cargar sus archivos. Por favor, verifique los archivos e intente nuevamente. Si el problema persiste, contáctenos."
+      );
+      // Keep the upload modal open so the user can retry
+    }
+    // --- End TODO ---
+  };
+  // --- End File Handling Logic ---
 
   useEffect(() => {
     console.log("Query Params recibidos:", router.query);
@@ -132,7 +210,7 @@ export default function Registro() {
     setSelectedService(serviceData);
     // Always start at step 1
     setCurrentStep(1);
-  }, [servicio, categoriaUrl]);
+  }, [servicio, categoriaUrl, router.query]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -200,15 +278,24 @@ export default function Registro() {
       }
 
       if (isAltaFlow) {
-        // 1. Check CUIT/Clave First
-        if (formData.hasCuit === null || formData.hasClaveFiscal === null) {
+        // 1. Check if CUIT/Clave questions need to be answered (i.e., docs not yet loaded)
+        if (
+          !documentosCargados &&
+          (formData.hasCuit === null || formData.hasClaveFiscal === null)
+        ) {
           openModal(
             "Verificación Requerida",
             "Por favor, indique si posee CUIT/CUIL y Clave Fiscal."
           );
-          return;
+          return; // Stop: Need CUIT/Clave status if docs aren't uploaded
         }
-        if (formData.hasCuit === "no" || formData.hasClaveFiscal === "no") {
+
+        // 2. Check if answered "no" AND documents have NOT been loaded
+        // If documents ARE loaded (documentosCargados is true), skip this check.
+        if (
+          !documentosCargados &&
+          (formData.hasCuit === "no" || formData.hasClaveFiscal === "no")
+        ) {
           openModal(
             <span className="flex items-center gap-x-2">
               <AlertTriangle className="w-5 h-5 text-yellow-500" /> Información
@@ -222,15 +309,19 @@ export default function Registro() {
                     <KeyRound className="w-4 h-4" /> Obtener Credenciales
                   </span>
                 ),
-                onClick: handleObtenerCredenciales,
+                onClick: handleObtenerCredenciales, // Opens upload modal
                 style: "primary",
               },
               { text: "Cancelar", onClick: closeModal, style: "secondary" },
             ]
           );
-          return;
+          return; // Stop: Need docs or must answer 'yes'
         }
-        // 2. If CUIT/Clave OK, validate other Alta Step 1 fields
+
+        // 3. If we reach here, either:
+        //    a) documentosCargados is true (meaning they uploaded docs after selecting 'no') OR
+        //    b) documentosCargados is false BUT they selected 'yes' for both CUIT/Clave.
+        //    Now, validate the other essential fields for Alta Step 1.
         if (
           !formData.actividad ||
           !formData.telefono ||
@@ -241,14 +332,13 @@ export default function Registro() {
             "Campos Incompletos",
             "Por favor, complete Actividad, Teléfono, Mes de Inicio y Categoría."
           );
-          return;
+          return; // Stop: Other fields missing
         }
-        // Both checks passed for Alta Step 1, proceed to Step 2
+
+        // All checks passed for Alta Step 1, proceed to Step 2
         setCurrentStep(2);
       } else {
         // --- Logic for Non-Alta services in Step 1 ---
-        // (Baja, Recategorización)
-        // Validate their specific fields
         if (
           !formData.nombre ||
           !formData.apellido ||
@@ -261,9 +351,7 @@ export default function Registro() {
           );
           return;
         }
-        // Validation passed for non-alta, but there's no automatic next step.
-        // The submit button will just become enabled.
-        // console.log("Non-alta Step 1 validation passed");
+        // For non-alta, Step 1 is the last step, submit is handled by the button
       }
     }
     // --- Step 2 Logic (Only Alta) ---
@@ -385,82 +473,6 @@ export default function Registro() {
                 </select>
               </div>
 
-              {/* --- CUIT/Clave Check (Rendered conditionally inline within the grid) --- */}
-              {isAltaFlow && (
-                <>
-                  {/* CUIT Check */}
-                  <fieldset>
-                    <legend className="block text-sm font-medium text-gray-700 mb-2">
-                      ¿Posee CUIT/CUIL? <span className="text-red-500">*</span>
-                    </legend>
-                    <div className="flex items-center gap-x-3">
-                      <label className="cursor-pointer">
-                        <input
-                          type="radio"
-                          name="hasCuit"
-                          value="yes"
-                          checked={formData.hasCuit === "yes"}
-                          onChange={handleChange}
-                          className="peer sr-only"
-                        />
-                        <div className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 shadow-sm transition-colors duration-200 ease-in-out peer-checked:bg-blue-500 peer-checked:text-white peer-checked:border-blue-500">
-                          Sí
-                        </div>
-                      </label>
-                      <label className="cursor-pointer">
-                        <input
-                          type="radio"
-                          name="hasCuit"
-                          value="no"
-                          checked={formData.hasCuit === "no"}
-                          onChange={handleChange}
-                          className="peer sr-only"
-                        />
-                        <div className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 shadow-sm transition-colors duration-200 ease-in-out peer-checked:bg-blue-500 peer-checked:text-white peer-checked:border-blue-500">
-                          No
-                        </div>
-                      </label>
-                    </div>
-                  </fieldset>
-
-                  {/* Clave Fiscal Check */}
-                  <fieldset>
-                    <legend className="block text-sm font-medium text-gray-700 mb-2">
-                      ¿Posee Clave Fiscal (nivel 2+)?{" "}
-                      <span className="text-red-500">*</span>
-                    </legend>
-                    <div className="flex items-center gap-x-3">
-                      <label className="cursor-pointer">
-                        <input
-                          type="radio"
-                          name="hasClaveFiscal"
-                          value="yes"
-                          checked={formData.hasClaveFiscal === "yes"}
-                          onChange={handleChange}
-                          className="peer sr-only"
-                        />
-                        <div className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 shadow-sm transition-colors duration-200 ease-in-out peer-checked:bg-blue-500 peer-checked:text-white peer-checked:border-blue-500">
-                          Sí
-                        </div>
-                      </label>
-                      <label className="cursor-pointer">
-                        <input
-                          type="radio"
-                          name="hasClaveFiscal"
-                          value="no"
-                          checked={formData.hasClaveFiscal === "no"}
-                          onChange={handleChange}
-                          className="peer sr-only"
-                        />
-                        <div className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 shadow-sm transition-colors duration-200 ease-in-out peer-checked:bg-blue-500 peer-checked:text-white peer-checked:border-blue-500">
-                          No
-                        </div>
-                      </label>
-                    </div>
-                  </fieldset>
-                </>
-              )}
-
               {/* --- Conditional Form Rendering (Main Fields) --- */}
               {isAltaFlow && renderAltaStep1Fields()}
               {!isAltaFlow &&
@@ -524,10 +536,100 @@ export default function Registro() {
             Calcular
           </button>
         </div>
-        <p className="text-xs text-gray-500 mt-1">
+        <p className="text-xs font-semibold text-blue-500 mt-1">
           Si no conocés tu categoría, podés calcularla.
         </p>
       </div>
+
+      {/* --- CUIT/Clave Check (Moved here) --- */}
+      {/* CUIT Check */}
+      <fieldset>
+        <legend className="block text-sm font-medium text-gray-700 mb-2">
+          ¿Posee CUIT/CUIL? <span className="text-red-500">*</span>
+        </legend>
+        {documentosCargados ? (
+          <div className="flex items-center gap-x-2 p-2 border border-green-300 rounded-md bg-green-50">
+            <Check className="w-5 h-5 text-green-600" />
+            <span className="text-sm font-medium text-green-700">
+              Archivos adjuntados
+            </span>
+          </div>
+        ) : (
+          <div className="flex items-center gap-x-3">
+            <label className="cursor-pointer">
+              <input
+                type="radio"
+                name="hasCuit"
+                value="yes"
+                checked={formData.hasCuit === "yes"}
+                onChange={handleChange}
+                className="peer sr-only"
+              />
+              <div className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 shadow-sm transition-colors duration-200 ease-in-out peer-checked:bg-blue-500 peer-checked:text-white peer-checked:border-blue-500">
+                Sí
+              </div>
+            </label>
+            <label className="cursor-pointer">
+              <input
+                type="radio"
+                name="hasCuit"
+                value="no"
+                checked={formData.hasCuit === "no"}
+                onChange={handleChange}
+                className="peer sr-only"
+              />
+              <div className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 shadow-sm transition-colors duration-200 ease-in-out peer-checked:bg-blue-500 peer-checked:text-white peer-checked:border-blue-500">
+                No
+              </div>
+            </label>
+          </div>
+        )}
+      </fieldset>
+
+      {/* Clave Fiscal Check */}
+      <fieldset>
+        <legend className="block text-sm font-medium text-gray-700 mb-2">
+          ¿Posee Clave Fiscal (nivel 2+)?{" "}
+          <span className="text-red-500">*</span>
+        </legend>
+        {documentosCargados ? (
+          <div className="flex items-center gap-x-2 p-2 border border-green-300 rounded-md bg-green-50">
+            <Check className="w-5 h-5 text-green-600" />
+            <span className="text-sm font-medium text-green-700">
+              Archivos adjuntados
+            </span>
+          </div>
+        ) : (
+          <div className="flex items-center gap-x-3">
+            <label className="cursor-pointer">
+              <input
+                type="radio"
+                name="hasClaveFiscal"
+                value="yes"
+                checked={formData.hasClaveFiscal === "yes"}
+                onChange={handleChange}
+                className="peer sr-only"
+              />
+              <div className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 shadow-sm transition-colors duration-200 ease-in-out peer-checked:bg-blue-500 peer-checked:text-white peer-checked:border-blue-500">
+                Sí
+              </div>
+            </label>
+            <label className="cursor-pointer">
+              <input
+                type="radio"
+                name="hasClaveFiscal"
+                value="no"
+                checked={formData.hasClaveFiscal === "no"}
+                onChange={handleChange}
+                className="peer sr-only"
+              />
+              <div className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 shadow-sm transition-colors duration-200 ease-in-out peer-checked:bg-blue-500 peer-checked:text-white peer-checked:border-blue-500">
+                No
+              </div>
+            </label>
+          </div>
+        )}
+      </fieldset>
 
       {/* Actividad */}
       <div className="md:col-span-2">
@@ -830,6 +932,18 @@ export default function Registro() {
     </motion.div>
   );
 
+  // Helper to display selected file name
+  const renderFileName = (file) => {
+    if (!file) return null;
+    // Truncate long file names if necessary
+    const maxLength = 30;
+    const name =
+      file.name.length > maxLength
+        ? `${file.name.substring(0, maxLength - 3)}...`
+        : file.name;
+    return <span className="ml-2 text-xs text-green-600">✓ {name}</span>;
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex flex-col items-center justify-center p-4">
       {/* Back button */}
@@ -953,7 +1067,7 @@ export default function Registro() {
         </form>
       </motion.div>
 
-      {/* Modal */}
+      {/* Info/Error Modal (Existing) */}
       <Modal
         isOpen={isModalOpen}
         onClose={closeModal}
@@ -962,6 +1076,115 @@ export default function Registro() {
       >
         {modalMessage}
       </Modal>
+
+      {/* ---- Upload Modal (New) ---- */}
+      <Modal
+        isOpen={isUploadModalOpen}
+        onClose={() => !uploading && setIsUploadModalOpen(false)}
+        title={
+          <span className="flex items-center gap-x-2">
+            {/* Optional: <UploadCloud className="w-5 h-5 text-blue-600" /> */}
+            Cargar Documentación
+          </span>
+        }
+        actions={[
+          {
+            text: uploading ? "Subiendo..." : "Subir Archivos",
+            onClick: handleUploadSubmit,
+            style: "primary",
+            disabled:
+              uploading || !files.frontDni || !files.backDni || !files.selfie,
+          },
+          {
+            text: "Cancelar",
+            onClick: () => setIsUploadModalOpen(false),
+            style: "secondary",
+            disabled: uploading,
+          },
+        ]}
+      >
+        <p className="text-sm text-gray-600 mb-4">
+          Para continuar con el trámite es necesario tener CUIT/CUIL y Clave
+          Fiscal. Por favor cargue la siguiente documentación para obtenerlas.
+          Asegúrese de que las imágenes sean claras y legibles.
+        </p>
+        <div className="space-y-4">
+          {/* Front DNI Input */}
+          <div>
+            <label
+              htmlFor="frontDni"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              Frente del DNI <span className="text-red-500">*</span>
+            </label>
+            <div className="flex items-center">
+              <input
+                type="file"
+                id="frontDni"
+                name="frontDni"
+                onChange={handleFileChange}
+                accept="image/*,.pdf"
+                className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border file:border-gray-300 file:text-sm file:font-medium file:bg-gray-50 file:text-gray-700 hover:file:bg-gray-100 disabled:opacity-50"
+                disabled={uploading}
+              />
+              {renderFileName(files.frontDni)}
+            </div>
+          </div>
+          {/* Back DNI Input */}
+          <div>
+            <label
+              htmlFor="backDni"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              Dorso del DNI <span className="text-red-500">*</span>
+            </label>
+            <div className="flex items-center">
+              <input
+                type="file"
+                id="backDni"
+                name="backDni"
+                onChange={handleFileChange}
+                accept="image/*,.pdf"
+                className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border file:border-gray-300 file:text-sm file:font-medium file:bg-gray-50 file:text-gray-700 hover:file:bg-gray-100 disabled:opacity-50"
+                disabled={uploading}
+              />
+              {renderFileName(files.backDni)}
+            </div>
+          </div>
+          {/* Selfie Input */}
+          <div>
+            <label
+              htmlFor="selfie"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              Selfie sosteniendo el DNI <span className="text-red-500">*</span>
+            </label>
+            <div className="flex items-center">
+              <input
+                type="file"
+                id="selfie"
+                name="selfie"
+                onChange={handleFileChange}
+                accept="image/*"
+                className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border file:border-gray-300 file:text-sm file:font-medium file:bg-gray-50 file:text-gray-700 hover:file:bg-gray-100 disabled:opacity-50"
+                disabled={uploading}
+              />
+              {renderFileName(files.selfie)}
+            </div>
+            <p className="text-xs text-gray-500 mt-1">
+              Asegúrese de que su rostro y el DNI sean visibles en la foto.
+            </p>
+          </div>
+
+          {/* Optional Uploading Indicator */}
+          {uploading && (
+            <div className="text-center text-blue-600">
+              <p>Cargando archivos...</p>
+            </div>
+          )}
+        </div>
+      </Modal>
+      {/* ---- End Upload Modal ---- */}
     </div>
   );
 }
