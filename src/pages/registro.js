@@ -1,15 +1,23 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
-import { motion } from "framer-motion";
-import { ArrowLeft, ArrowRight, Calculator, Check } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  ArrowLeft,
+  ArrowRight,
+  Calculator,
+  Check,
+  AlertTriangle,
+  KeyRound,
+} from "lucide-react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import Modal from "../components/Modal";
 
 const servicios = [
-  { id: "alta", label: "Alta de Monotributo", price: 5000 },
-  { id: "recategorizacion", label: "Recategorización", price: 3000 },
-  { id: "baja", label: "Baja de Monotributo", price: 2000 },
+  { id: "alta", label: "Alta de Monotributo", price: 70000 },
+  { id: "recategorizacion", label: "Recategorización", price: 50000 },
+  { id: "baja", label: "Baja de Monotributo", price: 70000 },
+  { id: "alta_suscripcion", label: "Alta + Suscripción Mensual", price: 20000 },
 ];
 
 // Opciones de categoría para el desplegable
@@ -31,23 +39,22 @@ export default function Registro() {
   const router = useRouter();
   const { servicio, categoria: categoriaUrl } = router.query;
 
-  const [currentStep, setCurrentStep] = useState(1); // Estado para multi-step
+  // Start directly at Step 1 (Service Selection / Initial Fields)
+  const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState({
-    // Campos comunes / iniciales
+    hasCuit: null, // Still needed for conditional check
+    hasClaveFiscal: null,
     tipoServicio: "",
     categoria: "",
     telefono: "",
     email: "",
     mensaje: "",
-    // Campos Alta - Step 1
     actividad: "",
     mesInicio: null,
-    // Campos Alta - Step 2
     cuit: "",
     claveFiscal: "",
-    nombreCompleto: "", // Reemplaza nombre/apellido para Alta
+    nombreCompleto: "",
     aceptaTerminos: false,
-    // Campos Otros Servicios (si no es alta)
     nombre: "",
     apellido: "",
   });
@@ -56,11 +63,14 @@ export default function Registro() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalTitle, setModalTitle] = useState("");
   const [modalMessage, setModalMessage] = useState("");
+  const [modalActions, setModalActions] = useState([]); // State for modal actions
 
   // --- Modal Functions ---
-  const openModal = (title, message) => {
+  // Updated openModal to accept actions
+  const openModal = (title, message, actions = null) => {
     setModalTitle(title);
     setModalMessage(message);
+    setModalActions(actions || []); // Use provided actions or empty array (Modal will use default)
     setIsModalOpen(true);
   };
 
@@ -68,32 +78,38 @@ export default function Registro() {
     setIsModalOpen(false);
     setModalTitle("");
     setModalMessage("");
+    setModalActions([]); // Clear actions on close
   };
   // --- End Modal Functions ---
 
+  // --- Action for Modal Button ---
+  const handleObtenerCredenciales = () => {
+    // Redirect to AFIP or a help page
+    // For now, let's just log it and close the modal
+    console.log("Redirecting to AFIP for credentials...");
+    window.open("https://www.afip.gob.ar/claveFiscal/", "_blank"); // Open AFIP link in new tab
+    closeModal();
+  };
+  // --- End Action ---
+
   useEffect(() => {
     console.log("Query Params recibidos:", router.query);
-    // 1. Determinar estado inicial basado en URL Params
     let initialServicio = servicio || "";
     let initialCategoria = "";
 
-    // Validar y usar categoría de la URL si existe y es válida
     if (categoriaUrl && categoriasOptions.includes(categoriaUrl)) {
-      console.log(`Categoría válida encontrada en URL: ${categoriaUrl}`);
       initialCategoria = categoriaUrl;
-      // Si viene categoría, asegurar que el servicio sea 'alta'
       initialServicio = "alta";
     } else {
-      // Si no hay categoría válida en URL, asegurar que la categoría esté vacía
-      // incluso si el servicio es 'alta' (forzar selección manual)
       initialCategoria = "";
     }
 
-    // 2. Crear el objeto de estado inicial
     const initialFormData = {
+      hasCuit: null,
+      hasClaveFiscal: null,
       tipoServicio: initialServicio,
       categoria: initialCategoria,
-      nombre: "", // Resetear otros campos si es necesario
+      nombre: "",
       apellido: "",
       email: "",
       telefono: "",
@@ -105,15 +121,8 @@ export default function Registro() {
       nombreCompleto: "",
       aceptaTerminos: false,
     };
-
-    // 3. Establecer el estado del formulario
-    console.log(
-      "Estableciendo estado inicial del formulario:",
-      initialFormData
-    );
     setFormData(initialFormData);
 
-    // 4. Establecer el servicio seleccionado
     let serviceData = null;
     if (initialFormData.tipoServicio) {
       serviceData = servicios.find(
@@ -121,14 +130,19 @@ export default function Registro() {
       );
     }
     setSelectedService(serviceData);
-    console.log("Servicio seleccionado establecido:", serviceData);
-
-    // Re-ejecutar si cambian los parámetros de la URL
+    // Always start at step 1
+    setCurrentStep(1);
   }, [servicio, categoriaUrl]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    const val = type === "checkbox" ? checked : value;
+    let val = type === "checkbox" ? checked : value;
+
+    if (name === "hasCuit" || name === "hasClaveFiscal") {
+      // Keep the value as 'yes' or 'no' string
+    } else {
+      val = type === "checkbox" ? checked : value;
+    }
 
     setFormData((prev) => ({
       ...prev,
@@ -138,10 +152,11 @@ export default function Registro() {
     if (name === "tipoServicio") {
       const service = servicios.find((s) => s.id === value);
       setSelectedService(service);
-      setCurrentStep(1); // Resetear a paso 1 si cambia el servicio
-      // Resetear campos específicos al cambiar servicio manualmente
+      // Reset check answers when service changes
       setFormData((prev) => ({
         ...prev,
+        hasCuit: null,
+        hasClaveFiscal: null,
         categoria: "",
         actividad: "",
         mesInicio: null,
@@ -152,6 +167,7 @@ export default function Registro() {
         nombre: "",
         apellido: "",
       }));
+      setCurrentStep(1); // Stay on Step 1
     }
   };
 
@@ -169,9 +185,52 @@ export default function Registro() {
 
   // --- Lógica Multi-step ---
   const handleNextStep = () => {
-    if (formData.tipoServicio === "alta") {
-      if (currentStep === 1) {
-        // Validar campos del paso 1 para 'alta'
+    const isAltaFlow =
+      formData.tipoServicio === "alta" ||
+      formData.tipoServicio === "alta_suscripcion";
+
+    // --- Step 1 Logic ---
+    if (currentStep === 1) {
+      if (!formData.tipoServicio) {
+        openModal(
+          "Servicio Requerido",
+          "Por favor, seleccione un tipo de servicio."
+        );
+        return;
+      }
+
+      if (isAltaFlow) {
+        // 1. Check CUIT/Clave First
+        if (formData.hasCuit === null || formData.hasClaveFiscal === null) {
+          openModal(
+            "Verificación Requerida",
+            "Por favor, indique si posee CUIT/CUIL y Clave Fiscal."
+          );
+          return;
+        }
+        if (formData.hasCuit === "no" || formData.hasClaveFiscal === "no") {
+          openModal(
+            <span className="flex items-center gap-x-2">
+              <AlertTriangle className="w-5 h-5 text-yellow-500" /> Información
+              Necesaria
+            </span>,
+            "El CUIT/CUIL y la Clave Fiscal son necesarios para realizar este trámite.",
+            [
+              {
+                text: (
+                  <span className="flex items-center gap-x-1.5">
+                    <KeyRound className="w-4 h-4" /> Obtener Credenciales
+                  </span>
+                ),
+                onClick: handleObtenerCredenciales,
+                style: "primary",
+              },
+              { text: "Cancelar", onClick: closeModal, style: "secondary" },
+            ]
+          );
+          return;
+        }
+        // 2. If CUIT/Clave OK, validate other Alta Step 1 fields
         if (
           !formData.actividad ||
           !formData.telefono ||
@@ -180,53 +239,70 @@ export default function Registro() {
         ) {
           openModal(
             "Campos Incompletos",
-            "Por favor, complete todos los campos obligatorios del paso 1."
+            "Por favor, complete Actividad, Teléfono, Mes de Inicio y Categoría."
           );
           return;
         }
+        // Both checks passed for Alta Step 1, proceed to Step 2
         setCurrentStep(2);
-      } else if (currentStep === 2) {
-        // Validar campos del paso 2 para 'alta'
+      } else {
+        // --- Logic for Non-Alta services in Step 1 ---
+        // (Baja, Recategorización)
+        // Validate their specific fields
         if (
-          !formData.cuit ||
+          !formData.nombre ||
+          !formData.apellido ||
           !formData.email ||
-          !formData.claveFiscal ||
-          !formData.nombreCompleto
+          !formData.telefono
         ) {
           openModal(
             "Campos Incompletos",
-            "Por favor, complete todos los campos."
+            "Por favor, complete Nombre, Apellido, Email y Teléfono."
           );
           return;
         }
-        setCurrentStep(3);
+        // Validation passed for non-alta, but there's no automatic next step.
+        // The submit button will just become enabled.
+        // console.log("Non-alta Step 1 validation passed");
       }
-    } else {
-      // Si no es alta, solo hay 1 paso (implícitamente), se va directo a submit
-      // O si hubiera otros flujos multi-step, se manejarían aquí
-      // Por ahora, este botón no debería aparecer si no es alta
+    }
+    // --- Step 2 Logic (Only Alta) ---
+    else if (currentStep === 2 && isAltaFlow) {
+      if (
+        !formData.cuit ||
+        !formData.email ||
+        !formData.claveFiscal ||
+        !formData.nombreCompleto
+      ) {
+        openModal(
+          "Campos Incompletos",
+          "Por favor, complete CUIT, Email, Clave Fiscal y Nombre Completo."
+        );
+        return;
+      }
+      setCurrentStep(3);
+    }
+    // --- Step 3 Logic (Only Alta) ---
+    else if (currentStep === 3 && isAltaFlow) {
+      // This step only has the terms checkbox, validation happens in handleSubmit
+      // But we might need a next step action if adding more steps later.
+      // For now, clicking "Finalizar" triggers handleSubmit directly.
     }
   };
 
   const handlePreviousStep = () => {
-    if (formData.tipoServicio === "alta") {
-      if (currentStep > 1) {
-        setCurrentStep(currentStep - 1);
-      }
-    } else {
-      // Logica para otros tipos si fuera necesario
+    if (currentStep > 1) {
+      setCurrentStep(currentStep - 1);
     }
   };
-  // --- Fin Lógica Multi-step ---
 
+  // handleSubmit needs slight adjustment for when it's called (step 3 for alta)
   const handleSubmit = (e) => {
-    e.preventDefault();
+    e.preventDefault(); // Ensure preventDefault is called
     console.log("Datos del formulario:", formData);
 
-    // Validaciones finales antes de submit (ahora en paso 3 para alta)
-    if (formData.tipoServicio === "alta") {
-      // Los campos ya fueron validados en handleNextStep
-      // Solo validar terminos
+    // Final validation for Alta (Step 3)
+    if (formData.tipoServicio === "alta" && currentStep === 3) {
       if (!formData.aceptaTerminos) {
         openModal(
           "Términos y Condiciones",
@@ -234,480 +310,657 @@ export default function Registro() {
         );
         return;
       }
+      // --- SUBMIT LOGIC FOR ALTA GOES HERE ---
+      console.log("SUBMITTING ALTA DATA...");
+      openModal("¡Éxito!", "Su solicitud de alta ha sido enviada."); // Example success
+      // Potentially redirect or reset form: router.push('/gracias');
     }
-    // Validaciones para otros servicios
-    else if (
-      formData.tipoServicio === "recategorizacion" ||
-      formData.tipoServicio === "baja"
-    ) {
-      if (
-        !formData.nombre ||
-        !formData.apellido ||
-        !formData.email ||
-        !formData.telefono
-      ) {
-        openModal(
-          "Campos Incompletos",
-          "Por favor, complete Nombre, Apellido, Email y Teléfono para este trámite."
-        );
-        return;
-      }
-    } else if (!formData.tipoServicio) {
-      // Si no hay servicio seleccionado
+    // Final validation for Other Services (triggered from handleNextStep in step 1)
+    else if (formData.tipoServicio !== "alta" && currentStep === 1) {
+      // Validation was already done in handleNextStep before calling handleSubmit
+      // --- SUBMIT LOGIC FOR OTHER SERVICES GOES HERE ---
+      console.log("SUBMITTING OTHER SERVICE DATA...");
       openModal(
-        "Servicio Requerido",
-        "Por favor, seleccione un tipo de servicio."
-      );
-      return;
+        "¡Éxito!",
+        `Su solicitud de ${selectedService?.label} ha sido enviada.`
+      ); // Example success
+      // Potentially redirect or reset form: router.push('/gracias');
     }
-
-    // Proceder si todo es válido
-    if (selectedService) {
-      // Format the Date object to month name string for submission
-      const mesInicioString = formData.mesInicio
-        ? new Intl.DateTimeFormat("es-ES", { month: "long" }).format(
-            formData.mesInicio
-          )
-        : "";
-      // Capitalize the first letter of the month
-      const formattedMesInicio =
-        mesInicioString.charAt(0).toUpperCase() + mesInicioString.slice(1);
-
-      const queryData = {
-        service: selectedService.label,
-        price: selectedService.price,
-        // Incluir datos relevantes según el servicio
-        ...(formData.tipoServicio === "alta" && {
-          categoria: formData.categoria,
-          actividad: formData.actividad,
-          mesInicio: formattedMesInicio,
-          cuit: formData.cuit,
-          email: formData.email,
-          telefono: formData.telefono,
-          nombreCompleto: formData.nombreCompleto,
-        }),
-        ...(formData.tipoServicio !== "alta" && {
-          nombre: formData.nombre,
-          apellido: formData.apellido,
-          email: formData.email,
-          telefono: formData.telefono,
-          mensaje: formData.mensaje,
-        }),
-      };
-      console.log("Redirigiendo a pago con datos:", queryData);
-
-      router.push({
-        pathname: "/payment",
-        query: queryData,
-      });
-    } else {
-      // Este caso ya se cubre en la validación anterior
-      console.error(
-        "Error inesperado: No hay servicio seleccionado pero se pasó la validación."
+    // Add a fallback for unexpected states?
+    else {
+      console.warn(
+        "handleSubmit called in unexpected state:",
+        currentStep,
+        formData.tipoServicio
       );
     }
   };
 
-  return (
-    <div className="min-h-screen bg-[#E5F0FF] p-4">
-      <div className="container mx-auto max-w-3xl">
-        <motion.button
-          initial={{ opacity: 0, x: -10 }}
-          animate={{ opacity: 1, x: 0 }}
-          onClick={() => router.push("/")}
-          className="flex items-center gap-2 text-[#6B7280] hover:text-[#1E293B] mb-8 transition-colors"
-        >
-          <ArrowLeft className="w-5 h-5" />
-          Volver al inicio
-        </motion.button>
+  // --- Rendering Logic ---
+  const renderStepContent = () => {
+    switch (currentStep) {
+      case 1: // Step 1: Service Selection, Fields (and conditional CUIT check)
+        const isAltaFlow =
+          formData.tipoServicio === "alta" ||
+          formData.tipoServicio === "alta_suscripcion";
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="bg-white rounded-2xl shadow-xl p-8"
-        >
-          <h1 className="text-3xl font-bold text-[#1E293B] mb-2">Registro</h1>
-          <p className="text-[#6B7280] mb-4 text-xs">
-            Complete el formulario para comenzar con el trámite
-          </p>
-
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* --- Selector de Servicio (Condicionalmente visible) --- */}
-            {(formData.tipoServicio !== "alta" || currentStep === 1) && (
-              <div>
-                <label className="block text-sm font-medium text-[#1E293B] mb-2">
-                  Tipo de Servicio
+        return (
+          <motion.div
+            key="step1"
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 20 }}
+            className="space-y-6"
+          >
+            {/* Use grid layout for all fields in this step */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-2 gap-y-6">
+              {/* --- Service Selection --- */}
+              <div className="md:col-span-2">
+                <label
+                  htmlFor="tipoServicio"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
+                  Tipo de Servicio <span className="text-red-500">*</span>
                 </label>
                 <select
+                  id="tipoServicio"
                   name="tipoServicio"
                   value={formData.tipoServicio}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 rounded-lg bg-[#F8FAFC] border border-[#E2E8F0] text-[#1E293B] focus:outline-none focus:ring-2 focus:ring-[#0066FF] focus:border-transparent transition-all duration-300 text-sm font-sans"
                   required
+                  className="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
                 >
                   <option value="">Seleccione un servicio</option>
                   {servicios.map((s) => (
                     <option key={s.id} value={s.id}>
-                      {s.label} - ${s.price}
+                      {s.label} -{" "}
+                      {s.price.toLocaleString("es-AR", {
+                        style: "currency",
+                        currency: "ARS",
+                        minimumFractionDigits: 0,
+                        maximumFractionDigits: 0,
+                      })}
                     </option>
                   ))}
                 </select>
               </div>
-            )}
 
-            {formData.tipoServicio === "alta" && (
-              <>
-                {currentStep === 1 && (
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    className="space-y-6"
-                  >
-                    <div>
-                      <label className="block text-sm font-medium text-[#1E293B] mb-2">
-                        Categoría de Monotributo
-                      </label>
-                      <div className="flex flex-wrap items-center gap-2 sm:gap-4">
-                        <select
-                          name="categoria"
-                          value={formData.categoria}
-                          onChange={handleChange}
-                          className="flex-grow px-4 py-3 rounded-lg bg-[#F8FAFC] border border-[#E2E8F0] text-[#1E293B] focus:outline-none focus:ring-2 focus:ring-[#0066FF] focus:border-transparent transition-all duration-300"
-                          required
-                        >
-                          <option value="">Seleccionar</option>
-                          {categoriasOptions.map((cat) => (
-                            <option key={cat} value={cat}>
-                              Categoría {cat}
-                            </option>
-                          ))}
-                        </select>
-                        <button
-                          type="button"
-                          onClick={handleNavigateToCalculator}
-                          className="flex-shrink-0 flex items-center gap-2 px-4 py-3 rounded-lg bg-gray-100 text-[#6B7280] border border-gray-300 hover:bg-gray-200 transition-colors"
-                          title="Calcular si no la sabes"
-                        >
-                          <Calculator className="w-4 h-4" />
-                          <span className="hidden sm:inline">Calcular</span>
-                        </button>
-                      </div>
-                      <p className="text-xs text-gray-500 mt-1">
-                        Si no conocés tu categoría, podés calcularla.
-                      </p>
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-[#1E293B] mb-2">
-                        Actividad Principal
-                      </label>
-                      <input
-                        type="text"
-                        name="actividad"
-                        value={formData.actividad}
-                        onChange={handleChange}
-                        className="w-full px-4 py-3 rounded-lg bg-[#F8FAFC] border border-[#E2E8F0] text-[#1E293B] focus:outline-none focus:ring-2 focus:ring-[#0066FF] focus:border-transparent transition-all duration-300"
-                        required
-                        placeholder="Ej: Programación, Kiosco, Consultoría"
-                      />
-                    </div>
-
-                    {/* Teléfono y Mes de Inicio en la misma fila */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div>
-                        <label className="block text-sm font-medium text-[#1E293B] mb-2">
-                          Teléfono
-                        </label>
+              {/* --- CUIT/Clave Check (Rendered conditionally inline within the grid) --- */}
+              {isAltaFlow && (
+                <>
+                  {/* CUIT Check */}
+                  <fieldset>
+                    <legend className="block text-sm font-medium text-gray-700 mb-2">
+                      ¿Posee CUIT/CUIL? <span className="text-red-500">*</span>
+                    </legend>
+                    <div className="flex items-center gap-x-3">
+                      <label className="cursor-pointer">
                         <input
-                          type="tel"
-                          name="telefono"
-                          value={formData.telefono}
+                          type="radio"
+                          name="hasCuit"
+                          value="yes"
+                          checked={formData.hasCuit === "yes"}
                           onChange={handleChange}
-                          className="w-full px-4 py-3 rounded-lg bg-[#F8FAFC] border border-[#E2E8F0] text-[#1E293B] focus:outline-none focus:ring-2 focus:ring-[#0066FF] focus:border-transparent transition-all duration-300"
-                          required
+                          className="peer sr-only"
                         />
-                      </div>
-                      <div>
-                        <label
-                          htmlFor="mesInicio"
-                          className="block text-sm font-medium text-[#1E293B] mb-2"
-                        >
-                          Mes Estimado de Inicio de Actividad
-                        </label>
-                        <DatePicker
-                          selected={formData.mesInicio}
-                          onChange={handleDateChange}
-                          dateFormat="MM/yyyy"
-                          showMonthYearPicker
-                          placeholderText="Seleccione Mes y Año"
-                          className="w-full px-4 py-3 rounded-lg bg-[#F8FAFC] border border-[#E2E8F0] text-[#1E293B] focus:outline-none focus:ring-2 focus:ring-[#0066FF] focus:border-transparent transition-all duration-300"
-                          locale="es"
-                          required // Ensure datepicker is also required if phone is
+                        <div className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 shadow-sm transition-colors duration-200 ease-in-out peer-checked:bg-blue-500 peer-checked:text-white peer-checked:border-blue-500">
+                          Sí
+                        </div>
+                      </label>
+                      <label className="cursor-pointer">
+                        <input
+                          type="radio"
+                          name="hasCuit"
+                          value="no"
+                          checked={formData.hasCuit === "no"}
+                          onChange={handleChange}
+                          className="peer sr-only"
                         />
-                      </div>
+                        <div className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 shadow-sm transition-colors duration-200 ease-in-out peer-checked:bg-blue-500 peer-checked:text-white peer-checked:border-blue-500">
+                          No
+                        </div>
+                      </label>
                     </div>
+                  </fieldset>
 
-                    <div className="flex justify-end">
-                      <button
-                        type="button"
-                        onClick={handleNextStep}
-                        className="flex items-center gap-2 px-6 py-3 rounded-lg bg-[#0066FF] text-white hover:bg-[#0066FF]/90 transition-all duration-300"
-                      >
-                        <span>Siguiente</span>
-                        <ArrowRight className="w-5 h-5" />
-                      </button>
+                  {/* Clave Fiscal Check */}
+                  <fieldset>
+                    <legend className="block text-sm font-medium text-gray-700 mb-2">
+                      ¿Posee Clave Fiscal (nivel 2+)?{" "}
+                      <span className="text-red-500">*</span>
+                    </legend>
+                    <div className="flex items-center gap-x-3">
+                      <label className="cursor-pointer">
+                        <input
+                          type="radio"
+                          name="hasClaveFiscal"
+                          value="yes"
+                          checked={formData.hasClaveFiscal === "yes"}
+                          onChange={handleChange}
+                          className="peer sr-only"
+                        />
+                        <div className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 shadow-sm transition-colors duration-200 ease-in-out peer-checked:bg-blue-500 peer-checked:text-white peer-checked:border-blue-500">
+                          Sí
+                        </div>
+                      </label>
+                      <label className="cursor-pointer">
+                        <input
+                          type="radio"
+                          name="hasClaveFiscal"
+                          value="no"
+                          checked={formData.hasClaveFiscal === "no"}
+                          onChange={handleChange}
+                          className="peer sr-only"
+                        />
+                        <div className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 shadow-sm transition-colors duration-200 ease-in-out peer-checked:bg-blue-500 peer-checked:text-white peer-checked:border-blue-500">
+                          No
+                        </div>
+                      </label>
                     </div>
-                  </motion.div>
-                )}
+                  </fieldset>
+                </>
+              )}
 
-                {currentStep === 2 && (
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    className="space-y-6"
-                  >
-                    {/* Campos del Nuevo Paso 2 */}
-                    <div>
-                      <label className="block text-sm font-medium text-[#1E293B] mb-2">
-                        CUIT
-                      </label>
-                      <input
-                        type="text"
-                        name="cuit"
-                        value={formData.cuit}
-                        onChange={handleChange}
-                        className="w-full px-4 py-3 rounded-lg bg-[#F8FAFC] border border-[#E2E8F0] text-[#1E293B] focus:outline-none focus:ring-2 focus:ring-[#0066FF] focus:border-transparent transition-all duration-300"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-[#1E293B] mb-2">
-                        Email
-                      </label>
-                      <input
-                        type="email"
-                        name="email"
-                        value={formData.email}
-                        onChange={handleChange}
-                        className="w-full px-4 py-3 rounded-lg bg-[#F8FAFC] border border-[#E2E8F0] text-[#1E293B] focus:outline-none focus:ring-2 focus:ring-[#0066FF] focus:border-transparent transition-all duration-300"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-[#1E293B] mb-2">
-                        Clave Fiscal (Nivel 3)
-                      </label>
-                      <input
-                        type="password"
-                        name="claveFiscal"
-                        value={formData.claveFiscal}
-                        onChange={handleChange}
-                        className="w-full px-4 py-3 rounded-lg bg-[#F8FAFC] border border-[#E2E8F0] text-[#1E293B] focus:outline-none focus:ring-2 focus:ring-[#0066FF] focus:border-transparent transition-all duration-300"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-[#1E293B] mb-2">
-                        Nombre Completo
-                      </label>
-                      <input
-                        type="text"
-                        name="nombreCompleto"
-                        value={formData.nombreCompleto}
-                        onChange={handleChange}
-                        className="w-full px-4 py-3 rounded-lg bg-[#F8FAFC] border border-[#E2E8F0] text-[#1E293B] focus:outline-none focus:ring-2 focus:ring-[#0066FF] focus:border-transparent transition-all duration-300"
-                        required
-                      />
-                    </div>
-                    {/* Botones para Paso 2 */}
-                    <div className="flex justify-between items-center">
-                      <button
-                        type="button"
-                        onClick={handlePreviousStep}
-                        className="flex items-center gap-2 px-6 py-3 rounded-lg hover:bg-gray-100 text-[#6B7280] transition-colors"
-                      >
-                        <ArrowLeft className="w-5 h-5" />
-                        <span>Anterior</span>
-                      </button>
-                      <button
-                        type="button"
-                        onClick={handleNextStep} // Va al paso 3
-                        className="flex items-center gap-2 px-6 py-3 rounded-lg bg-[#0066FF] text-white hover:bg-[#0066FF]/90 transition-all duration-300"
-                      >
-                        <span>Siguiente</span>
-                        <ArrowRight className="w-5 h-5" />
-                      </button>
-                    </div>
-                  </motion.div>
-                )}
+              {/* --- Conditional Form Rendering (Main Fields) --- */}
+              {isAltaFlow && renderAltaStep1Fields()}
+              {!isAltaFlow &&
+                formData.tipoServicio &&
+                renderOtherServicesFields()}
+            </div>
 
-                {currentStep === 3 && (
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    className="space-y-6"
-                  >
-                    {/* Contenido del Nuevo Paso 3 */}
-                    <div className="flex items-start gap-3 pt-4 border-t border-gray-200">
-                      <input
-                        type="checkbox"
-                        id="aceptaTerminos"
-                        name="aceptaTerminos"
-                        checked={formData.aceptaTerminos}
-                        onChange={handleChange}
-                        className="mt-1 h-4 w-4 text-[#0066FF] focus:ring-[#0066FF] border-gray-300 rounded"
-                      />
-                      <label
-                        htmlFor="aceptaTerminos"
-                        className="text-sm text-[#6B7280]"
-                      >
-                        He Leído y Acepto las{" "}
-                        <a
-                          href="/politica-privacidad"
-                          target="_blank"
-                          className="underline hover:text-[#0066FF]"
-                        >
-                          Política de privacidad
-                        </a>{" "}
-                        y los{" "}
-                        <a
-                          href="/terminos-condiciones"
-                          target="_blank"
-                          className="underline hover:text-[#0066FF]"
-                        >
-                          Términos y Condiciones
-                        </a>{" "}
-                        de contratación.
-                      </label>
-                    </div>
-                    {selectedService && (
-                      <p className="text-sm text-center text-[#6B7280] pt-4 border-t border-gray-200">
-                        El costo del servicio es de{" "}
-                        <strong>${selectedService.price}</strong> y lo pagarás
-                        por MercadoPago a nombre de Juanfer Fernandez.
-                      </p>
-                    )}
-                    {/* Botones para Paso 3 */}
-                    <div className="flex justify-between items-center pt-4">
-                      <button
-                        type="button"
-                        onClick={handlePreviousStep} // Vuelve al paso 2
-                        className="flex items-center gap-2 px-6 py-3 rounded-lg hover:bg-gray-100 text-[#6B7280] transition-colors"
-                      >
-                        <ArrowLeft className="w-5 h-5" />
-                        <span>Anterior</span>
-                      </button>
-                      <motion.button
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                        type="submit" // Ahora el submit está aquí
-                        className="bg-[#0066FF] text-white px-8 py-3 rounded-lg font-semibold text-lg hover:bg-[#0066FF]/90 transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
-                        disabled={!formData.aceptaTerminos}
-                      >
-                        Proceder al pago
-                      </motion.button>
-                    </div>
-                  </motion.div>
-                )}
-              </>
+            {/* Placeholder Text if no service selected */}
+            {!formData.tipoServicio && (
+              <p className="text-center text-gray-500 pt-4">
+                (Seleccione un servicio para ver los campos requeridos)
+              </p>
             )}
+          </motion.div>
+        );
+      case 2: // Step 2: Alta Step 2 fields
+        return formData.tipoServicio === "alta" ? renderAltaStep2() : null;
+      case 3: // Step 3: Alta Terms and Conditions
+        return formData.tipoServicio === "alta" ? renderAltaStep3() : null;
+      default:
+        return null;
+    }
+  };
 
-            {formData.tipoServicio && formData.tipoServicio !== "alta" && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="space-y-6"
-              >
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-sm font-medium text-[#1E293B] mb-2">
-                      Nombre
-                    </label>
-                    <input
-                      type="text"
-                      name="nombre"
-                      value={formData.nombre}
-                      onChange={handleChange}
-                      className="w-full px-4 py-3 rounded-lg bg-[#F8FAFC] border border-[#E2E8F0] text-[#1E293B] focus:outline-none focus:ring-2 focus:ring-[#0066FF] focus:border-transparent transition-all duration-300"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-[#1E293B] mb-2">
-                      Apellido
-                    </label>
-                    <input
-                      type="text"
-                      name="apellido"
-                      value={formData.apellido}
-                      onChange={handleChange}
-                      className="w-full px-4 py-3 rounded-lg bg-[#F8FAFC] border border-[#E2E8F0] text-[#1E293B] focus:outline-none focus:ring-2 focus:ring-[#0066FF] focus:border-transparent transition-all duration-300"
-                      required
-                    />
-                  </div>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-sm font-medium text-[#1E293B] mb-2">
-                      Email
-                    </label>
-                    <input
-                      type="email"
-                      name="email"
-                      value={formData.email}
-                      onChange={handleChange}
-                      className="w-full px-4 py-3 rounded-lg bg-[#F8FAFC] border border-[#E2E8F0] text-[#1E293B] focus:outline-none focus:ring-2 focus:ring-[#0066FF] focus:border-transparent transition-all duration-300"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-[#1E293B] mb-2">
-                      Teléfono
-                    </label>
-                    <input
-                      type="tel"
-                      name="telefono"
-                      value={formData.telefono}
-                      onChange={handleChange}
-                      className="w-full px-4 py-3 rounded-lg bg-[#F8FAFC] border border-[#E2E8F0] text-[#1E293B] focus:outline-none focus:ring-2 focus:ring-[#0066FF] focus:border-transparent transition-all duration-300"
-                      required
-                    />
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-[#1E293B] mb-2">
-                    Mensaje (opcional)
-                  </label>
-                  <textarea
-                    name="mensaje"
-                    value={formData.mensaje}
-                    onChange={handleChange}
-                    rows="4"
-                    className="w-full px-4 py-3 rounded-lg bg-[#F8FAFC] border border-[#E2E8F0] text-[#1E293B] focus:outline-none focus:ring-2 focus:ring-[#0066FF] focus:border-transparent transition-all duration-300"
-                  ></textarea>
-                </div>
-                {selectedService && (
-                  <div className="bg-[#F8FAFC] p-4 rounded-lg border border-[#E2E8F0]">
-                    <p className="text-[#1E293B] font-medium">
-                      Total a pagar: ${selectedService.price}
-                    </p>
-                  </div>
-                )}
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  type="submit"
-                  className="w-full bg-[#0066FF] text-white px-8 py-4 rounded-lg font-semibold text-lg hover:bg-[#0066FF]/90 transition-all duration-300 shadow-lg hover:shadow-xl"
-                >
-                  Proceder al pago
-                </motion.button>
-              </motion.div>
-            )}
-          </form>
-        </motion.div>
+  // --- Helper rendering functions ---
+
+  // Render fields for Alta Step 1
+  const renderAltaStep1Fields = () => (
+    <>
+      {/* Categoría + Calcular Button */}
+      <div className="md:col-span-2">
+        <label
+          htmlFor="categoria"
+          className="block text-sm font-medium text-gray-700 mb-1"
+        >
+          Categoría <span className="text-red-500">*</span>
+        </label>
+        <div className="flex items-center gap-x-2">
+          <select
+            id="categoria"
+            name="categoria"
+            value={formData.categoria}
+            onChange={handleChange}
+            required
+            className="flex-grow p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+          >
+            <option value="">Seleccione</option>
+            {categoriasOptions.map((cat) => (
+              <option key={cat} value={cat}>
+                {cat}
+              </option>
+            ))}
+          </select>
+          <button
+            type="button"
+            onClick={handleNavigateToCalculator}
+            className="flex-shrink-0 inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            title="Calcular si no la sabes"
+          >
+            <Calculator className="w-4 h-4 mr-1.5" />
+            Calcular
+          </button>
+        </div>
+        <p className="text-xs text-gray-500 mt-1">
+          Si no conocés tu categoría, podés calcularla.
+        </p>
       </div>
-      <Modal isOpen={isModalOpen} onClose={closeModal} title={modalTitle}>
-        <p>{modalMessage}</p>
+
+      {/* Actividad */}
+      <div className="md:col-span-2">
+        <label
+          htmlFor="actividad"
+          className="block text-sm font-medium text-gray-700 mb-1"
+        >
+          Actividad <span className="text-red-500">*</span>
+        </label>
+        <input
+          type="text"
+          id="actividad"
+          name="actividad"
+          value={formData.actividad}
+          onChange={handleChange}
+          required
+          className="w-full p-2 border border-gray-300 rounded-md"
+          placeholder="Ej: Venta de Ropa, Servicios de Consultoría"
+        />
+      </div>
+
+      {/* Telefono */}
+      <div>
+        <label
+          htmlFor="telefono"
+          className="block text-sm font-medium text-gray-700 mb-1"
+        >
+          Teléfono <span className="text-red-500">*</span>
+        </label>
+        <input
+          type="tel"
+          id="telefono"
+          name="telefono"
+          value={formData.telefono}
+          onChange={handleChange}
+          required
+          className="w-full p-2 border border-gray-300 rounded-md"
+          placeholder="Ej: 1123456789"
+        />
+      </div>
+
+      {/* Mes Inicio */}
+      <div>
+        <label
+          htmlFor="mesInicio"
+          className="block text-sm font-medium text-gray-700 mb-1"
+        >
+          Mes Inicio <span className="text-red-500">*</span>
+        </label>
+        <DatePicker
+          selected={formData.mesInicio}
+          onChange={handleDateChange}
+          dateFormat="MM/yyyy"
+          showMonthYearPicker
+          required
+          className="w-full p-2 border border-gray-300 rounded-md"
+          placeholderText="Seleccione mes y año"
+        />
+      </div>
+    </>
+  );
+
+  // Render fields for Other Services Step 1
+  const renderOtherServicesFields = () => (
+    <>
+      {/* Nombre */}
+      <div>
+        <label
+          htmlFor="nombre"
+          className="block text-sm font-medium text-gray-700"
+        >
+          Nombre <span className="text-red-500">*</span>
+        </label>
+        <input
+          type="text"
+          id="nombre"
+          name="nombre"
+          value={formData.nombre}
+          onChange={handleChange}
+          required
+          className="w-full p-2 border border-gray-300 rounded-md"
+        />
+      </div>
+      {/* Apellido */}
+      <div>
+        <label
+          htmlFor="apellido"
+          className="block text-sm font-medium text-gray-700"
+        >
+          Apellido <span className="text-red-500">*</span>
+        </label>
+        <input
+          type="text"
+          id="apellido"
+          name="apellido"
+          value={formData.apellido}
+          onChange={handleChange}
+          required
+          className="w-full p-2 border border-gray-300 rounded-md"
+        />
+      </div>
+      {/* Telefono */}
+      <div>
+        <label
+          htmlFor="telefono"
+          className="block text-sm font-medium text-gray-700"
+        >
+          Teléfono <span className="text-red-500">*</span>
+        </label>
+        <input
+          type="tel"
+          id="telefono"
+          name="telefono"
+          value={formData.telefono}
+          onChange={handleChange}
+          required
+          className="w-full p-2 border border-gray-300 rounded-md"
+        />
+      </div>
+      {/* Email */}
+      <div>
+        <label
+          htmlFor="email"
+          className="block text-sm font-medium text-gray-700"
+        >
+          Email <span className="text-red-500">*</span>
+        </label>
+        <input
+          type="email"
+          id="email"
+          name="email"
+          value={formData.email}
+          onChange={handleChange}
+          required
+          className="w-full p-2 border border-gray-300 rounded-md"
+        />
+      </div>
+      {/* Mensaje Adicional */}
+      <div className="md:col-span-2">
+        <label
+          htmlFor="mensaje"
+          className="block text-sm font-medium text-gray-700"
+        >
+          Mensaje (Opcional)
+        </label>
+        <textarea
+          id="mensaje"
+          name="mensaje"
+          value={formData.mensaje}
+          onChange={handleChange}
+          rows="3"
+          className="w-full p-2 border border-gray-300 rounded-md"
+        ></textarea>
+      </div>
+    </>
+  );
+
+  // renderAltaStep2 (Called for Case 2)
+  const renderAltaStep2 = () => (
+    <motion.div
+      key="step2-alta"
+      initial={{ opacity: 0, x: -20 }}
+      animate={{ opacity: 1, x: 0 }}
+      exit={{ opacity: 0, x: 20 }}
+      className="space-y-4"
+    >
+      <h2 className="text-xl font-semibold text-gray-700">
+        Paso 2: Datos Personales y Fiscales
+      </h2>
+      {/* CUIT */}
+      <div>
+        <label
+          htmlFor="cuit"
+          className="block text-sm font-medium text-gray-700"
+        >
+          CUIT <span className="text-red-500">*</span>
+        </label>
+        <input
+          type="text"
+          id="cuit"
+          name="cuit"
+          value={formData.cuit}
+          onChange={handleChange}
+          required
+          className="w-full p-2 border border-gray-300 rounded-md"
+          placeholder="Sin guiones"
+        />
+      </div>
+      {/* Clave Fiscal */}
+      <div>
+        <label
+          htmlFor="claveFiscal"
+          className="block text-sm font-medium text-gray-700"
+        >
+          Clave Fiscal <span className="text-red-500">*</span>
+        </label>
+        <input
+          type="password"
+          id="claveFiscal"
+          name="claveFiscal"
+          value={formData.claveFiscal}
+          onChange={handleChange}
+          required
+          className="w-full p-2 border border-gray-300 rounded-md"
+        />
+      </div>
+      {/* Nombre Completo */}
+      <div>
+        <label
+          htmlFor="nombreCompleto"
+          className="block text-sm font-medium text-gray-700"
+        >
+          Nombre y Apellido Completo <span className="text-red-500">*</span>
+        </label>
+        <input
+          type="text"
+          id="nombreCompleto"
+          name="nombreCompleto"
+          value={formData.nombreCompleto}
+          onChange={handleChange}
+          required
+          className="w-full p-2 border border-gray-300 rounded-md"
+        />
+      </div>
+      {/* Email */}
+      <div>
+        <label
+          htmlFor="email"
+          className="block text-sm font-medium text-gray-700"
+        >
+          Correo Electrónico <span className="text-red-500">*</span>
+        </label>
+        <input
+          type="email"
+          id="email"
+          name="email"
+          value={formData.email}
+          onChange={handleChange}
+          required
+          className="w-full p-2 border border-gray-300 rounded-md"
+          placeholder="ejemplo@correo.com"
+        />
+      </div>
+    </motion.div>
+  );
+
+  // renderAltaStep3 (Called for Case 3)
+  const renderAltaStep3 = () => (
+    <motion.div
+      key="step3-alta"
+      initial={{ opacity: 0, x: -20 }}
+      animate={{ opacity: 1, x: 0 }}
+      exit={{ opacity: 0, x: 20 }}
+      className="space-y-4"
+    >
+      <h2 className="text-xl font-semibold text-gray-700">
+        Paso 3: Confirmación
+      </h2>
+      {/* Terminos */}
+      <div className="mt-6">
+        <label className="flex items-center space-x-2">
+          <input
+            type="checkbox"
+            name="aceptaTerminos"
+            checked={formData.aceptaTerminos}
+            onChange={handleChange}
+            className="form-checkbox h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+          />
+          <span className="text-sm text-gray-600">
+            Acepto los{" "}
+            <a
+              href="/terminos-y-condiciones"
+              target="_blank"
+              className="text-blue-600 hover:underline"
+            >
+              términos y condiciones
+            </a>
+            . <span className="text-red-500">*</span>
+          </span>
+        </label>
+      </div>
+      {/* Mensaje Adicional */}
+      <div>
+        <label
+          htmlFor="mensaje"
+          className="block text-sm font-medium text-gray-700"
+        >
+          Mensaje (Opcional)
+        </label>
+        <textarea
+          id="mensaje"
+          name="mensaje"
+          value={formData.mensaje}
+          onChange={handleChange}
+          rows="3"
+          className="w-full p-2 border border-gray-300 rounded-md"
+          placeholder="Si desea agregar alguna aclaración..."
+        />
+      </div>
+    </motion.div>
+  );
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex flex-col items-center justify-center p-4">
+      {/* Back button */}
+      <button
+        onClick={() => router.push("/")}
+        className="absolute top-6 left-6 flex items-center text-sm text-blue-600 hover:text-blue-800 transition-colors"
+      >
+        <ArrowLeft className="w-4 h-4 mr-1" />
+        Volver al inicio
+      </button>
+
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="bg-white p-5 rounded-xl shadow-2xl w-full max-w-2xl relative overflow-hidden"
+      >
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold text-gray-800 mb-2">Registro</h1>
+          <p className="text-gray-600">
+            Complete los siguientes datos para comenzar con el trámite.
+          </p>
+        </div>
+
+        {/* Form Content */}
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <AnimatePresence mode="wait">{renderStepContent()}</AnimatePresence>
+
+          {/* Navigation Buttons */}
+          <div className="flex justify-between pt-4 border-t border-gray-200">
+            {/* Back Button - Show only if currentStep > 1 */}
+            {currentStep > 1 ? (
+              <button
+                type="button"
+                onClick={handlePreviousStep}
+                className="flex items-center px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              >
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Anterior
+              </button>
+            ) : (
+              <div />
+            )}
+
+            {/* Next/Submit Button Logic - Updated */}
+            {(() => {
+              const isAltaFlow =
+                formData.tipoServicio === "alta" ||
+                formData.tipoServicio === "alta_suscripcion";
+              const lastAltaStep = 3;
+              const lastOtherStep = 1;
+              const isLastStep = isAltaFlow
+                ? currentStep === lastAltaStep
+                : currentStep === lastOtherStep;
+
+              if (!isLastStep) {
+                // Show 'Siguiente' button
+                return (
+                  <button
+                    type="button"
+                    onClick={handleNextStep}
+                    disabled={
+                      // Step 1 (Alta): Disable if service missing OR CUIT check missing OR fields missing
+                      (currentStep === 1 &&
+                        isAltaFlow &&
+                        (!formData.tipoServicio ||
+                          formData.hasCuit === null ||
+                          formData.hasClaveFiscal === null ||
+                          !formData.actividad ||
+                          !formData.telefono ||
+                          !formData.mesInicio ||
+                          !formData.categoria)) ||
+                      // Step 1 (Other): Disable if service missing OR fields missing
+                      (currentStep === 1 &&
+                        !isAltaFlow &&
+                        (!formData.tipoServicio ||
+                          !formData.nombre ||
+                          !formData.apellido ||
+                          !formData.email ||
+                          !formData.telefono)) ||
+                      // Step 2 (Alta): Disable if fields missing
+                      (currentStep === 2 &&
+                        isAltaFlow &&
+                        (!formData.cuit ||
+                          !formData.email ||
+                          !formData.claveFiscal ||
+                          !formData.nombreCompleto))
+                    }
+                    className="flex items-center px-6 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Siguiente <ArrowRight className="w-4 h-4 ml-2" />
+                  </button>
+                );
+              } else {
+                // Show 'Finalizar Solicitud' button on the last step
+                return (
+                  <button
+                    type="submit"
+                    disabled={
+                      // Step 1 (non-alta): Disable if fields missing
+                      (currentStep === lastOtherStep &&
+                        !isAltaFlow &&
+                        (!formData.nombre ||
+                          !formData.apellido ||
+                          !formData.email ||
+                          !formData.telefono ||
+                          !formData.tipoServicio)) ||
+                      // Step 3 (alta): Disable if terms not accepted
+                      (currentStep === lastAltaStep &&
+                        isAltaFlow &&
+                        !formData.aceptaTerminos)
+                    }
+                    className="flex items-center px-6 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <Check className="w-4 h-4 mr-2" /> Finalizar Solicitud
+                  </button>
+                );
+              }
+            })()}
+          </div>
+        </form>
+      </motion.div>
+
+      {/* Modal */}
+      <Modal
+        isOpen={isModalOpen}
+        onClose={closeModal}
+        title={modalTitle}
+        actions={modalActions}
+      >
+        {modalMessage}
       </Modal>
     </div>
   );
