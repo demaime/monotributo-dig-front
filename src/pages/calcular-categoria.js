@@ -110,11 +110,11 @@ const categoriasMonotributo = {
 // Valor adicional por cada adherente (usar valor oficial actualizado)
 const costoAdicionalPorAdherente = 17896.86;
 
-// Función para parsear los rangos de ingresos mensuales
-const parseIngresoMensual = (opcionSeleccionada) => {
+// Función para parsear los rangos de ingresos anuales
+const parseIngresoAnual = (opcionSeleccionada) => {
   if (!opcionSeleccionada) return 0;
-  // Ejemplo: "Entre $651.089 y $953.920" -> 953920
-  // Ejemplo: "Hasta $651.088" -> 651088
+  // Ejemplo: "Entre $7.813.064 y $11.447.046" -> 11447046
+  // Ejemplo: "Hasta $7.813.063" -> 7813063
   const matches = opcionSeleccionada.match(/\$?([0-9.,]+)/g);
   if (!matches) return 0;
   const lastNumberStr = matches[matches.length - 1].replace(/[^0-9]/g, "");
@@ -139,8 +139,7 @@ const calcularCategoriaYCuota = (respuestas) => {
 
   // 1. Obtener valores del usuario
   const rubro = respuestas[1];
-  const ingresoMensualEstimado = parseIngresoMensual(respuestas[2]);
-  const ingresoAnualEstimado = ingresoMensualEstimado * 12;
+  const ingresoAnualEstimado = parseIngresoAnual(respuestas[2]);
   const tieneLocal = respuestas[3] === "Sí";
   // Usar parseRangoHasta para las nuevas opciones de selección
   const superficie = tieneLocal ? parseRangoHasta(respuestas["3a"]) : 0;

@@ -197,10 +197,10 @@ function App() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => router.push("/registro")}
-                className="group flex items-center gap-2 bg-[#0066FF] text-white px-8 py-4 rounded-full font-semibold text-lg hover:bg-[#0066FF]/90 transition-all duration-300"
+                className="group flex items-center gap-3 bg-gradient-to-r from-[#0066FF] to-[#0040FF] text-white px-12 py-6 rounded-full font-bold text-3xl hover:shadow-[0_0_30px_rgba(0,102,255,0.3)] transition-all duration-300 shadow-lg"
               >
-                Registrate
-                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                DATE DE ALTA
+                <ArrowRight className="w-8 h-8 group-hover:translate-x-1 transition-transform" />
               </motion.button>
             </div>
 
@@ -211,7 +211,7 @@ function App() {
               className="relative lg:col-span-2"
             >
               <div
-                className="relative h-[400px] w-full overflow-hidden rounded-2xl"
+                className="relative h-[400px] w-full overflow-hidden rounded-2xl bg-gradient-to-br from-[#E5F0FF] to-[#F8FAFC]"
                 style={{
                   clipPath: "polygon(15% 0, 100% 0, 100% 100%, 0% 100%)",
                 }}
@@ -284,10 +284,10 @@ function App() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => router.push("/registro")}
-                className="group flex items-center gap-2 bg-[#0066FF] text-white px-8 py-4 rounded-full font-semibold text-lg hover:bg-[#0066FF]/90 transition-all duration-300"
+                className="group flex items-center gap-3 bg-gradient-to-r from-[#0066FF] to-[#0040FF] text-white px-12 py-6 rounded-full font-bold text-3xl hover:shadow-[0_0_30px_rgba(0,102,255,0.3)] transition-all duration-300 shadow-lg"
               >
-                Registrate
-                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                DATE DE ALTA
+                <ArrowRight className="w-8 h-8 group-hover:translate-x-1 transition-transform" />
               </motion.button>
             </div>
 
@@ -342,9 +342,9 @@ function App() {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => router.push("/calcular-categoria")}
-              className="inline-flex items-center gap-3 bg-[#0066FF] text-white px-12 py-6 rounded-2xl font-bold text-2xl hover:bg-[#0066FF]/90 transition-colors shadow-lg"
+              className="inline-flex items-center gap-3 bg-white text-[#0066FF] border-2 border-[#0066FF] px-10 py-5 rounded-2xl font-semibold text-xl hover:bg-[#E5F0FF] transition-colors"
             >
-              <Calculator className="w-8 h-8" />
+              <Calculator className="w-7 h-7" />
               Calculá tu categoría
             </motion.button>
           </motion.div>

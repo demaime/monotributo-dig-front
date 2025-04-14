@@ -12,21 +12,21 @@
     },
     {
       "id": 2,
-      "texto": "¿Cuál es el mínimo que estimás facturar por mes?",
+      "texto": "¿Cuál es el ingreso bruto anual que estimás facturar?",
       "tipo": "seleccion_desplegable",
       "descripcion": "Solo debes considerar los ingresos del Monotributo, no tengas en cuenta relación de dependencia o jubilación, etc.",
       "opciones": [
-        "Hasta $651.088",
-        "Entre $651.089 y $953.920",
-        "Entre $953.921 y $1.337.507",
-        "Entre $1.337.508 y $1.660.528",
-        "Entre $1.660.529 y $1.953.265",
-        "Entre $1.953.266 y $2.447.891",
-        "Entre $2.447.892 y $2.927.375",
-        "Entre $2.927.376 y $4.441.534",
-        "Entre $4.441.535 y $4.971.490",
-        "Entre $4.971.491 y $5.693.240",
-        "Entre $5.693.241 y $6.864.190"
+        "Hasta $7.813.063",
+        "Entre $7.813.064 y $11.447.046",
+        "Entre $11.447.047 y $16.050.091",
+        "Entre $16.050.092 y $19.926.340",
+        "Entre $19.926.341 y $23.439.190",
+        "Entre $23.439.191 y $29.374.695",
+        "Entre $29.374.696 y $35.128.502",
+        "Entre $35.128.503 y $53.298.417",
+        "Entre $53.298.418 y $59.657.887",
+        "Entre $59.657.888 y $68.318.880",
+        "Entre $68.318.881 y $82.370.281"
       ]
     },
     {
