@@ -945,20 +945,25 @@ export default function Registro() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex flex-col items-center justify-center p-4">
-      {/* Back button */}
-      <button
-        onClick={() => router.push("/")}
-        className="absolute top-6 left-6 flex items-center text-sm text-blue-600 hover:text-blue-800 transition-colors"
-      >
-        <ArrowLeft className="w-4 h-4 mr-1" />
-        Volver al inicio
-      </button>
+    // Main container with padding-top to clear fixed nav
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex flex-col items-center justify-start p-4 relative">
+      {/* Back button container - Place it *inside* the padded container */}
+      <div className="w-full max-w-2xl mb-4">
+        <button
+          onClick={() => router.push("/")}
+          className="flex items-center text-sm text-blue-600 hover:text-blue-800 transition-colors"
+        >
+          <ArrowLeft className="w-4 h-4 mr-1" />
+          Volver al inicio
+        </button>
+      </div>
 
+      {/* The main form card */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
+        // Make sure card doesn't have negative margin or positioning that pulls it up
         className="bg-white p-5 rounded-xl shadow-2xl w-full max-w-2xl relative overflow-hidden"
       >
         <div className="text-center mb-8">

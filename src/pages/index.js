@@ -201,7 +201,7 @@ function App() {
                 className="group flex items-center gap-3 bg-gradient-to-r from-[#0066FF] to-[#0040FF] text-white px-12 py-6 rounded-full font-bold text-3xl hover:shadow-[0_0_30px_rgba(0,102,255,0.3)] transition-all duration-300 shadow-lg"
               >
                 DATE DE ALTA
-                <ArrowRight className="w-8 h-8 group-hover:translate-x-1 transition-transform" />
+                <ArrowRight className="w-8 h-8 inline-block group-hover:translate-x-1 transition-transform" />
               </motion.button>
             </div>
 
@@ -285,10 +285,10 @@ function App() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => router.push("/registro")}
-                className="group flex items-center gap-3 bg-gradient-to-r from-[#0066FF] to-[#0040FF] text-white px-12 py-6 rounded-full font-bold text-3xl hover:shadow-[0_0_30px_rgba(0,102,255,0.3)] transition-all duration-300 shadow-lg"
+                className="group flex items-center justify-center w-full bg-gradient-to-r from-[#0066FF] to-[#0040FF] text-white px-8 py-6 rounded-full font-bold text-2xl hover:shadow-[0_0_30px_rgba(0,102,255,0.3)] transition-all duration-300 shadow-lg"
               >
                 DATE DE ALTA
-                <ArrowRight className="w-8 h-8 group-hover:translate-x-1 transition-transform" />
+                <ArrowRight className="w-6 h-6 hidden md:inline-block ml-2 group-hover:translate-x-1 transition-transform" />
               </motion.button>
             </div>
 
