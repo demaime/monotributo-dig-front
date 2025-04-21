@@ -15,10 +15,14 @@ import "react-datepicker/dist/react-datepicker.css";
 import Modal from "../components/Modal";
 
 const servicios = [
+  {
+    id: "alta_suscripcion",
+    label: "ALTA GRATUITA + SUSCRIPCIÓN por 6 MESES",
+    price: 20000,
+  },
   { id: "alta", label: "Alta de Monotributo", price: 70000 },
   { id: "recategorizacion", label: "Recategorización", price: 50000 },
   { id: "baja", label: "Baja de Monotributo", price: 70000 },
-  { id: "alta_suscripcion", label: "Alta + Suscripción Mensual", price: 20000 },
 ];
 
 // Opciones de categoría para el desplegable
@@ -468,6 +472,7 @@ export default function Registro() {
                         minimumFractionDigits: 0,
                         maximumFractionDigits: 0,
                       })}
+                      {s.id === "alta_suscripcion" ? " por mes" : ""}
                     </option>
                   ))}
                 </select>
@@ -537,7 +542,14 @@ export default function Registro() {
           </button>
         </div>
         <p className="text-xs font-semibold text-blue-500 mt-1">
-          Si no conocés tu categoría, podés calcularla.
+          Si no conocés tu categoría,{" "}
+          <span
+            className="underline cursor-pointer hover:text-blue-700"
+            onClick={handleNavigateToCalculator}
+          >
+            podés calcularla
+          </span>
+          .
         </p>
       </div>
 
@@ -589,8 +601,16 @@ export default function Registro() {
       {/* Clave Fiscal Check */}
       <fieldset>
         <legend className="block text-sm font-medium text-gray-700 mb-2">
-          ¿Posee Clave Fiscal (nivel 2+)?{" "}
-          <span className="text-red-500">*</span>
+          ¿Posee{" "}
+          <a
+            href="https://www.afip.gob.ar/clavefiscal/ayuda/obtener-clave-fiscal.asp"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-500 underline hover:text-blue-700"
+          >
+            Clave Fiscal (nivel 2+)
+          </a>
+          ? <span className="text-red-500">*</span>
         </legend>
         {documentosCargados ? (
           <div className="flex items-center gap-x-2 p-2 border border-green-300 rounded-md bg-green-50">
@@ -1162,7 +1182,7 @@ export default function Registro() {
               htmlFor="selfie"
               className="block text-sm font-medium text-gray-700 mb-1"
             >
-              Selfie sosteniendo el DNI <span className="text-red-500">*</span>
+              Selfie de tu cara <span className="text-red-500">*</span>
             </label>
             <div className="flex items-center">
               <input
@@ -1177,7 +1197,7 @@ export default function Registro() {
               {renderFileName(files.selfie)}
             </div>
             <p className="text-xs text-gray-500 mt-1">
-              Asegúrese de que su rostro y el DNI sean visibles en la foto.
+              Asegúrese de que su rostro se vea completo y claro.
             </p>
           </div>
 
