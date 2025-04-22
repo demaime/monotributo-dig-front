@@ -13,6 +13,7 @@ import {
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import Modal from "../components/Modal";
+import { submitForm, uploadFiles } from "../utils/api";
 
 const servicios = [
   {
@@ -78,10 +79,11 @@ export default function Registro() {
   });
   const [uploading, setUploading] = useState(false); // Optional: for loading state
   const [documentosCargados, setDocumentosCargados] = useState(false); // <-- Nuevo estado
+  const [isSubmitting, setIsSubmitting] = useState(false); // Estado para controlar el envío del formulario
 
   // --- Modal Functions ---
   // Updated openModal to accept actions
-  const openModal = (title, message, actions = null) => {
+  const openModal = (title, message, actions = null, countdown = null) => {
     // Ensure other modals are closed when opening a general info modal
     setIsUploadModalOpen(false);
     setModalTitle(title);
@@ -101,7 +103,12 @@ export default function Registro() {
   // --- Action for Modal Button ---
   const handleObtenerCredenciales = () => {
     closeModal(); // Close the first modal (info modal)
-    setIsUploadModalOpen(true); // Open the second (upload) modal
+    // Open AFIP site based on what the user is missing
+    if (formData.hasCuit === "no") {
+      window.open("https://www.afip.gob.ar/cuit-cuil/", "_blank");
+    } else if (formData.hasClaveFiscal === "no") {
+      window.open("https://www.afip.gob.ar/clavefiscal/", "_blank");
+    }
   };
   // --- End Action ---
 
@@ -127,39 +134,25 @@ export default function Registro() {
     }
 
     setUploading(true); // Indicate loading
-    console.log("Archivos seleccionados:", files);
-
-    // --- TODO: Backend Integration ---
-    // const uploadData = new FormData();
-    // uploadData.append('frontDni', files.frontDni);
-    // uploadData.append('backDni', files.backDni);
-    // uploadData.append('selfie', files.selfie);
-    // // Append other relevant form data if needed by the backend
-    // // uploadData.append('email', formData.email); // Example
 
     try {
-      // Simulate API call delay
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      // Send files to backend via API utility
+      const result = await uploadFiles(files, {
+        email: formData.email,
+        nombre: formData.nombre,
+        apellido: formData.apellido,
+        telefono: formData.telefono,
+      });
 
-      // Replace with your actual API endpoint call
-      // const response = await fetch('/api/upload-documents', {
-      //   method: 'POST',
-      //   body: uploadData,
-      // });
-      // if (!response.ok) throw new Error('Upload failed');
-      // const result = await response.json();
-      // console.log('Upload successful:', result);
-
-      // --- Success Handling (Simulated) ---
+      // Success handling
       setUploading(false);
-      setDocumentosCargados(true); // <-- Marcar documentos como cargados
+      setDocumentosCargados(true);
       openModal(
         "¡Carga Exitosa!",
         "Sus documentos han sido cargados. Uno de nuestros representantes se pondrá en contacto a la brevedad para continuar con el trámite."
       );
       setIsUploadModalOpen(false); // Close upload modal
       setFiles({ frontDni: null, backDni: null, selfie: null }); // Reset files state
-      // Do NOT reset formData or change step here, keep the user on Step 1
     } catch (error) {
       setUploading(false);
       console.error("Upload error:", error);
@@ -170,7 +163,6 @@ export default function Registro() {
       );
       // Keep the upload modal open so the user can retry
     }
-    // --- End TODO ---
   };
   // --- End File Handling Logic ---
 
@@ -200,7 +192,6 @@ export default function Registro() {
       mesInicio: null,
       cuit: "",
       claveFiscal: "",
-      nombreCompleto: "",
       aceptaTerminos: false,
     };
     setFormData(initialFormData);
@@ -244,7 +235,6 @@ export default function Registro() {
         mesInicio: null,
         cuit: "",
         claveFiscal: "",
-        nombreCompleto: "",
         aceptaTerminos: false,
         nombre: "",
         apellido: "",
@@ -282,50 +272,76 @@ export default function Registro() {
       }
 
       if (isAltaFlow) {
-        // 1. Check if CUIT/Clave questions need to be answered (i.e., docs not yet loaded)
-        if (
-          !documentosCargados &&
-          (formData.hasCuit === null || formData.hasClaveFiscal === null)
-        ) {
+        // 1. Check if CUIT/Clave questions need to be answered
+        if (formData.hasCuit === null || formData.hasClaveFiscal === null) {
           openModal(
             "Verificación Requerida",
-            "Por favor, indique si posee CUIT/CUIL y Clave Fiscal."
+            "Por favor, indique si posee CUIT y Clave Fiscal."
           );
-          return; // Stop: Need CUIT/Clave status if docs aren't uploaded
+          return; // Stop: Need CUIT/Clave status
         }
 
-        // 2. Check if answered "no" AND documents have NOT been loaded
-        // If documents ARE loaded (documentosCargados is true), skip this check.
-        if (
-          !documentosCargados &&
-          (formData.hasCuit === "no" || formData.hasClaveFiscal === "no")
-        ) {
+        // 2. Check if answered "no" to having CUIT
+        if (formData.hasCuit === "no") {
           openModal(
             <span className="flex items-center gap-x-2">
               <AlertTriangle className="w-5 h-5 text-yellow-500" /> Información
               Necesaria
             </span>,
-            "El CUIT/CUIL y la Clave Fiscal son necesarios para realizar este trámite.",
+            <div>
+              <p>El CUIT es necesario para realizar este trámite.</p>
+              <p className="mt-2">
+                Por favor, obtenga primero su CUIT antes de continuar con este
+                proceso.
+              </p>
+            </div>,
             [
               {
                 text: (
                   <span className="flex items-center gap-x-1.5">
-                    <KeyRound className="w-4 h-4" /> Obtener Credenciales
+                    <KeyRound className="w-4 h-4" /> Obtener CUIT
                   </span>
                 ),
-                onClick: handleObtenerCredenciales, // Opens upload modal
+                onClick: handleObtenerCredenciales, // Opens AFIP site
                 style: "primary",
               },
               { text: "Cancelar", onClick: closeModal, style: "secondary" },
             ]
           );
-          return; // Stop: Need docs or must answer 'yes'
+          return; // Stop: Need CUIT
         }
 
-        // 3. If we reach here, either:
-        //    a) documentosCargados is true (meaning they uploaded docs after selecting 'no') OR
-        //    b) documentosCargados is false BUT they selected 'yes' for both CUIT/Clave.
-        //    Now, validate the other essential fields for Alta Step 1.
+        // 3. Check if answered "no" to having Clave Fiscal
+        if (formData.hasClaveFiscal === "no") {
+          openModal(
+            <span className="flex items-center gap-x-2">
+              <AlertTriangle className="w-5 h-5 text-yellow-500" /> Información
+              Necesaria
+            </span>,
+            <div>
+              <p>La Clave Fiscal es necesaria para realizar este trámite.</p>
+              <p className="mt-2">
+                Por favor, obtenga su Clave Fiscal antes de continuar con este
+                proceso.
+              </p>
+            </div>,
+            [
+              {
+                text: (
+                  <span className="flex items-center gap-x-1.5">
+                    <KeyRound className="w-4 h-4" /> Obtener Clave Fiscal
+                  </span>
+                ),
+                onClick: handleObtenerCredenciales, // Opens AFIP site
+                style: "primary",
+              },
+              { text: "Cancelar", onClick: closeModal, style: "secondary" },
+            ]
+          );
+          return; // Stop: Need Clave Fiscal
+        }
+
+        // 5. Validate the other essential fields for Alta Step 1.
         if (
           !formData.actividad ||
           !formData.telefono ||
@@ -339,7 +355,7 @@ export default function Registro() {
           return; // Stop: Other fields missing
         }
 
-        // All checks passed for Alta Step 1, proceed to Step 2
+        // All checks passed for Alta Step 1, proceed to Step 2 (Documents)
         setCurrentStep(2);
       } else {
         // --- Logic for Non-Alta services in Step 1 ---
@@ -358,27 +374,73 @@ export default function Registro() {
         // For non-alta, Step 1 is the last step, submit is handled by the button
       }
     }
-    // --- Step 2 Logic (Only Alta) ---
+    // --- Step 2 Logic (Documents for Alta flow) ---
     else if (currentStep === 2 && isAltaFlow) {
-      if (
-        !formData.cuit ||
-        !formData.email ||
-        !formData.claveFiscal ||
-        !formData.nombreCompleto
-      ) {
+      // Validate required files and email
+      if (!files.frontDni || !files.backDni || !files.selfie) {
         openModal(
-          "Campos Incompletos",
-          "Por favor, complete CUIT, Email, Clave Fiscal y Nombre Completo."
+          "Documentos Requeridos",
+          "Por favor, adjunte los tres documentos requeridos: frente del DNI, dorso del DNI y selfie."
         );
         return;
       }
+
+      if (!formData.email) {
+        openModal(
+          "Email Requerido",
+          "Por favor, ingrese su dirección de email para que podamos contactarlo."
+        );
+        return;
+      }
+
+      // Basic email format validation
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(formData.email)) {
+        openModal(
+          "Email Inválido",
+          "Por favor, ingrese una dirección de email válida."
+        );
+        return;
+      }
+
+      // Upload files before proceeding to next step
+      setUploading(true);
+      uploadFiles(files, {
+        email: formData.email,
+        nombre: formData.nombre || "",
+        apellido: formData.apellido || "",
+        telefono: formData.telefono || "",
+      })
+        .then((result) => {
+          setUploading(false);
+          setDocumentosCargados(true);
+          // Success - proceed to next step
       setCurrentStep(3);
+        })
+        .catch((error) => {
+          setUploading(false);
+          console.error("Upload error:", error);
+          openModal(
+            "Error de Carga",
+            "Hubo un problema al cargar sus archivos. Por favor, verifique los archivos e intente nuevamente. Si el problema persiste, contáctenos."
+          );
+        });
     }
-    // --- Step 3 Logic (Only Alta) ---
+    // --- Step 3 Logic (Personal Data for Alta flow) ---
     else if (currentStep === 3 && isAltaFlow) {
-      // This step only has the terms checkbox, validation happens in handleSubmit
-      // But we might need a next step action if adding more steps later.
-      // For now, clicking "Finalizar" triggers handleSubmit directly.
+      if (!formData.cuit || !formData.claveFiscal) {
+        openModal(
+          "Campos Incompletos",
+          "Por favor, complete todos los campos requeridos: CUIT y Clave Fiscal."
+        );
+        return;
+      }
+      setCurrentStep(4);
+    }
+    // --- Step 4 Logic (Confirmation for Alta flow) ---
+    else if (currentStep === 4 && isAltaFlow) {
+      // Final form validation happens in handleSubmit
+      // This step only has the terms checkbox
     }
   };
 
@@ -388,35 +450,124 @@ export default function Registro() {
     }
   };
 
-  // handleSubmit needs slight adjustment for when it's called (step 3 for alta)
-  const handleSubmit = (e) => {
+  // handleSubmit needs adjustment for the last step (now step 4 for alta)
+  const handleSubmit = async (e) => {
     e.preventDefault(); // Ensure preventDefault is called
     console.log("Datos del formulario:", formData);
 
-    // Final validation for Alta (Step 3)
-    if (formData.tipoServicio === "alta" && currentStep === 3) {
+    setIsSubmitting(true); // Iniciar el estado de carga
+
+    // Final validation for Alta (Step 4)
+    if (
+      (formData.tipoServicio === "alta" ||
+        formData.tipoServicio === "alta_suscripcion") &&
+      currentStep === 4
+    ) {
       if (!formData.aceptaTerminos) {
+        setIsSubmitting(false); // Detener carga si hay error de validación
         openModal(
           "Términos y Condiciones",
           "Debe aceptar los términos y condiciones para continuar."
         );
         return;
       }
-      // --- SUBMIT LOGIC FOR ALTA GOES HERE ---
-      console.log("SUBMITTING ALTA DATA...");
-      openModal("¡Éxito!", "Su solicitud de alta ha sido enviada."); // Example success
-      // Potentially redirect or reset form: router.push('/gracias');
+
+      // Ensure we have document uploads
+      if (!documentosCargados) {
+        setIsSubmitting(false);
+        openModal(
+          "Documentos Faltantes",
+          "Es necesario cargar los documentos requeridos antes de finalizar el proceso."
+        );
+        setCurrentStep(2); // Return to document upload step
+        return;
+      }
+
+      try {
+        // Generate nombreCompleto from nombre and apellido if it's missing
+        const nombreApellido = `${formData.nombre} ${formData.apellido}`.trim();
+        
+        // Include information about documents being uploaded
+        const completeFormData = {
+          ...formData,
+          nombreCompleto: nombreApellido, // Set nombreCompleto based on nombre and apellido
+          documentosCargados: documentosCargados,
+        };
+
+        // Submit form data via API utility
+        const result = await submitForm(completeFormData);
+
+        openModal(
+          "¡Éxito!",
+          "Su solicitud ha sido enviada.",
+          [
+            {
+              text: "Volver al inicio",
+              onClick: () => {
+                closeModal();
+                router.push("/");
+              },
+              style: "primary",
+            },
+          ],
+          5
+        ); // 5 second countdown
+
+        // Redirección automática después de 5 segundos
+        setTimeout(() => {
+          closeModal();
+          router.push("/");
+        }, 5000);
+      } catch (error) {
+        console.error("Error al enviar formulario:", error);
+        openModal(
+          "Error",
+          "Hubo un problema al enviar su solicitud. Por favor, inténtelo de nuevo más tarde."
+        );
+      } finally {
+        setIsSubmitting(false); // Finalizar estado de carga independientemente del resultado
+      }
     }
     // Final validation for Other Services (triggered from handleNextStep in step 1)
-    else if (formData.tipoServicio !== "alta" && currentStep === 1) {
-      // Validation was already done in handleNextStep before calling handleSubmit
-      // --- SUBMIT LOGIC FOR OTHER SERVICES GOES HERE ---
-      console.log("SUBMITTING OTHER SERVICE DATA...");
-      openModal(
-        "¡Éxito!",
-        `Su solicitud de ${selectedService?.label} ha sido enviada.`
-      ); // Example success
-      // Potentially redirect or reset form: router.push('/gracias');
+    else if (
+      formData.tipoServicio !== "alta" &&
+      formData.tipoServicio !== "alta_suscripcion" &&
+      currentStep === 1
+    ) {
+      try {
+        // Submit form data via API utility
+        const result = await submitForm(formData);
+
+        openModal(
+          "¡Éxito!",
+          `Su solicitud de ${selectedService?.label} ha sido enviada.`,
+          [
+            {
+              text: "Volver al inicio",
+              onClick: () => {
+                closeModal();
+                router.push("/");
+              },
+              style: "primary",
+            },
+          ],
+          5 // 5 second countdown
+        );
+
+        // Redirección automática después de 5 segundos
+        setTimeout(() => {
+          closeModal();
+          router.push("/");
+        }, 5000);
+      } catch (error) {
+        console.error("Error al enviar formulario:", error);
+        openModal(
+          "Error",
+          "Hubo un problema al enviar su solicitud. Por favor, inténtelo de nuevo más tarde."
+        );
+      } finally {
+        setIsSubmitting(false); // Finalizar estado de carga independientemente del resultado
+      }
     }
     // Add a fallback for unexpected states?
     else {
@@ -425,6 +576,7 @@ export default function Registro() {
         currentStep,
         formData.tipoServicio
       );
+      setIsSubmitting(false); // Finalizar estado de carga
     }
   };
 
@@ -493,10 +645,21 @@ export default function Registro() {
             )}
           </motion.div>
         );
-      case 2: // Step 2: Alta Step 2 fields
-        return formData.tipoServicio === "alta" ? renderAltaStep2() : null;
-      case 3: // Step 3: Alta Terms and Conditions
-        return formData.tipoServicio === "alta" ? renderAltaStep3() : null;
+      case 2: // Step 2: Document Upload for Alta flows
+        return formData.tipoServicio === "alta" ||
+          formData.tipoServicio === "alta_suscripcion"
+          ? renderAltaStep2_Documents()
+          : null;
+      case 3: // Step 3: Alta Step 3 fields (Personal and Fiscal Data)
+        return formData.tipoServicio === "alta" ||
+          formData.tipoServicio === "alta_suscripcion"
+          ? renderAltaStep3()
+          : null;
+      case 4: // Step 4: Alta Terms and Conditions
+        return formData.tipoServicio === "alta" ||
+          formData.tipoServicio === "alta_suscripcion"
+          ? renderAltaStep4()
+          : null;
       default:
         return null;
     }
@@ -557,16 +720,8 @@ export default function Registro() {
       {/* CUIT Check */}
       <fieldset>
         <legend className="block text-sm font-medium text-gray-700 mb-2">
-          ¿Posee CUIT/CUIL? <span className="text-red-500">*</span>
+          ¿Posee CUIT? <span className="text-red-500">*</span>
         </legend>
-        {documentosCargados ? (
-          <div className="flex items-center gap-x-2 p-2 border border-green-300 rounded-md bg-green-50">
-            <Check className="w-5 h-5 text-green-600" />
-            <span className="text-sm font-medium text-green-700">
-              Archivos adjuntados
-            </span>
-          </div>
-        ) : (
           <div className="flex items-center gap-x-3">
             <label className="cursor-pointer">
               <input
@@ -595,7 +750,6 @@ export default function Registro() {
               </div>
             </label>
           </div>
-        )}
       </fieldset>
 
       {/* Clave Fiscal Check */}
@@ -612,14 +766,6 @@ export default function Registro() {
           </a>
           ? <span className="text-red-500">*</span>
         </legend>
-        {documentosCargados ? (
-          <div className="flex items-center gap-x-2 p-2 border border-green-300 rounded-md bg-green-50">
-            <Check className="w-5 h-5 text-green-600" />
-            <span className="text-sm font-medium text-green-700">
-              Archivos adjuntados
-            </span>
-          </div>
-        ) : (
           <div className="flex items-center gap-x-3">
             <label className="cursor-pointer">
               <input
@@ -648,8 +794,17 @@ export default function Registro() {
               </div>
             </label>
           </div>
-        )}
       </fieldset>
+
+      {/* Documentos Cargados - Display indicator if documents are uploaded */}
+      {documentosCargados && (
+        <div className="md:col-span-2 flex items-center gap-x-2 p-2 border border-green-300 rounded-md bg-green-50">
+          <Check className="w-5 h-5 text-green-600" />
+          <span className="text-sm font-medium text-green-700">
+            Documentos adjuntados correctamente
+          </span>
+        </div>
+      )}
 
       {/* Actividad */}
       <div className="md:col-span-2">
@@ -807,18 +962,236 @@ export default function Registro() {
     </>
   );
 
-  // renderAltaStep2 (Called for Case 2)
-  const renderAltaStep2 = () => (
+  // NUEVO: Renderizar el paso de documentos (Paso 2)
+  const renderAltaStep2_Documents = () => (
     <motion.div
-      key="step2-alta"
+      key="step2-documents"
       initial={{ opacity: 0, x: -20 }}
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: 20 }}
       className="space-y-4"
     >
       <h2 className="text-xl font-semibold text-gray-700">
-        Paso 2: Datos Personales y Fiscales
+        Paso 2: Verificación de Identidad
       </h2>
+
+      <div className="bg-blue-50 p-3 rounded-md border border-blue-200 mb-4">
+        <p className="text-sm text-blue-800">
+          Para completar su alta de monotributo, necesitamos verificar su
+          identidad. Por favor adjunte los siguientes documentos:
+        </p>
+      </div>
+
+      <div className="space-y-4">
+        {/* Email Input */}
+        <div>
+          <label
+            htmlFor="email"
+            className="block text-sm font-medium text-gray-700 mb-1"
+          >
+            Email de contacto <span className="text-red-500">*</span>
+          </label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            value={formData.email}
+            onChange={handleChange}
+            placeholder="ejemplo@correo.com"
+            className="w-full p-2 border border-gray-300 rounded-md"
+            required
+          />
+          <p className="text-xs text-gray-500 mt-1">
+            Usaremos este email para contactarlo sobre su trámite.
+          </p>
+        </div>
+
+        {/* Front DNI Input */}
+        <div>
+          <label
+            htmlFor="frontDni"
+            className="block text-sm font-medium text-gray-700 mb-1"
+          >
+            Frente del DNI <span className="text-red-500">*</span>
+          </label>
+          <div className="flex items-center">
+            <div className="relative w-full">
+              <button
+                type="button"
+                onClick={() => document.getElementById("frontDni").click()}
+                className={`w-full p-2 border border-gray-300 rounded-md text-xs text-left flex items-center ${
+                  files.frontDni ? "bg-gray-50" : "bg-white"
+                }`}
+              >
+                {files.frontDni ? (
+                  <span className="flex items-center text-green-600">
+                    <Check className="w-4 h-4 mr-2" />
+                    {files.frontDni.name.length > 25
+                      ? `${files.frontDni.name.substring(0, 25)}...`
+                      : files.frontDni.name}
+                  </span>
+                ) : (
+                  <span className="flex items-center text-gray-500">
+                    <UploadCloud className="w-4 h-4 mr-2 text-gray-400" />
+                    Seleccionar archivo
+                  </span>
+                )}
+              </button>
+              <input
+                type="file"
+                id="frontDni"
+                name="frontDni"
+                onChange={handleFileChange}
+                accept="image/*,.pdf"
+                className="hidden"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Back DNI Input */}
+        <div>
+          <label
+            htmlFor="backDni"
+            className="block text-sm font-medium text-gray-700 mb-1"
+          >
+            Dorso del DNI <span className="text-red-500">*</span>
+          </label>
+          <div className="flex items-center">
+            <div className="relative w-full">
+              <button
+                type="button"
+                onClick={() => document.getElementById("backDni").click()}
+                className={`w-full p-2 border border-gray-300 rounded-md text-xs text-left flex items-center ${
+                  files.backDni ? "bg-gray-50" : "bg-white"
+                }`}
+              >
+                {files.backDni ? (
+                  <span className="flex items-center text-green-600">
+                    <Check className="w-4 h-4 mr-2" />
+                    {files.backDni.name.length > 25
+                      ? `${files.backDni.name.substring(0, 25)}...`
+                      : files.backDni.name}
+                  </span>
+                ) : (
+                  <span className="flex items-center text-gray-500">
+                    <UploadCloud className="w-4 h-4 mr-2 text-gray-400" />
+                    Seleccionar archivo
+                  </span>
+                )}
+              </button>
+              <input
+                type="file"
+                id="backDni"
+                name="backDni"
+                onChange={handleFileChange}
+                accept="image/*,.pdf"
+                className="hidden"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Selfie Input */}
+        <div>
+          <label
+            htmlFor="selfie"
+            className="block text-sm font-medium text-gray-700 mb-1"
+          >
+            Selfie <span className="text-red-500">*</span>
+          </label>
+          <div className="flex items-center">
+            <div className="relative w-full">
+              <button
+                type="button"
+                onClick={() => document.getElementById("selfie").click()}
+                className={`w-full p-2 border border-gray-300 rounded-md text-xs text-left flex items-center ${
+                  files.selfie ? "bg-gray-50" : "bg-white"
+                }`}
+              >
+                {files.selfie ? (
+                  <span className="flex items-center text-green-600">
+                    <Check className="w-4 h-4 mr-2" />
+                    {files.selfie.name.length > 25
+                      ? `${files.selfie.name.substring(0, 25)}...`
+                      : files.selfie.name}
+                  </span>
+                ) : (
+                  <span className="flex items-center text-gray-500">
+                    <UploadCloud className="w-4 h-4 mr-2 text-gray-400" />
+                    Seleccionar archivo
+                  </span>
+                )}
+              </button>
+              <input
+                type="file"
+                id="selfie"
+                name="selfie"
+                onChange={handleFileChange}
+                accept="image/*"
+                className="hidden"
+              />
+            </div>
+          </div>
+          <p className="text-xs text-gray-500 mt-1">
+            Asegúrese de que su rostro se vea completo y claro.
+          </p>
+        </div>
+      </div>
+    </motion.div>
+  );
+
+  // Renombrar renderAltaStep2 a renderAltaStep3 (datos personales)
+  const renderAltaStep3 = () => (
+    <motion.div
+      key="step3-alta"
+      initial={{ opacity: 0, x: -20 }}
+      animate={{ opacity: 1, x: 0 }}
+      exit={{ opacity: 0, x: 20 }}
+      className="space-y-4"
+    >
+      <h2 className="text-xl font-semibold text-gray-700">
+        Paso 3: Datos Personales y Fiscales
+      </h2>
+      
+      {/* Nombre */}
+      <div>
+        <label
+          htmlFor="nombre"
+          className="block text-sm font-medium text-gray-700"
+        >
+          Nombre <span className="text-red-500">*</span>
+        </label>
+        <input
+          type="text"
+          id="nombre"
+          name="nombre"
+          value={formData.nombre}
+          onChange={handleChange}
+          required
+          className="w-full p-2 border border-gray-300 rounded-md"
+        />
+      </div>
+      
+      {/* Apellido */}
+      <div>
+        <label
+          htmlFor="apellido"
+          className="block text-sm font-medium text-gray-700"
+        >
+          Apellido <span className="text-red-500">*</span>
+        </label>
+        <input
+          type="text"
+          id="apellido"
+          name="apellido"
+          value={formData.apellido}
+          onChange={handleChange}
+          required
+          className="w-full p-2 border border-gray-300 rounded-md"
+        />
+      </div>
+      
       {/* CUIT */}
       <div>
         <label
@@ -856,57 +1229,20 @@ export default function Registro() {
           className="w-full p-2 border border-gray-300 rounded-md"
         />
       </div>
-      {/* Nombre Completo */}
-      <div>
-        <label
-          htmlFor="nombreCompleto"
-          className="block text-sm font-medium text-gray-700"
-        >
-          Nombre y Apellido Completo <span className="text-red-500">*</span>
-        </label>
-        <input
-          type="text"
-          id="nombreCompleto"
-          name="nombreCompleto"
-          value={formData.nombreCompleto}
-          onChange={handleChange}
-          required
-          className="w-full p-2 border border-gray-300 rounded-md"
-        />
-      </div>
-      {/* Email */}
-      <div>
-        <label
-          htmlFor="email"
-          className="block text-sm font-medium text-gray-700"
-        >
-          Correo Electrónico <span className="text-red-500">*</span>
-        </label>
-        <input
-          type="email"
-          id="email"
-          name="email"
-          value={formData.email}
-          onChange={handleChange}
-          required
-          className="w-full p-2 border border-gray-300 rounded-md"
-          placeholder="ejemplo@correo.com"
-        />
-      </div>
     </motion.div>
   );
 
-  // renderAltaStep3 (Called for Case 3)
-  const renderAltaStep3 = () => (
+  // Renombrar renderAltaStep3 a renderAltaStep4 (confirmación y términos)
+  const renderAltaStep4 = () => (
     <motion.div
-      key="step3-alta"
+      key="step4-alta"
       initial={{ opacity: 0, x: -20 }}
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: 20 }}
       className="space-y-4"
     >
       <h2 className="text-xl font-semibold text-gray-700">
-        Paso 3: Confirmación
+        Paso 4: Confirmación
       </h2>
       {/* Terminos */}
       <div className="mt-6">
@@ -951,18 +1287,6 @@ export default function Registro() {
       </div>
     </motion.div>
   );
-
-  // Helper to display selected file name
-  const renderFileName = (file) => {
-    if (!file) return null;
-    // Truncate long file names if necessary
-    const maxLength = 30;
-    const name =
-      file.name.length > maxLength
-        ? `${file.name.substring(0, maxLength - 3)}...`
-        : file.name;
-    return <span className="ml-2 text-xs text-green-600">✓ {name}</span>;
-  };
 
   return (
     // Main container with padding-top to clear fixed nav
@@ -1018,14 +1342,14 @@ export default function Registro() {
               const isAltaFlow =
                 formData.tipoServicio === "alta" ||
                 formData.tipoServicio === "alta_suscripcion";
-              const lastAltaStep = 3;
+              const lastAltaStep = 4; // Updated for the new 4-step flow
               const lastOtherStep = 1;
               const isLastStep = isAltaFlow
                 ? currentStep === lastAltaStep
                 : currentStep === lastOtherStep;
 
-              if (!isLastStep) {
-                // Show 'Siguiente' button
+              if (!isLastStep && currentStep !== 2) {
+                // Show 'Siguiente' button for steps that don't have special handling
                 return (
                   <button
                     type="button"
@@ -1049,17 +1373,41 @@ export default function Registro() {
                           !formData.apellido ||
                           !formData.email ||
                           !formData.telefono)) ||
-                      // Step 2 (Alta): Disable if fields missing
-                      (currentStep === 2 &&
+                      // Step 3 (Alta): Disable if fields missing
+                      (currentStep === 3 &&
                         isAltaFlow &&
                         (!formData.cuit ||
-                          !formData.email ||
-                          !formData.claveFiscal ||
-                          !formData.nombreCompleto))
+                          !formData.claveFiscal))
                     }
                     className="flex items-center px-6 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Siguiente <ArrowRight className="w-4 h-4 ml-2" />
+                  </button>
+                );
+              } else if (currentStep === 2) {
+                // Special case for Step 2 (Documents) with upload handling
+                return (
+                  <button
+                    type="button"
+                    onClick={handleNextStep}
+                    disabled={
+                      uploading ||
+                      !files.frontDni ||
+                      !files.backDni ||
+                      !files.selfie ||
+                      !formData.email
+                    }
+                    className="flex items-center px-6 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {uploading ? (
+                      <>
+                        <span className="animate-pulse">Subiendo...</span>
+                      </>
+                    ) : (
+                      <>
+                        Siguiente <ArrowRight className="w-4 h-4 ml-2" />
+                      </>
+                    )}
                   </button>
                 );
               } else {
@@ -1075,15 +1423,25 @@ export default function Registro() {
                           !formData.apellido ||
                           !formData.email ||
                           !formData.telefono ||
-                          !formData.tipoServicio)) ||
-                      // Step 3 (alta): Disable if terms not accepted
+                          !formData.tipoServicio ||
+                          isSubmitting)) ||
+                      // Step 4 (alta): Disable if terms not accepted or is submitting
                       (currentStep === lastAltaStep &&
                         isAltaFlow &&
-                        !formData.aceptaTerminos)
+                        (!formData.aceptaTerminos || isSubmitting))
                     }
                     className="flex items-center px-6 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
+                    {isSubmitting ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                        Enviando...
+                      </>
+                    ) : (
+                      <>
                     <Check className="w-4 h-4 mr-2" /> Finalizar Solicitud
+                      </>
+                    )}
                   </button>
                 );
               }
@@ -1092,124 +1450,18 @@ export default function Registro() {
         </form>
       </motion.div>
 
-      {/* Info/Error Modal (Existing) */}
+      {/* Info/Error Modal */}
       <Modal
         isOpen={isModalOpen}
         onClose={closeModal}
         title={modalTitle}
         actions={modalActions}
+        countdown={
+          modalActions.length > 0 && modalTitle === "¡Éxito!" ? 5 : null
+        }
       >
         {modalMessage}
       </Modal>
-
-      {/* ---- Upload Modal (New) ---- */}
-      <Modal
-        isOpen={isUploadModalOpen}
-        onClose={() => !uploading && setIsUploadModalOpen(false)}
-        title={
-          <span className="flex items-center gap-x-2">
-            {/* Optional: <UploadCloud className="w-5 h-5 text-blue-600" /> */}
-            Cargar Documentación
-          </span>
-        }
-        actions={[
-          {
-            text: uploading ? "Subiendo..." : "Subir Archivos",
-            onClick: handleUploadSubmit,
-            style: "primary",
-            disabled:
-              uploading || !files.frontDni || !files.backDni || !files.selfie,
-          },
-          {
-            text: "Cancelar",
-            onClick: () => setIsUploadModalOpen(false),
-            style: "secondary",
-            disabled: uploading,
-          },
-        ]}
-      >
-        <p className="text-sm text-gray-600 mb-4">
-          Para continuar con el trámite es necesario tener CUIT/CUIL y Clave
-          Fiscal. Por favor cargue la siguiente documentación para obtenerlas.
-          Asegúrese de que las imágenes sean claras y legibles.
-        </p>
-        <div className="space-y-4">
-          {/* Front DNI Input */}
-          <div>
-            <label
-              htmlFor="frontDni"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
-              Frente del DNI <span className="text-red-500">*</span>
-            </label>
-            <div className="flex items-center">
-              <input
-                type="file"
-                id="frontDni"
-                name="frontDni"
-                onChange={handleFileChange}
-                accept="image/*,.pdf"
-                className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border file:border-gray-300 file:text-sm file:font-medium file:bg-gray-50 file:text-gray-700 hover:file:bg-gray-100 disabled:opacity-50"
-                disabled={uploading}
-              />
-              {renderFileName(files.frontDni)}
-            </div>
-          </div>
-          {/* Back DNI Input */}
-          <div>
-            <label
-              htmlFor="backDni"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
-              Dorso del DNI <span className="text-red-500">*</span>
-            </label>
-            <div className="flex items-center">
-              <input
-                type="file"
-                id="backDni"
-                name="backDni"
-                onChange={handleFileChange}
-                accept="image/*,.pdf"
-                className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border file:border-gray-300 file:text-sm file:font-medium file:bg-gray-50 file:text-gray-700 hover:file:bg-gray-100 disabled:opacity-50"
-                disabled={uploading}
-              />
-              {renderFileName(files.backDni)}
-            </div>
-          </div>
-          {/* Selfie Input */}
-          <div>
-            <label
-              htmlFor="selfie"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
-              Selfie de tu cara <span className="text-red-500">*</span>
-            </label>
-            <div className="flex items-center">
-              <input
-                type="file"
-                id="selfie"
-                name="selfie"
-                onChange={handleFileChange}
-                accept="image/*"
-                className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border file:border-gray-300 file:text-sm file:font-medium file:bg-gray-50 file:text-gray-700 hover:file:bg-gray-100 disabled:opacity-50"
-                disabled={uploading}
-              />
-              {renderFileName(files.selfie)}
-            </div>
-            <p className="text-xs text-gray-500 mt-1">
-              Asegúrese de que su rostro se vea completo y claro.
-            </p>
-          </div>
-
-          {/* Optional Uploading Indicator */}
-          {uploading && (
-            <div className="text-center text-blue-600">
-              <p>Cargando archivos...</p>
-            </div>
-          )}
-        </div>
-      </Modal>
-      {/* ---- End Upload Modal ---- */}
     </div>
   );
 }
