@@ -59,7 +59,6 @@ export default function Payment() {
         description: isSubscription
           ? "Suscripción mensual Monotributo Digital"
           : `Servicio ${service}`,
-        userId: localStorage.getItem("userId") || undefined,
       };
 
       if (isSubscription) {
