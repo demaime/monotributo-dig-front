@@ -415,7 +415,7 @@ export default function Registro() {
           setUploading(false);
           setDocumentosCargados(true);
           // Success - proceed to next step
-      setCurrentStep(3);
+          setCurrentStep(3);
         })
         .catch((error) => {
           setUploading(false);
@@ -486,7 +486,7 @@ export default function Registro() {
       try {
         // Generate nombreCompleto from nombre and apellido if it's missing
         const nombreApellido = `${formData.nombre} ${formData.apellido}`.trim();
-        
+
         // Include information about documents being uploaded
         const completeFormData = {
           ...formData,
@@ -497,27 +497,38 @@ export default function Registro() {
         // Submit form data via API utility
         const result = await submitForm(completeFormData);
 
+        // Guardar email en localStorage para usar en la página de pagos
+        if (formData.email) {
+          localStorage.setItem("userEmail", formData.email);
+        }
+
+        // Determinar qué tipo de servicio seleccionó para el pago
+        const servicioParaPago =
+          formData.tipoServicio === "alta_suscripcion" ? "mensual" : "alta";
+        const esSubscripcion = formData.tipoServicio === "alta_suscripcion";
+
         openModal(
-          "¡Éxito!",
-          "Su solicitud ha sido enviada.",
+          "¡Registro Exitoso!",
+          "Su solicitud ha sido enviada. A continuación deberá realizar el pago para completar el proceso.",
           [
             {
-              text: "Volver al inicio",
+              text: "Proceder al Pago",
               onClick: () => {
                 closeModal();
-                router.push("/");
+                // Redirigir a la página de pago con los detalles del servicio
+                router.push({
+                  pathname: "/payment",
+                  query: {
+                    service: servicioParaPago,
+                    price: esSubscripcion ? 1800 : 5000,
+                    isSubscription: esSubscripcion,
+                  },
+                });
               },
               style: "primary",
             },
-          ],
-          5
-        ); // 5 second countdown
-
-        // Redirección automática después de 5 segundos
-        setTimeout(() => {
-          closeModal();
-          router.push("/");
-        }, 5000);
+          ]
+        );
       } catch (error) {
         console.error("Error al enviar formulario:", error);
         openModal(
@@ -538,27 +549,45 @@ export default function Registro() {
         // Submit form data via API utility
         const result = await submitForm(formData);
 
+        // Guardar email en localStorage para usar en la página de pagos
+        if (formData.email) {
+          localStorage.setItem("userEmail", formData.email);
+        }
+
+        // Determinar el servicio para pago
+        let servicioParaPago = "alta"; // Por defecto
+        let precioPago = 5000;
+
+        if (formData.tipoServicio === "recategorizacion") {
+          servicioParaPago = "recategorizacion";
+          precioPago = 3500;
+        } else if (formData.tipoServicio === "baja") {
+          servicioParaPago = "baja";
+          precioPago = 2500;
+        }
+
         openModal(
-          "¡Éxito!",
-          `Su solicitud de ${selectedService?.label} ha sido enviada.`,
+          "¡Registro Exitoso!",
+          `Su solicitud de ${selectedService?.label} ha sido enviada. A continuación deberá realizar el pago para completar el proceso.`,
           [
             {
-              text: "Volver al inicio",
+              text: "Proceder al Pago",
               onClick: () => {
                 closeModal();
-                router.push("/");
+                // Redirigir a la página de pago con los detalles del servicio
+                router.push({
+                  pathname: "/payment",
+                  query: {
+                    service: servicioParaPago,
+                    price: precioPago,
+                    isSubscription: false,
+                  },
+                });
               },
               style: "primary",
             },
-          ],
-          5 // 5 second countdown
+          ]
         );
-
-        // Redirección automática después de 5 segundos
-        setTimeout(() => {
-          closeModal();
-          router.push("/");
-        }, 5000);
       } catch (error) {
         console.error("Error al enviar formulario:", error);
         openModal(
@@ -722,34 +751,34 @@ export default function Registro() {
         <legend className="block text-sm font-medium text-gray-700 mb-2">
           ¿Posee CUIT? <span className="text-red-500">*</span>
         </legend>
-          <div className="flex items-center gap-x-3">
-            <label className="cursor-pointer">
-              <input
-                type="radio"
-                name="hasCuit"
-                value="yes"
-                checked={formData.hasCuit === "yes"}
-                onChange={handleChange}
-                className="peer sr-only"
-              />
-              <div className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 shadow-sm transition-colors duration-200 ease-in-out peer-checked:bg-blue-500 peer-checked:text-white peer-checked:border-blue-500">
-                Sí
-              </div>
-            </label>
-            <label className="cursor-pointer">
-              <input
-                type="radio"
-                name="hasCuit"
-                value="no"
-                checked={formData.hasCuit === "no"}
-                onChange={handleChange}
-                className="peer sr-only"
-              />
-              <div className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 shadow-sm transition-colors duration-200 ease-in-out peer-checked:bg-blue-500 peer-checked:text-white peer-checked:border-blue-500">
-                No
-              </div>
-            </label>
-          </div>
+        <div className="flex items-center gap-x-3">
+          <label className="cursor-pointer">
+            <input
+              type="radio"
+              name="hasCuit"
+              value="yes"
+              checked={formData.hasCuit === "yes"}
+              onChange={handleChange}
+              className="peer sr-only"
+            />
+            <div className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 shadow-sm transition-colors duration-200 ease-in-out peer-checked:bg-blue-500 peer-checked:text-white peer-checked:border-blue-500">
+              Sí
+            </div>
+          </label>
+          <label className="cursor-pointer">
+            <input
+              type="radio"
+              name="hasCuit"
+              value="no"
+              checked={formData.hasCuit === "no"}
+              onChange={handleChange}
+              className="peer sr-only"
+            />
+            <div className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 shadow-sm transition-colors duration-200 ease-in-out peer-checked:bg-blue-500 peer-checked:text-white peer-checked:border-blue-500">
+              No
+            </div>
+          </label>
+        </div>
       </fieldset>
 
       {/* Clave Fiscal Check */}
@@ -766,34 +795,34 @@ export default function Registro() {
           </a>
           ? <span className="text-red-500">*</span>
         </legend>
-          <div className="flex items-center gap-x-3">
-            <label className="cursor-pointer">
-              <input
-                type="radio"
-                name="hasClaveFiscal"
-                value="yes"
-                checked={formData.hasClaveFiscal === "yes"}
-                onChange={handleChange}
-                className="peer sr-only"
-              />
-              <div className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 shadow-sm transition-colors duration-200 ease-in-out peer-checked:bg-blue-500 peer-checked:text-white peer-checked:border-blue-500">
-                Sí
-              </div>
-            </label>
-            <label className="cursor-pointer">
-              <input
-                type="radio"
-                name="hasClaveFiscal"
-                value="no"
-                checked={formData.hasClaveFiscal === "no"}
-                onChange={handleChange}
-                className="peer sr-only"
-              />
-              <div className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 shadow-sm transition-colors duration-200 ease-in-out peer-checked:bg-blue-500 peer-checked:text-white peer-checked:border-blue-500">
-                No
-              </div>
-            </label>
-          </div>
+        <div className="flex items-center gap-x-3">
+          <label className="cursor-pointer">
+            <input
+              type="radio"
+              name="hasClaveFiscal"
+              value="yes"
+              checked={formData.hasClaveFiscal === "yes"}
+              onChange={handleChange}
+              className="peer sr-only"
+            />
+            <div className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 shadow-sm transition-colors duration-200 ease-in-out peer-checked:bg-blue-500 peer-checked:text-white peer-checked:border-blue-500">
+              Sí
+            </div>
+          </label>
+          <label className="cursor-pointer">
+            <input
+              type="radio"
+              name="hasClaveFiscal"
+              value="no"
+              checked={formData.hasClaveFiscal === "no"}
+              onChange={handleChange}
+              className="peer sr-only"
+            />
+            <div className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 shadow-sm transition-colors duration-200 ease-in-out peer-checked:bg-blue-500 peer-checked:text-white peer-checked:border-blue-500">
+              No
+            </div>
+          </label>
+        </div>
       </fieldset>
 
       {/* Documentos Cargados - Display indicator if documents are uploaded */}
@@ -1153,7 +1182,7 @@ export default function Registro() {
       <h2 className="text-xl font-semibold text-gray-700">
         Paso 3: Datos Personales y Fiscales
       </h2>
-      
+
       {/* Nombre */}
       <div>
         <label
@@ -1172,7 +1201,7 @@ export default function Registro() {
           className="w-full p-2 border border-gray-300 rounded-md"
         />
       </div>
-      
+
       {/* Apellido */}
       <div>
         <label
@@ -1191,7 +1220,7 @@ export default function Registro() {
           className="w-full p-2 border border-gray-300 rounded-md"
         />
       </div>
-      
+
       {/* CUIT */}
       <div>
         <label
@@ -1376,8 +1405,7 @@ export default function Registro() {
                       // Step 3 (Alta): Disable if fields missing
                       (currentStep === 3 &&
                         isAltaFlow &&
-                        (!formData.cuit ||
-                          !formData.claveFiscal))
+                        (!formData.cuit || !formData.claveFiscal))
                     }
                     className="flex items-center px-6 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
@@ -1439,7 +1467,7 @@ export default function Registro() {
                       </>
                     ) : (
                       <>
-                    <Check className="w-4 h-4 mr-2" /> Finalizar Solicitud
+                        <Check className="w-4 h-4 mr-2" /> Finalizar Solicitud
                       </>
                     )}
                   </button>
