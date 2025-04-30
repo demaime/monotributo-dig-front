@@ -14,6 +14,7 @@ import { motion, AnimatePresence, useInView } from "framer-motion";
 import { useRef } from "react";
 import AdvisorySection from "../components/home/AdvisorySection";
 import WhatsAppButton from "../components/WhatsAppButton";
+import Link from "next/link";
 
 function App() {
   const router = useRouter();
@@ -83,6 +84,12 @@ function App() {
               >
                 Contacto
               </a>
+              <Link
+                href="/faq"
+                className="text-[#6B7280] hover:text-[#1E293B] transition-colors"
+              >
+                Preguntas Frecuentes
+              </Link>
             </div>
           </nav>
 
@@ -158,6 +165,24 @@ function App() {
                   >
                     Contacto
                   </motion.a>
+                  <Link
+                    href="/faq"
+                    className="text-[#6B7280] hover:text-[#1E293B] text-lg py-3 px-4 block rounded-xl transition-all duration-300"
+                    style={{
+                      display: "block",
+                      transformOrigin: "left center",
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = "translateX(10px)";
+                      e.currentTarget.style.backgroundColor = "#E5F0FF";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = "translateX(0)";
+                      e.currentTarget.style.backgroundColor = "transparent";
+                    }}
+                  >
+                    Preguntas Frecuentes
+                  </Link>
                 </motion.div>
               )}
             </AnimatePresence>
@@ -197,9 +222,7 @@ function App() {
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                onClick={() =>
-                  router.push("/registro?servicio=alta_suscripcion")
-                }
+                onClick={() => router.push("/registro?servicio=plan_base")}
                 className="group flex items-center gap-3 bg-gradient-to-r from-[#0066FF] to-[#0040FF] text-white px-12 py-6 rounded-full font-bold text-3xl hover:shadow-[0_0_30px_rgba(0,102,255,0.3)] transition-all duration-300 shadow-lg"
               >
                 DATE DE ALTA
@@ -286,9 +309,7 @@ function App() {
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                onClick={() =>
-                  router.push("/registro?servicio=alta_suscripcion")
-                }
+                onClick={() => router.push("/registro?servicio=plan_base")}
                 className="group flex items-center justify-center w-full bg-gradient-to-r from-[#0066FF] to-[#0040FF] text-white px-8 py-6 rounded-full font-bold text-2xl hover:shadow-[0_0_30px_rgba(0,102,255,0.3)] transition-all duration-300 shadow-lg"
               >
                 DATE DE ALTA
@@ -366,61 +387,203 @@ function App() {
           <div className="container mx-auto px-4">
             <div className="text-center mb-16">
               <h2 className="text-3xl font-bold text-[#1E293B] mb-4">
-                Nuestros Servicios
+                Planes y Precios
               </h2>
               <p className="text-lg text-[#6B7280] max-w-2xl mx-auto">
-                Todo lo que necesitas para gestionar tu monotributo de forma
-                eficiente
+                Elegí el plan que mejor se adapte a tus necesidades
               </p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {/* Plan Base */}
               <motion.div
-                whileHover={{ y: -5 }}
-                onClick={() => router.push("/registro?servicio=alta")}
-                className="bg-white shadow-lg rounded-xl p-6 hover:shadow-xl transition-all duration-300 cursor-pointer"
+                whileHover={{
+                  y: -10,
+                  boxShadow: "0 10px 40px rgba(0, 102, 255, 0.15)",
+                }}
+                className="bg-white shadow-lg rounded-xl overflow-hidden transition-all duration-300 border border-blue-100 flex flex-col"
               >
-                <FileText className="w-12 h-12 text-[#0066FF] mb-4" />
-                <h3 className="text-xl font-semibold text-[#1E293B] mb-3">
-                  Inscripción
-                </h3>
-                <p className="text-[#6B7280]">
-                  Te guiamos en todo el proceso de inscripción al Monotributo,
-                  desde la obtención del CUIT hasta la categorización inicial.
-                </p>
+                <div className="bg-blue-600 py-6 px-6 text-white">
+                  <h3 className="text-2xl font-bold mb-2">Plan Base</h3>
+                  <p className="opacity-90 text-sm">
+                    Para emprendedores que inician su actividad
+                  </p>
+                </div>
+                <div className="p-6 flex-grow">
+                  <div className="mb-6">
+                    <p className="text-4xl font-bold text-gray-900">$25.000</p>
+                    <p className="text-gray-500 text-sm">por mes</p>
+                  </div>
+                  <ul className="space-y-3 mb-8">
+                    <li className="flex items-start">
+                      <CheckCircle2 className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
+                      <span className="text-gray-700">
+                        Alta de monotributo incluida
+                      </span>
+                    </li>
+                    <li className="flex items-start">
+                      <CheckCircle2 className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
+                      <span className="text-gray-700">
+                        4 consultas profesionales mensuales
+                      </span>
+                    </li>
+                    <li className="flex items-start">
+                      <CheckCircle2 className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
+                      <span className="text-gray-700">
+                        Recategorización semestral
+                      </span>
+                    </li>
+                    <li className="flex items-start">
+                      <CheckCircle2 className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
+                      <span className="text-gray-700">
+                        Asistencia vía email
+                      </span>
+                    </li>
+                  </ul>
+                </div>
+                <div className="px-6 pb-6">
+                  <button
+                    onClick={() => router.push("/registro?servicio=plan_base")}
+                    className="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors text-center"
+                  >
+                    Comenzar
+                  </button>
+                  <p className="text-xs text-gray-500 mt-3 text-center">
+                    * Compromiso mínimo de 6 meses
+                  </p>
+                </div>
               </motion.div>
 
+              {/* Plan Full */}
               <motion.div
-                whileHover={{ y: -5 }}
-                onClick={() => router.push("/registro?servicio=baja")}
-                className="bg-white shadow-lg rounded-xl p-6 hover:shadow-xl transition-all duration-300 cursor-pointer"
+                whileHover={{
+                  y: -10,
+                  boxShadow: "0 10px 40px rgba(0, 102, 255, 0.15)",
+                }}
+                className="bg-white shadow-xl rounded-xl overflow-hidden transition-all duration-300 border border-blue-100 flex flex-col relative z-10 transform md:scale-105"
               >
-                <CreditCard className="w-12 h-12 text-[#0066FF] mb-4" />
-                <h3 className="text-xl font-semibold text-[#1E293B] mb-3">
-                  Baja de Monotributo
-                </h3>
-                <p className="text-[#6B7280]">
-                  Asistencia completa en el proceso de baja del Monotributo,
-                  asegurando el cumplimiento de todas las obligaciones
-                  pendientes.
-                </p>
+                <div className="bg-blue-700 py-6 px-6 text-white">
+                  <h3 className="text-2xl font-bold mb-2">Plan Full</h3>
+                  <p className="opacity-90 text-sm">
+                    Para profesionales y comercios establecidos
+                  </p>
+                </div>
+                <div className="p-6 flex-grow">
+                  <div className="mb-6">
+                    <p className="text-4xl font-bold text-gray-900">$30.000</p>
+                    <p className="text-gray-500 text-sm">por mes</p>
+                  </div>
+                  <ul className="space-y-3 mb-8">
+                    <li className="flex items-start">
+                      <CheckCircle2 className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
+                      <span className="text-gray-700">
+                        Alta de monotributo incluida
+                      </span>
+                    </li>
+                    <li className="flex items-start">
+                      <CheckCircle2 className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
+                      <span className="text-gray-700">
+                        8 consultas profesionales mensuales
+                      </span>
+                    </li>
+                    <li className="flex items-start">
+                      <CheckCircle2 className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
+                      <span className="text-gray-700">
+                        Recategorización incluida
+                      </span>
+                    </li>
+                    <li className="flex items-start">
+                      <CheckCircle2 className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
+                      <span className="text-gray-700">
+                        Emisión de 4 facturas mensuales
+                      </span>
+                    </li>
+                    <li className="flex items-start">
+                      <CheckCircle2 className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
+                      <span className="text-gray-700">
+                        Asistencia prioritaria
+                      </span>
+                    </li>
+                  </ul>
+                </div>
+                <div className="px-6 pb-6">
+                  <button
+                    onClick={() => router.push("/registro?servicio=plan_full")}
+                    className="w-full py-3 px-4 bg-blue-700 hover:bg-blue-800 text-white font-medium rounded-lg transition-colors shadow-lg text-center"
+                  >
+                    Comenzar
+                  </button>
+                  <p className="text-xs text-gray-500 mt-3 text-center">
+                    * Compromiso mínimo de 6 meses
+                  </p>
+                </div>
               </motion.div>
 
+              {/* Plan Premium */}
               <motion.div
-                whileHover={{ y: -5 }}
-                onClick={() =>
-                  router.push("/registro?servicio=recategorizacion")
-                }
-                className="bg-white shadow-lg rounded-xl p-6 hover:shadow-xl transition-all duration-300 cursor-pointer"
+                whileHover={{
+                  y: -10,
+                  boxShadow: "0 10px 40px rgba(0, 102, 255, 0.15)",
+                }}
+                className="bg-white shadow-lg rounded-xl overflow-hidden transition-all duration-300 border border-blue-100 flex flex-col"
               >
-                <HelpCircle className="w-12 h-12 text-[#0066FF] mb-4" />
-                <h3 className="text-xl font-semibold text-[#1E293B] mb-3">
-                  Recategorización
-                </h3>
-                <p className="text-[#6B7280]">
-                  Te ayudamos a realizar el cambio de categoría cuando tus
-                  ingresos o gastos superen los límites establecidos.
-                </p>
+                <div className="bg-indigo-800 py-6 px-6 text-white">
+                  <h3 className="text-2xl font-bold mb-2">Plan Premium</h3>
+                  <p className="opacity-90 text-sm">
+                    Para negocios con altas necesidades
+                  </p>
+                </div>
+                <div className="p-6 flex-grow">
+                  <div className="mb-6">
+                    <p className="text-4xl font-bold text-gray-900">$40.000</p>
+                    <p className="text-gray-500 text-sm">por mes</p>
+                  </div>
+                  <ul className="space-y-3 mb-8">
+                    <li className="flex items-start">
+                      <CheckCircle2 className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
+                      <span className="text-gray-700">
+                        Alta de monotributo incluida
+                      </span>
+                    </li>
+                    <li className="flex items-start">
+                      <CheckCircle2 className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
+                      <span className="text-gray-700">
+                        Consultas ilimitadas con contador
+                      </span>
+                    </li>
+                    <li className="flex items-start">
+                      <CheckCircle2 className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
+                      <span className="text-gray-700">
+                        Recategorización incluida
+                      </span>
+                    </li>
+                    <li className="flex items-start">
+                      <CheckCircle2 className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
+                      <span className="text-gray-700">
+                        Emisión de hasta 10 facturas mensuales
+                      </span>
+                    </li>
+                    <li className="flex items-start">
+                      <CheckCircle2 className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
+                      <span className="text-gray-700">
+                        Soporte prioritario 24/7
+                      </span>
+                    </li>
+                  </ul>
+                </div>
+                <div className="px-6 pb-6">
+                  <button
+                    onClick={() =>
+                      router.push("/registro?servicio=plan_premium")
+                    }
+                    className="w-full py-3 px-4 bg-indigo-800 hover:bg-indigo-900 text-white font-medium rounded-lg transition-colors text-center"
+                  >
+                    Comenzar
+                  </button>
+                  <p className="text-xs text-gray-500 mt-3 text-center">
+                    * Compromiso mínimo de 6 meses
+                  </p>
+                </div>
               </motion.div>
             </div>
           </div>

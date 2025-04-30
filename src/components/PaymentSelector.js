@@ -5,26 +5,51 @@ const SERVICES = {
   alta: {
     name: "Alta de Monotributo",
     description: "Servicio de registro inicial en el régimen de Monotributo",
-    price: 5000,
+    price: 75000,
     isSubscription: false,
   },
   recategorizacion: {
     name: "Recategorización",
     description: "Servicio de cambio de categoría en el Monotributo",
-    price: 3500,
+    price: 50000,
     isSubscription: false,
   },
   baja: {
     name: "Baja de Monotributo",
     description: "Servicio de cancelación del Monotributo",
-    price: 2500,
+    price: 75000,
     isSubscription: false,
   },
-  mensual: {
-    name: "Servicio Mensual",
-    description: "Asesoramiento y gestión continua de tu Monotributo",
-    price: 1800,
+  plan_base: {
+    name: "Plan Base",
+    description:
+      "Alta + 4 consultas profesionales mensuales con contador matriculado + recategorización semestral",
+    price: 25000,
     isSubscription: true,
+    minMonths: 6,
+  },
+  plan_full: {
+    name: "Plan Full",
+    description:
+      "Alta + recategorización + 8 consultas profesionales mensuales con contador matriculado + emisión de 4 facturas mensuales",
+    price: 30000,
+    isSubscription: true,
+    minMonths: 6,
+  },
+  plan_premium: {
+    name: "Plan Premium",
+    description:
+      "Alta + recategorización + consultas mensuales ilimitadas con contador matriculado + emisión de hasta 10 facturas mensuales",
+    price: 40000,
+    isSubscription: true,
+    minMonths: 6,
+  },
+  factura_adicional: {
+    name: "Factura Adicional",
+    description:
+      "Emisión de factura adicional para planes que ya completaron su cupo",
+    price: 2000,
+    isSubscription: false,
   },
 };
 
@@ -54,6 +79,7 @@ export default function PaymentSelector({ selectedService = "alta" }) {
           service: selectedService,
           price: service.price,
           isSubscription: service.isSubscription,
+          minMonths: service.minMonths || 1,
         },
       });
     } catch (err) {
@@ -75,9 +101,14 @@ export default function PaymentSelector({ selectedService = "alta" }) {
           <p>{service.description}</p>
         </div>
         <div className="mt-3 text-xl font-bold text-gray-900">
-          ${service.price}
+          ${service.price.toLocaleString("es-AR")}
           {service.isSubscription && (
             <span className="text-sm font-normal"> /mes</span>
+          )}
+          {service.isSubscription && service.minMonths > 1 && (
+            <div className="text-sm font-normal text-gray-600 mt-1">
+              Período mínimo: {service.minMonths} meses
+            </div>
           )}
         </div>
         <div className="mt-5">

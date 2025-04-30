@@ -10,23 +10,16 @@ const API_BASE_URL =
 
 export default function Payment() {
   const router = useRouter();
-  // Ensure price is treated as number, handle potential multiple values if needed
-  const service = Array.isArray(router.query.service)
-    ? router.query.service[0]
-    : router.query.service;
-  const price = router.query.price
-    ? Number(
-        Array.isArray(router.query.price)
-          ? router.query.price[0]
-          : router.query.price
-      )
-    : 0;
-  const isSubscription = router.query.isSubscription === "true";
+  const { service, price, isSubscription, minMonths } = router.query;
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showMpEmailModal, setShowMpEmailModal] = useState(false);
   const [mpEmail, setMpEmail] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
+  const [email, setEmail] = useState("");
+  const [name, setName] = useState("");
+  const [formValid, setFormValid] = useState(false);
 
   const processPayment = async () => {
     setError(null);
@@ -59,6 +52,10 @@ export default function Payment() {
         description: isSubscription
           ? "Suscripción mensual Monotributo Digital"
           : `Servicio ${service}`,
+        serviceType: service || "general",
+        email: email,
+        userName: name,
+        minMonths: Number(minMonths) || 1,
       };
 
       if (isSubscription) {
@@ -68,8 +65,6 @@ export default function Payment() {
           );
         }
         requestData.email = mpEmail;
-      } else {
-        requestData.serviceType = service || "general";
       }
 
       console.log("Enviando datos al backend:", endpoint, requestData);
@@ -161,6 +156,36 @@ export default function Payment() {
       setLoading(false);
     }
   }, [router.isReady, service, price, isSubscription]);
+
+  useEffect(() => {
+    // Validar cuando cambian los inputs
+    setFormValid(email.includes("@") && name.trim().length > 0);
+  }, [email, name]);
+
+  useEffect(() => {
+    // Verificar si hay datos de servicio
+    if (router.isReady) {
+      if (!service || !price) {
+        setError("No se encontraron datos del servicio seleccionado.");
+        setLoading(false);
+        return;
+      }
+
+      // Obtener email guardado previamente
+      const savedEmail = localStorage.getItem("userEmail");
+      if (savedEmail) {
+        setEmail(savedEmail);
+      }
+
+      // Obtener nombre guardado previamente
+      const savedName = localStorage.getItem("userName");
+      if (savedName) {
+        setName(savedName);
+      }
+
+      setLoading(false);
+    }
+  }, [router.isReady, service, price]);
 
   const paymentTypeText = isSubscription ? "Suscripción Mensual" : "Pago Único";
 

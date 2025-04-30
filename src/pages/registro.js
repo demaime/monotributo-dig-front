@@ -17,13 +17,30 @@ import { submitForm, uploadFiles } from "../utils/api";
 
 const servicios = [
   {
-    id: "alta_suscripcion",
-    label: "ALTA GRATUITA + SUSCRIPCIÓN por 6 MESES",
-    price: 20000,
+    id: "plan_base",
+    label: "Plan Base",
+    price: 25000,
+    description:
+      "Incluye alta de monotributo, 4 consultas profesionales mensuales con contador matriculado y recategorización semestral.",
   },
-  { id: "alta", label: "Alta de Monotributo", price: 70000 },
+  {
+    id: "plan_full",
+    label: "Plan Full",
+    price: 30000,
+    description:
+      "Incluye alta de monotributo, recategorización, 8 consultas profesionales mensuales con contador matriculado y emisión de 4 facturas mensuales.",
+  },
+  {
+    id: "plan_premium",
+    label: "Plan Premium",
+    price: 40000,
+    description:
+      "Incluye alta de monotributo, recategorización, consultas mensuales ilimitadas con contador matriculado y emisión de hasta 10 facturas mensuales.",
+  },
+  { id: "alta", label: "Alta de Monotributo", price: 75000 },
   { id: "recategorizacion", label: "Recategorización", price: 50000 },
-  { id: "baja", label: "Baja de Monotributo", price: 70000 },
+  { id: "baja", label: "Baja de Monotributo", price: 75000 },
+  { id: "factura_adicional", label: "Factura Adicional", price: 2000 },
 ];
 
 // Opciones de categoría para el desplegable
@@ -259,7 +276,9 @@ export default function Registro() {
   const handleNextStep = () => {
     const isAltaFlow =
       formData.tipoServicio === "alta" ||
-      formData.tipoServicio === "alta_suscripcion";
+      formData.tipoServicio === "plan_base" ||
+      formData.tipoServicio === "plan_full" ||
+      formData.tipoServicio === "plan_premium";
 
     // --- Step 1 Logic ---
     if (currentStep === 1) {
@@ -460,7 +479,9 @@ export default function Registro() {
     // Final validation for Alta (Step 4)
     if (
       (formData.tipoServicio === "alta" ||
-        formData.tipoServicio === "alta_suscripcion") &&
+        formData.tipoServicio === "plan_base" ||
+        formData.tipoServicio === "plan_full" ||
+        formData.tipoServicio === "plan_premium") &&
       currentStep === 4
     ) {
       if (!formData.aceptaTerminos) {
@@ -504,8 +525,15 @@ export default function Registro() {
 
         // Determinar qué tipo de servicio seleccionó para el pago
         const servicioParaPago =
-          formData.tipoServicio === "alta_suscripcion" ? "mensual" : "alta";
-        const esSubscripcion = formData.tipoServicio === "alta_suscripcion";
+          formData.tipoServicio === "plan_base" ||
+          formData.tipoServicio === "plan_full" ||
+          formData.tipoServicio === "plan_premium"
+            ? "mensual"
+            : "alta";
+        const esSubscripcion =
+          formData.tipoServicio === "plan_base" ||
+          formData.tipoServicio === "plan_full" ||
+          formData.tipoServicio === "plan_premium";
 
         openModal(
           "¡Registro Exitoso!",
@@ -542,7 +570,9 @@ export default function Registro() {
     // Final validation for Other Services (triggered from handleNextStep in step 1)
     else if (
       formData.tipoServicio !== "alta" &&
-      formData.tipoServicio !== "alta_suscripcion" &&
+      formData.tipoServicio !== "plan_base" &&
+      formData.tipoServicio !== "plan_full" &&
+      formData.tipoServicio !== "plan_premium" &&
       currentStep === 1
     ) {
       try {
@@ -564,6 +594,9 @@ export default function Registro() {
         } else if (formData.tipoServicio === "baja") {
           servicioParaPago = "baja";
           precioPago = 2500;
+        } else if (formData.tipoServicio === "factura_adicional") {
+          servicioParaPago = "factura_adicional";
+          precioPago = 2000;
         }
 
         openModal(
@@ -615,7 +648,9 @@ export default function Registro() {
       case 1: // Step 1: Service Selection, Fields (and conditional CUIT check)
         const isAltaFlow =
           formData.tipoServicio === "alta" ||
-          formData.tipoServicio === "alta_suscripcion";
+          formData.tipoServicio === "plan_base" ||
+          formData.tipoServicio === "plan_full" ||
+          formData.tipoServicio === "plan_premium";
 
         return (
           <motion.div
@@ -653,10 +688,26 @@ export default function Registro() {
                         minimumFractionDigits: 0,
                         maximumFractionDigits: 0,
                       })}
-                      {s.id === "alta_suscripcion" ? " por mes" : ""}
+                      {s.id === "plan_base" ||
+                      s.id === "plan_full" ||
+                      s.id === "plan_premium"
+                        ? "/mes"
+                        : ""}
                     </option>
                   ))}
                 </select>
+
+                {/* Mostrar descripción del plan seleccionado */}
+                {selectedService &&
+                  (selectedService.id === "plan_base" ||
+                    selectedService.id === "plan_full" ||
+                    selectedService.id === "plan_premium") && (
+                    <div className="mt-3 p-4 bg-blue-50 border border-blue-100 rounded-md">
+                      <p className="text-sm text-gray-700">
+                        {selectedService.description}
+                      </p>
+                    </div>
+                  )}
               </div>
 
               {/* --- Conditional Form Rendering (Main Fields) --- */}
@@ -676,17 +727,23 @@ export default function Registro() {
         );
       case 2: // Step 2: Document Upload for Alta flows
         return formData.tipoServicio === "alta" ||
-          formData.tipoServicio === "alta_suscripcion"
+          formData.tipoServicio === "plan_base" ||
+          formData.tipoServicio === "plan_full" ||
+          formData.tipoServicio === "plan_premium"
           ? renderAltaStep2_Documents()
           : null;
       case 3: // Step 3: Alta Step 3 fields (Personal and Fiscal Data)
         return formData.tipoServicio === "alta" ||
-          formData.tipoServicio === "alta_suscripcion"
+          formData.tipoServicio === "plan_base" ||
+          formData.tipoServicio === "plan_full" ||
+          formData.tipoServicio === "plan_premium"
           ? renderAltaStep3()
           : null;
       case 4: // Step 4: Alta Terms and Conditions
         return formData.tipoServicio === "alta" ||
-          formData.tipoServicio === "alta_suscripcion"
+          formData.tipoServicio === "plan_base" ||
+          formData.tipoServicio === "plan_full" ||
+          formData.tipoServicio === "plan_premium"
           ? renderAltaStep4()
           : null;
       default:
@@ -1370,7 +1427,9 @@ export default function Registro() {
             {(() => {
               const isAltaFlow =
                 formData.tipoServicio === "alta" ||
-                formData.tipoServicio === "alta_suscripcion";
+                formData.tipoServicio === "plan_base" ||
+                formData.tipoServicio === "plan_full" ||
+                formData.tipoServicio === "plan_premium";
               const lastAltaStep = 4; // Updated for the new 4-step flow
               const lastOtherStep = 1;
               const isLastStep = isAltaFlow
