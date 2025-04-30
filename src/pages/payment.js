@@ -235,11 +235,7 @@ export default function Payment() {
           >
             <div className="bg-white rounded-lg shadow-xl p-6 max-w-md w-full">
               <div className="flex justify-center mb-4">
-                <img
-                  src="/assets/mp-logo.png"
-                  alt="Mercado Pago"
-                  className="h-10"
-                />
+                <img src="/mp-logo.png" alt="Mercado Pago" className="h-10" />
               </div>
               <h3 className="text-lg font-semibold text-gray-800 mb-2 text-center">
                 Confirmación Requerida
