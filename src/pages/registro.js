@@ -548,7 +548,13 @@ export default function Registro() {
                   pathname: "/payment",
                   query: {
                     service: servicioParaPago,
-                    price: esSubscripcion ? 1800 : 5000,
+                    price: esSubscripcion
+                      ? formData.tipoServicio === "plan_base"
+                        ? 25000
+                        : formData.tipoServicio === "plan_full"
+                        ? 30000
+                        : 40000
+                      : 75000,
                     isSubscription: esSubscripcion,
                   },
                 });
@@ -586,14 +592,14 @@ export default function Registro() {
 
         // Determinar el servicio para pago
         let servicioParaPago = "alta"; // Por defecto
-        let precioPago = 5000;
+        let precioPago = 75000;
 
         if (formData.tipoServicio === "recategorizacion") {
           servicioParaPago = "recategorizacion";
-          precioPago = 3500;
+          precioPago = 50000;
         } else if (formData.tipoServicio === "baja") {
           servicioParaPago = "baja";
-          precioPago = 2500;
+          precioPago = 75000;
         } else if (formData.tipoServicio === "factura_adicional") {
           servicioParaPago = "factura_adicional";
           precioPago = 2000;
