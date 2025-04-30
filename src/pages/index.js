@@ -401,7 +401,8 @@ function App() {
                   y: -10,
                   boxShadow: "0 10px 40px rgba(0, 102, 255, 0.15)",
                 }}
-                className="bg-white shadow-lg rounded-xl overflow-hidden transition-all duration-300 border border-blue-100 flex flex-col"
+                transition={{ duration: 0 }}
+                className="bg-white shadow-lg rounded-xl overflow-hidden border border-blue-100 flex flex-col cursor-pointer"
               >
                 <div className="bg-blue-600 py-6 px-6 text-white">
                   <h3 className="text-2xl font-bold mb-2">Plan Base</h3>
@@ -460,7 +461,8 @@ function App() {
                   y: -10,
                   boxShadow: "0 10px 40px rgba(0, 102, 255, 0.15)",
                 }}
-                className="bg-white shadow-xl rounded-xl overflow-hidden transition-all duration-300 border border-blue-100 flex flex-col relative z-10 transform md:scale-105"
+                transition={{ duration: 0 }}
+                className="bg-white shadow-xl rounded-xl overflow-hidden border border-blue-100 flex flex-col relative z-10 transform md:scale-105 cursor-pointer"
               >
                 <div className="bg-blue-700 py-6 px-6 text-white">
                   <h3 className="text-2xl font-bold mb-2">Plan Full</h3>
@@ -525,7 +527,8 @@ function App() {
                   y: -10,
                   boxShadow: "0 10px 40px rgba(0, 102, 255, 0.15)",
                 }}
-                className="bg-white shadow-lg rounded-xl overflow-hidden transition-all duration-300 border border-blue-100 flex flex-col"
+                transition={{ duration: 0 }}
+                className="bg-white shadow-lg rounded-xl overflow-hidden border border-blue-100 flex flex-col cursor-pointer"
               >
                 <div className="bg-indigo-800 py-6 px-6 text-white">
                   <h3 className="text-2xl font-bold mb-2">Plan Premium</h3>
@@ -584,6 +587,93 @@ function App() {
                     * Compromiso mínimo de 6 meses
                   </p>
                 </div>
+              </motion.div>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Otros Servicios Section */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.2 }}
+          className="py-16 bg-gray-50"
+        >
+          <div className="container mx-auto px-4">
+            <div className="text-center mb-12">
+              <h2 className="text-2xl font-bold text-[#1E293B] mb-3">
+                Otros Servicios
+              </h2>
+              <p className="text-md text-[#6B7280] max-w-xl mx-auto">
+                También ofrecemos servicios individuales para tus necesidades
+                específicas.
+              </p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+              {/* Card Alta */}
+              <motion.div
+                whileHover={{
+                  y: -5,
+                  boxShadow: "0 5px 20px rgba(0, 0, 0, 0.08)",
+                }}
+                onClick={() => router.push("/registro?servicio=alta")}
+                className="bg-white shadow-md rounded-lg p-6 hover:shadow-lg transition-all duration-300 cursor-pointer text-center"
+              >
+                <FileText className="w-10 h-10 text-[#0066FF] mb-4 mx-auto" />
+                <h3 className="text-lg font-semibold text-[#1E293B] mb-2">
+                  Alta de Monotributo
+                </h3>
+                <p className="text-sm text-[#6B7280] mb-4">
+                  Iniciá tu actividad con nosotros.
+                </p>
+                <span className="text-blue-600 font-medium text-sm hover:underline">
+                  Solicitar por $75.000
+                </span>
+              </motion.div>
+
+              {/* Card Baja */}
+              <motion.div
+                whileHover={{
+                  y: -5,
+                  boxShadow: "0 5px 20px rgba(0, 0, 0, 0.08)",
+                }}
+                onClick={() => router.push("/registro?servicio=baja")}
+                className="bg-white shadow-md rounded-lg p-6 hover:shadow-lg transition-all duration-300 cursor-pointer text-center"
+              >
+                <CreditCard className="w-10 h-10 text-[#0066FF] mb-4 mx-auto" />
+                <h3 className="text-lg font-semibold text-[#1E293B] mb-2">
+                  Baja de Monotributo
+                </h3>
+                <p className="text-sm text-[#6B7280] mb-4">
+                  Te ayudamos a dar de baja tu monotributo.
+                </p>
+                <span className="text-blue-600 font-medium text-sm hover:underline">
+                  Solicitar por $75.000
+                </span>
+              </motion.div>
+
+              {/* Card Recategorización */}
+              <motion.div
+                whileHover={{
+                  y: -5,
+                  boxShadow: "0 5px 20px rgba(0, 0, 0, 0.08)",
+                }}
+                onClick={() =>
+                  router.push("/registro?servicio=recategorizacion")
+                }
+                className="bg-white shadow-md rounded-lg p-6 hover:shadow-lg transition-all duration-300 cursor-pointer text-center"
+              >
+                <HelpCircle className="w-10 h-10 text-[#0066FF] mb-4 mx-auto" />
+                <h3 className="text-lg font-semibold text-[#1E293B] mb-2">
+                  Recategorización
+                </h3>
+                <p className="text-sm text-[#6B7280] mb-4">
+                  Ajustamos tu categoría según tus ingresos.
+                </p>
+                <span className="text-blue-600 font-medium text-sm hover:underline">
+                  Solicitar por $50.000
+                </span>
               </motion.div>
             </div>
           </div>
