@@ -401,7 +401,7 @@ function App() {
                   y: -10,
                   boxShadow: "0 10px 40px rgba(0, 102, 255, 0.15)",
                 }}
-                transition={{ duration: 0 }}
+                transition={{ duration: 0.2 }}
                 className="bg-white shadow-lg rounded-xl overflow-hidden border border-blue-100 flex flex-col cursor-pointer"
               >
                 <div className="bg-blue-600 py-6 px-6 text-white">
@@ -461,7 +461,7 @@ function App() {
                   y: -10,
                   boxShadow: "0 10px 40px rgba(0, 102, 255, 0.15)",
                 }}
-                transition={{ duration: 0 }}
+                transition={{ duration: 0.2 }}
                 className="bg-white shadow-xl rounded-xl overflow-hidden border border-blue-100 flex flex-col relative z-10 transform md:scale-105 cursor-pointer"
               >
                 <div className="bg-blue-700 py-6 px-6 text-white">
@@ -527,7 +527,7 @@ function App() {
                   y: -10,
                   boxShadow: "0 10px 40px rgba(0, 102, 255, 0.15)",
                 }}
-                transition={{ duration: 0 }}
+                transition={{ duration: 0.2 }}
                 className="bg-white shadow-lg rounded-xl overflow-hidden border border-blue-100 flex flex-col cursor-pointer"
               >
                 <div className="bg-indigo-800 py-6 px-6 text-white">

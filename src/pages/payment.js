@@ -12,6 +12,15 @@ export default function Payment() {
   const router = useRouter();
   const { service, price, isSubscription, minMonths } = router.query;
 
+  // --- Define isActuallySubscription in the main component scope ---
+  const isActuallySubscription =
+    router.isReady && // Ensure router query is available
+    (service === "plan_base" ||
+      service === "plan_full" ||
+      service === "plan_premium" ||
+      service === "mensual");
+  // --------------------------------------------------------------
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showMpEmailModal, setShowMpEmailModal] = useState(false);
@@ -26,14 +35,6 @@ export default function Payment() {
     setIsProcessing(true);
     setLoading(true);
     setShowMpEmailModal(false);
-
-    // --- Determine if it's a subscription based on service name ---
-    const isActuallySubscription =
-      service === "plan_base" ||
-      service === "plan_full" ||
-      service === "plan_premium" ||
-      service === "mensual"; // Include legacy 'mensual' if needed
-    // --------------------------------------------------------------
 
     try {
       console.log("Iniciando proceso de pago...", {
@@ -201,6 +202,7 @@ export default function Payment() {
     }
   }, [router.isReady, service, price]);
 
+  // Use the component-scoped isActuallySubscription variable here
   const paymentTypeText = isActuallySubscription
     ? "Suscripción Mensual"
     : "Pago Único";
