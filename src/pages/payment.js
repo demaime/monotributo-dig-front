@@ -27,44 +27,56 @@ export default function Payment() {
     setLoading(true);
     setShowMpEmailModal(false);
 
+    // --- Determine if it's a subscription based on service name ---
+    const isActuallySubscription =
+      service === "plan_base" ||
+      service === "plan_full" ||
+      service === "plan_premium" ||
+      service === "mensual"; // Include legacy 'mensual' if needed
+    // --------------------------------------------------------------
+
     try {
       console.log("Iniciando proceso de pago...", {
         service,
         price,
-        isSubscription,
+        isSubscriptionQuery: isSubscription, // Log original query param
+        isActuallySubscription: isActuallySubscription, // Log calculated boolean
       });
 
       if (!service || price <= 0) {
         throw new Error("Datos de servicio o precio inválidos.");
       }
 
-      const endpoint = isSubscription
+      // Use the calculated boolean for endpoint selection
+      const endpoint = isActuallySubscription
         ? `${API_BASE_URL}/payments/create-plan`
         : `${API_BASE_URL}/payments/create-preference`;
 
       const requestData = {
         title:
           service ||
-          (isSubscription
+          (isActuallySubscription // Use calculated boolean
             ? "Suscripción Mensual"
             : "Servicio Monotributo Digital"),
         price: price,
-        description: isSubscription
+        description: isActuallySubscription // Use calculated boolean
           ? "Suscripción mensual Monotributo Digital"
           : `Servicio ${service}`,
         serviceType: service || "general",
-        email: email,
+        email: email, // User's contact email (initially)
         userName: name,
-        minMonths: Number(minMonths) || 1,
+        minMonths: Number(minMonths) || 1, // Relevant for subscriptions
       };
 
-      if (isSubscription) {
+      // Use the calculated boolean for MP Email validation
+      if (isActuallySubscription) {
         if (!mpEmail || !/\S+@\S+\.\S+/.test(mpEmail)) {
+          // This error should now only trigger for actual subscriptions if email is bad
           throw new Error(
             "Por favor, ingresa un email válido para Mercado Pago."
           );
         }
-        requestData.email = mpEmail;
+        requestData.email = mpEmail; // Overwrite email with MP email for subscriptions
       }
 
       console.log("Enviando datos al backend:", endpoint, requestData);
@@ -93,7 +105,9 @@ export default function Payment() {
         }
         throw new Error(
           `Error ${response.status} al crear ${
-            isSubscription ? "plan de suscripción" : "preferencia de pago"
+            isActuallySubscription
+              ? "plan de suscripción"
+              : "preferencia de pago"
           }. Detalles: ${parsedError}`
         );
       }
@@ -115,7 +129,7 @@ export default function Payment() {
         console.error("Respuesta del backend no contiene init_point:", data);
         setError(
           `No se pudo iniciar el proceso de pago (${
-            isSubscription ? "suscripción" : "pago único"
+            isActuallySubscription ? "suscripción" : "pago único"
           }). Falta init_point. Intente nuevamente.`
         );
       }
@@ -187,7 +201,9 @@ export default function Payment() {
     }
   }, [router.isReady, service, price]);
 
-  const paymentTypeText = isSubscription ? "Suscripción Mensual" : "Pago Único";
+  const paymentTypeText = isActuallySubscription
+    ? "Suscripción Mensual"
+    : "Pago Único";
 
   return (
     <>
