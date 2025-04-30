@@ -5,16 +5,29 @@ const API_BASE_URL =
  * Submit form data to the backend API
  *
  * @param {Object} formData - Form data to be submitted
+ * @param {string} transactionId - The unique transaction identifier
  * @returns {Promise} - API response
  */
-export const submitForm = async (formData) => {
+export const submitForm = async (formData, transactionId) => {
   try {
+    // Ensure transactionId is provided
+    if (!transactionId) {
+      throw new Error("transactionId is required for submitting the form");
+    }
+
+    // Prepare the body as expected by the backend
+    const requestBody = {
+      formData,
+      transactionId,
+    };
+
     const response = await fetch(`${API_BASE_URL}/submit-form`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(formData),
+      // Send the new structure
+      body: JSON.stringify(requestBody),
     });
 
     if (!response.ok) {
@@ -34,13 +47,21 @@ export const submitForm = async (formData) => {
  *
  * @param {Object} files - Object containing file objects
  * @param {Object} formData - Additional form data (must include email)
+ * @param {string} transactionId - The unique transaction identifier
  * @returns {Promise} - API response
  */
-export const uploadFiles = async (files, formData = {}) => {
+export const uploadFiles = async (files, formData = {}, transactionId) => {
   try {
     // Email is required for associating files with the correct user
     if (!formData.email) {
-      throw new Error("Email is required for file uploads");
+      console.warn(
+        "Email was previously required for upload, but might not be used by the backend anymore. Sending anyway."
+      );
+    }
+
+    // Ensure transactionId is provided
+    if (!transactionId) {
+      throw new Error("transactionId is required for file uploads");
     }
 
     const formDataObj = new FormData();
@@ -58,6 +79,9 @@ export const uploadFiles = async (files, formData = {}) => {
         formDataObj.append(key, value);
       }
     });
+
+    // Append transactionId to FormData
+    formDataObj.append("transactionId", transactionId);
 
     const response = await fetch(`${API_BASE_URL}/upload-documents`, {
       method: "POST",

@@ -7,10 +7,17 @@ import { Mail, AlertTriangle, CheckCircle } from "lucide-react";
 // Importar la URL base de API desde utils/api.js o definirla aquí
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api";
+const MP_PUBLIC_KEY = process.env.NEXT_PUBLIC_MERCADO_PAGO_PUBLIC_KEY;
 
 export default function Payment() {
   const router = useRouter();
-  const { service, price, isSubscription, minMonths } = router.query;
+  const {
+    service,
+    price: priceQuery,
+    isSubscription,
+    minMonths,
+    transactionId,
+  } = router.query;
 
   // --- Define isActuallySubscription in the main component scope ---
   const isActuallySubscription =
@@ -39,12 +46,12 @@ export default function Payment() {
     try {
       console.log("Iniciando proceso de pago...", {
         service,
-        price,
+        price: priceQuery,
         isSubscriptionQuery: isSubscription, // Log original query param
         isActuallySubscription: isActuallySubscription, // Log calculated boolean
       });
 
-      if (!service || price <= 0) {
+      if (!service || priceQuery <= 0) {
         throw new Error("Datos de servicio o precio inválidos.");
       }
 
@@ -59,7 +66,7 @@ export default function Payment() {
           (isActuallySubscription // Use calculated boolean
             ? "Suscripción Mensual"
             : "Servicio Monotributo Digital"),
-        price: price,
+        price: priceQuery,
         description: isActuallySubscription // Use calculated boolean
           ? "Suscripción mensual Monotributo Digital"
           : `Servicio ${service}`,
@@ -67,6 +74,7 @@ export default function Payment() {
         email: email, // User's contact email (initially)
         userName: name,
         minMonths: Number(minMonths) || 1, // Relevant for subscriptions
+        transactionId: transactionId,
       };
 
       // Use the calculated boolean for MP Email validation
@@ -153,7 +161,7 @@ export default function Payment() {
     setLoading(true);
     setError(null);
 
-    if (service && price > 0) {
+    if (service && priceQuery > 0) {
       if (isSubscription === "true") {
         const suggestedEmail = localStorage.getItem("userEmail") || "";
         setMpEmail(suggestedEmail);
@@ -165,12 +173,12 @@ export default function Payment() {
     } else {
       console.log("Faltan datos de servicio o precio válidos:", {
         service,
-        price,
+        price: priceQuery,
       });
       setError("Faltan datos necesarios o válidos para procesar el pago");
       setLoading(false);
     }
-  }, [router.isReady, service, price, isSubscription]);
+  }, [router.isReady, service, priceQuery, isSubscription]);
 
   useEffect(() => {
     // Validar cuando cambian los inputs
@@ -180,7 +188,7 @@ export default function Payment() {
   useEffect(() => {
     // Verificar si hay datos de servicio
     if (router.isReady) {
-      if (!service || !price) {
+      if (!service || !priceQuery) {
         setError("No se encontraron datos del servicio seleccionado.");
         setLoading(false);
         return;
@@ -200,7 +208,7 @@ export default function Payment() {
 
       setLoading(false);
     }
-  }, [router.isReady, service, price]);
+  }, [router.isReady, service, priceQuery]);
 
   // Use the component-scoped isActuallySubscription variable here
   const paymentTypeText = isActuallySubscription
@@ -282,7 +290,7 @@ export default function Payment() {
               <p className="mt-2 text-sm text-gray-600">
                 {paymentTypeText}
                 {service && ` - Servicio: ${service}`}
-                {price && ` - Monto: $${price}`}
+                {priceQuery && ` - Monto: $${priceQuery}`}
               </p>
             </div>
 

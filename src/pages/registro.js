@@ -14,6 +14,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import Modal from "../components/Modal";
 import { submitForm, uploadFiles } from "../utils/api";
+import { v4 as uuidv4 } from "uuid";
 
 const servicios = [
   {
@@ -97,6 +98,15 @@ export default function Registro() {
   const [uploading, setUploading] = useState(false); // Optional: for loading state
   const [documentosCargados, setDocumentosCargados] = useState(false); // <-- Nuevo estado
   const [isSubmitting, setIsSubmitting] = useState(false); // Estado para controlar el envío del formulario
+  const [transactionId, setTransactionId] = useState(""); // <-- Add transactionId state
+
+  // --- Generate Transaction ID on mount ---
+  useEffect(() => {
+    const newTransactionId = uuidv4();
+    setTransactionId(newTransactionId);
+    console.log("Generated Transaction ID:", newTransactionId); // For debugging
+  }, []); // Empty dependency array ensures this runs only once on mount
+  // -------------------------------------
 
   // --- Modal Functions ---
   // Updated openModal to accept actions
@@ -154,12 +164,16 @@ export default function Registro() {
 
     try {
       // Send files to backend via API utility
-      const result = await uploadFiles(files, {
-        email: formData.email,
-        nombre: formData.nombre,
-        apellido: formData.apellido,
-        telefono: formData.telefono,
-      });
+      const result = await uploadFiles(
+        files,
+        {
+          email: formData.email,
+          nombre: formData.nombre,
+          apellido: formData.apellido,
+          telefono: formData.telefono,
+        },
+        transactionId
+      );
 
       // Success handling
       setUploading(false);
@@ -424,12 +438,16 @@ export default function Registro() {
 
       // Upload files before proceeding to next step
       setUploading(true);
-      uploadFiles(files, {
-        email: formData.email,
-        nombre: formData.nombre || "",
-        apellido: formData.apellido || "",
-        telefono: formData.telefono || "",
-      })
+      uploadFiles(
+        files,
+        {
+          email: formData.email,
+          nombre: formData.nombre || "",
+          apellido: formData.apellido || "",
+          telefono: formData.telefono || "",
+        },
+        transactionId
+      )
         .then((result) => {
           setUploading(false);
           setDocumentosCargados(true);
@@ -515,8 +533,8 @@ export default function Registro() {
           documentosCargados: documentosCargados,
         };
 
-        // Submit form data via API utility
-        const result = await submitForm(completeFormData);
+        // Submit form data via API utility, passing transactionId
+        const result = await submitForm(completeFormData, transactionId);
 
         // Guardar email en localStorage para usar en la página de pagos
         if (formData.email) {
@@ -536,8 +554,9 @@ export default function Registro() {
           formData.tipoServicio === "plan_premium";
 
         openModal(
-          "¡Registro Exitoso!",
-          "Su solicitud ha sido enviada. A continuación deberá realizar el pago para completar el proceso.",
+          "¡Datos Guardados!", // Updated title
+          // Updated message based on backend response (optional, could use result.message)
+          "Sus datos han sido guardados. A continuación deberá realizar el pago para completar el proceso y que se envíe la confirmación final.",
           [
             {
               text: "Proceder al Pago",
@@ -556,6 +575,7 @@ export default function Registro() {
                         : 40000
                       : 75000,
                     isSubscription: esSubscripcion,
+                    transactionId: transactionId,
                   },
                 });
               },
@@ -582,8 +602,8 @@ export default function Registro() {
       currentStep === 1
     ) {
       try {
-        // Submit form data via API utility
-        const result = await submitForm(formData);
+        // Submit form data via API utility, passing transactionId
+        const result = await submitForm(formData, transactionId);
 
         // Guardar email en localStorage para usar en la página de pagos
         if (formData.email) {
@@ -606,8 +626,9 @@ export default function Registro() {
         }
 
         openModal(
-          "¡Registro Exitoso!",
-          `Su solicitud de ${selectedService?.label} ha sido enviada. A continuación deberá realizar el pago para completar el proceso.`,
+          "¡Datos Guardados!", // Updated title
+          // Updated message based on backend response (optional, could use result.message)
+          `Sus datos para ${selectedService?.label} han sido guardados. A continuación deberá realizar el pago para completar el proceso y que se envíe la confirmación final.`,
           [
             {
               text: "Proceder al Pago",
@@ -620,6 +641,7 @@ export default function Registro() {
                     service: servicioParaPago,
                     price: precioPago,
                     isSubscription: false,
+                    transactionId: transactionId,
                   },
                 });
               },
