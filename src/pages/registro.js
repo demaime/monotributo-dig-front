@@ -438,6 +438,7 @@ export default function Registro() {
 
       // Upload files before proceeding to next step
       setUploading(true);
+      console.log("Calling uploadFiles with transactionId:", transactionId);
       uploadFiles(
         files,
         {
