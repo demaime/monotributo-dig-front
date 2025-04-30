@@ -95,37 +95,7 @@ export default function FAQ() {
                     </p>
                   </dd>
                 </div>
-                <div className="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                  <dt className="text-sm font-medium text-gray-500">
-                    ¿MercadoPago tiene opción para un tiempo mínimo de
-                    suscripción?
-                  </dt>
-                  <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                    <p>
-                      MercadoPago actualmente no ofrece una funcionalidad nativa
-                      para establecer un tiempo mínimo de suscripción en su API
-                      de suscripciones. Sin embargo, gestionamos esto
-                      internamente para asegurar el compromiso de 6 meses. Si
-                      intentas cancelar antes, nuestro sistema te recordará el
-                      tiempo mínimo acordado.
-                    </p>
-                    <p className="mt-2">
-                      La plataforma permite crear suscripciones recurrentes con
-                      diferentes frecuencias (desde semanal hasta anual), pero
-                      el control del período mínimo lo manejamos nosotros
-                      administrativamente.
-                    </p>
-                    <p className="mt-2 font-semibold text-blue-600">
-                      Nota técnica: MercadoPago proporciona una API de
-                      suscripciones que permite configurar la frecuencia
-                      (semanal, mensual, etc.), pero no hay una función
-                      específica para establecer un período mínimo de
-                      compromiso. En nuestro sistema, registramos el compromiso
-                      de 6 meses como metadata adicional en nuestros registros
-                      de suscripción.
-                    </p>
-                  </dd>
-                </div>
+
                 <div className="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                   <dt className="text-sm font-medium text-gray-500">
                     ¿Cómo se pagan los servicios?
