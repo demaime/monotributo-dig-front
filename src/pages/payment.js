@@ -139,7 +139,7 @@ export default function Payment() {
     setError(null);
 
     if (service && price > 0) {
-      if (isSubscription) {
+      if (isSubscription === "true") {
         const suggestedEmail = localStorage.getItem("userEmail") || "";
         setMpEmail(suggestedEmail);
         setShowMpEmailModal(true);
