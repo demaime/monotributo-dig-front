@@ -382,7 +382,7 @@ function App() {
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
-          className="py-20"
+          className="py-5"
         >
           <div className="container mx-auto px-4">
             <div className="text-center mb-16">
