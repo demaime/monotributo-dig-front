@@ -803,10 +803,41 @@ export default function Registro() {
         if (filesUploaded) {
           submitFormData().then((formSubmitted) => {
             if (formSubmitted) {
-              // Redirigir a la página de pago en lugar de mostrar alerta y volver al inicio
-              const precio = selectedService === "alta" ? 25000 : 10000;
+              // Determinar si es una suscripción basado en el tipo de servicio
+              const isSubscription = [
+                "plan_base",
+                "plan_full",
+                "plan_premium",
+              ].includes(selectedService);
+
+              // Ajustar precios según el tipo de servicio
+              let precio;
+              // Precios para planes semestrales (con API de suscripción)
+              if (selectedService === "plan_base") {
+                precio = 150000;
+              } else if (selectedService === "plan_full") {
+                precio = 180000;
+              } else if (selectedService === "plan_premium") {
+                precio = 240000;
+              }
+              // Precios para servicios únicos (con API de checkout)
+              else if (selectedService === "alta") {
+                precio = 75000;
+              } else if (selectedService === "baja") {
+                precio = 75000;
+              } else if (selectedService === "recategorizacion") {
+                precio = 50000;
+              } else if (selectedService === "factura_adicional") {
+                precio = 2000;
+              } else {
+                precio = 75000; // Precio predeterminado por si acaso
+              }
+
+              // Redirigir a la página de pago
               router.push(
-                `/payment?service=${selectedService}&price=${precio}&transactionId=${transactionId}`
+                `/payment?service=${selectedService}&price=${precio}&transactionId=${transactionId}${
+                  isSubscription ? "&isSubscription=true" : ""
+                }`
               );
             }
           });

@@ -56,6 +56,11 @@ export default function Payment() {
         throw new Error("Datos de servicio o precio inválidos.");
       }
 
+      // Guardar el email de MP en localStorage si es una suscripción
+      if (isActuallySubscription && mpEmail) {
+        localStorage.setItem("userEmail", mpEmail);
+      }
+
       // Use the calculated boolean for endpoint selection
       const endpoint = isActuallySubscription
         ? `${API_BASE_URL}/payments/create-plan`
@@ -65,16 +70,16 @@ export default function Payment() {
         title:
           service ||
           (isActuallySubscription // Use calculated boolean
-            ? "Suscripción Mensual"
+            ? "Suscripción Semestral"
             : "Servicio Monotributo Digital"),
         price: priceQuery,
         description: isActuallySubscription // Use calculated boolean
-          ? "Suscripción mensual Monotributo Digital"
+          ? "Suscripción semestral Monotributo Digital"
           : `Servicio ${service}`,
         serviceType: service || "general",
         email: email, // User's contact email (initially)
         userName: name,
-        minMonths: Number(minMonths) || 1, // Relevant for subscriptions
+        minMonths: Number(minMonths) || 6, // Default to 6 months for semestrales
         transactionId: transactionId,
       };
 
@@ -83,7 +88,7 @@ export default function Payment() {
         if (!mpEmail || !/\S+@\S+\.\S+/.test(mpEmail)) {
           // This error should now only trigger for actual subscriptions if email is bad
           throw new Error(
-            "Por favor, ingresa un email válido para Mercado Pago."
+            "Es necesario un email válido asociado a una cuenta de Mercado Pago para continuar con la suscripción."
           );
         }
         requestData.email = mpEmail; // Overwrite email with MP email for subscriptions
@@ -163,7 +168,12 @@ export default function Payment() {
     setError(null);
 
     if (service && priceQuery > 0) {
-      if (isSubscription === "true") {
+      // Verificar si es una suscripción tanto por el parámetro como por el tipo de servicio
+      const shouldShowEmailModal =
+        isSubscription === "true" ||
+        ["plan_base", "plan_full", "plan_premium"].includes(service);
+
+      if (shouldShowEmailModal) {
         const suggestedEmail = localStorage.getItem("userEmail") || "";
         setMpEmail(suggestedEmail);
         setShowMpEmailModal(true);
@@ -213,7 +223,7 @@ export default function Payment() {
 
   // Use the component-scoped isActuallySubscription variable here
   const paymentTypeText = isActuallySubscription
-    ? "Suscripción Mensual"
+    ? "Suscripción Semestral"
     : "Pago Único";
 
   return (
@@ -248,12 +258,13 @@ export default function Payment() {
                 Confirmación Requerida
               </h3>
               <p className="text-sm text-gray-600 mb-4 text-center">
-                Para continuar, por favor ingresa el email de tu cuenta de
-                Mercado Pago.
+                Para continuar con la suscripción semestral, ingresa el email de
+                tu cuenta de Mercado Pago.
                 <br />
-                <span className="font-semibold">
-                  Este email debe pertenecer a una cuenta válida desde la cual
-                  se descontará la suscripción mensualmente.
+                <span className="font-semibold text-red-600">
+                  IMPORTANTE: Este email debe pertenecer a una cuenta válida de
+                  Mercado Pago desde la cual se descontará el pago de tu plan
+                  semestral.
                 </span>
               </p>
               <div className="relative mb-4">
