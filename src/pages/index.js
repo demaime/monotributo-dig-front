@@ -63,7 +63,7 @@ function App() {
           <nav className="hidden lg:flex justify-between items-center">
             <div className="text-[#1E293B] font-bold text-2xl flex items-center gap-2">
               <BarChart2 className="w-8 h-8 text-[#0066FF]" />
-              Monotributo Digital
+              Tu<span className="text-[#0066FF]">Monotributo</span>Digital
             </div>
             <div className="flex gap-6">
               <a
@@ -138,7 +138,7 @@ function App() {
                   className="text-[#1E293B] font-bold text-2xl flex items-center gap-2"
                 >
                   <BarChart2 className="w-8 h-8 text-[#0066FF]" />
-                  Monotributo Digital
+                  Tu<span className="text-[#0066FF]">Monotributo</span>Digital
                 </motion.div>
               </div>
             </motion.div>
@@ -283,25 +283,25 @@ function App() {
               >
                 <motion.div
                   whileHover={{ y: -5 }}
-                  className="bg-blue-100 shadow-lg rounded-xl p-4"
+                  className="bg-[#0066ff] shadow-lg rounded-xl p-4"
                 >
-                  <FileText className="w-6 h-6 text-[#0066FF] mb-2" />
-                  <h3 className="text-[#1E293B] font-semibold text-sm">
+                  <FileText className="w-6 h-6 text-blue-200 mb-2" />
+                  <h3 className="text-white font-semibold text-sm">
                     Gestión Digital
                   </h3>
-                  <p className="text-[#6B7280] text-xs">
+                  <p className="text-blue-200 text-xs">
                     Todo tu monotributo en un solo lugar
                   </p>
                 </motion.div>
                 <motion.div
                   whileHover={{ y: -5 }}
-                  className="bg-blue-100 shadow-lg rounded-xl p-4"
+                  className="bg-[#0066ff] shadow-lg rounded-xl p-4"
                 >
-                  <CreditCard className="w-6 h-6 text-[#0066FF] mb-2" />
-                  <h3 className="text-[#1E293B] font-semibold text-sm">
+                  <CreditCard className="w-6 h-6 text-blue-200 mb-2" />
+                  <h3 className="text-white font-semibold text-sm">
                     Pagos Online
                   </h3>
-                  <p className="text-[#6B7280] text-xs">
+                  <p className="text-blue-200 text-xs">
                     Paga tus impuestos sin moverte de tu casa
                   </p>
                 </motion.div>
@@ -351,7 +351,7 @@ function App() {
                 ))}
               </div>
               <div className="grid grid-cols-2 gap-4 absolute -bottom-20 mx-4 w-[calc(100%-2rem)]">
-                <div className="bg-white shadow-lg rounded-xl p-4">
+                <div className="bg-[#E5F0FF] shadow-lg rounded-xl p-4">
                   <FileText className="w-6 h-6 text-[#0066FF] mb-2" />
                   <h3 className="text-[#1E293B] font-semibold text-sm">
                     Gestión Digital
@@ -377,16 +377,30 @@ function App() {
         {/* Quiénes Somos Section */}
         <div
           id="quienes-somos"
-          className="py-16 bg-gradient-to-b from-[#E5F0FF] to-white mt-14"
+          className="relative bg-gradient-to-br from-[#003087] to-[#0066FF] py-24 overflow-hidden mt-14"
         >
-          <div className="container mx-auto px-4">
-            <ScrollReveal variant="slideUp" className="text-center mb-8">
-              <h2 className="text-4xl font-bold text-[#1E293B] mb-6">
+          {/* Overlay con patrón de puntos */}
+          <div className="absolute inset-0 opacity-10">
+            <div
+              className="w-full h-full"
+              style={{
+                backgroundImage:
+                  "radial-gradient(#ffffff 1px, transparent 1px)",
+                backgroundSize: "20px 20px",
+              }}
+            ></div>
+          </div>
+
+          <div className="container mx-auto px-4 relative z-10">
+            <ScrollReveal variant="slideUp" className="text-center mb-12">
+              <h2 className="text-5xl font-bold text-white mb-4">
                 Quiénes somos
               </h2>
+              <div className="w-20 h-1 bg-[#E5F0FF] mx-auto rounded-full mb-8"></div>
             </ScrollReveal>
-            <div className="max-w-4xl mx-auto text-lg leading-relaxed text-[#4B5563] space-y-6">
-              <ScrollReveal variant="slideRight" delay={0.1}>
+
+            <div className="max-w-4xl mx-auto text-white/90 text-lg leading-relaxed space-y-8">
+              <ScrollReveal variant="fadeIn" delay={0.1}>
                 <p>
                   Somos un equipo de contadores públicos matriculados,
                   especializados en el régimen de monotributo y en asesoramiento
@@ -394,7 +408,7 @@ function App() {
                   pequeños negocios.
                 </p>
               </ScrollReveal>
-              <ScrollReveal variant="slideRight" delay={0.2}>
+              <ScrollReveal variant="fadeIn" delay={0.2}>
                 <p>
                   Con años de experiencia en el rubro, ofrecemos un servicio
                   profesional, ágil y confiable para ayudarte a realizar tu alta
@@ -403,7 +417,7 @@ function App() {
                   presentación final ante ARCA.
                 </p>
               </ScrollReveal>
-              <ScrollReveal variant="slideRight" delay={0.3}>
+              <ScrollReveal variant="fadeIn" delay={0.3}>
                 <p>
                   Nos destacamos por brindar una atención personalizada, con
                   tarifas claras y sin sorpresas, y por acompañarte en cada paso
@@ -425,7 +439,7 @@ function App() {
         >
           <div className="container mx-auto px-4">
             <ScrollReveal variant="slideUp" className="text-center mb-16">
-              <h2 className="text-3xl font-bold text-[#1E293B] mb-4">
+              <h2 className="text-5xl font-bold text-[#1E293B] mb-4">
                 Planes y Precios
               </h2>
               <p className="text-lg text-[#6B7280] max-w-2xl mx-auto">
@@ -678,7 +692,7 @@ function App() {
         >
           <div className="container mx-auto px-4">
             <div className="text-center mb-12">
-              <h2 className="text-2xl font-bold text-[#1E293B] mb-3">
+              <h2 className="text-5xl font-bold text-[#1E293B] mb-3">
                 Otros Servicios
               </h2>
               <p className="text-md text-[#6B7280] max-w-xl mx-auto">

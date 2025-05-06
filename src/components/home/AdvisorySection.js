@@ -135,7 +135,7 @@ const AdvisorySection = () => {
     <section id="asesorate" className="py-16 bg-[#E5F0FF]">
       <div className="container mx-auto px-4">
         <ScrollReveal variant="slideUp" className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-[#1E293B] mb-4">
+          <h2 className="text-5xl font-bold text-[#1E293B] mb-4">
             Asesorate sobre el Monotributo
           </h2>
           <p className="text-lg text-[#6B7280] max-w-2xl mx-auto">
