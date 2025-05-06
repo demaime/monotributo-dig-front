@@ -8,6 +8,8 @@ import {
   CreditCard,
   FileText,
   HelpCircle,
+  FilePlus,
+  FileX2,
 } from "lucide-react";
 import { useRouter } from "next/router";
 import { motion, AnimatePresence, useInView } from "framer-motion";
@@ -15,6 +17,7 @@ import { useRef } from "react";
 import AdvisorySection from "../components/home/AdvisorySection";
 import WhatsAppButton from "../components/WhatsAppButton";
 import Link from "next/link";
+import ScrollReveal from "../components/ui/ScrollReveal";
 
 function App() {
   const router = useRouter();
@@ -63,6 +66,13 @@ function App() {
               Monotributo Digital
             </div>
             <div className="flex gap-6">
+              <a
+                href="#quienes-somos"
+                onClick={(e) => scrollToSection(e, "quienes-somos")}
+                className="text-[#6B7280] hover:text-[#1E293B] transition-colors"
+              >
+                Quiénes somos
+              </a>
               <a
                 href="#servicios"
                 onClick={(e) => scrollToSection(e, "servicios")}
@@ -141,6 +151,14 @@ function App() {
                   exit={{ opacity: 0, y: -20 }}
                   className="flex-col gap-4 bg-white/95 backdrop-blur-lg shadow-2xl rounded-2xl p-8 mb-8 absolute top-20 left-4 right-4 z-50 border border-[#E5F0FF]"
                 >
+                  <motion.a
+                    whileHover={{ x: 10, backgroundColor: "#E5F0FF" }}
+                    href="#quienes-somos"
+                    onClick={(e) => scrollToSection(e, "quienes-somos")}
+                    className="text-[#6B7280] hover:text-[#1E293B] text-lg py-3 px-4 block rounded-xl transition-all duration-300"
+                  >
+                    Quiénes somos
+                  </motion.a>
                   <motion.a
                     whileHover={{ x: 10, backgroundColor: "#E5F0FF" }}
                     href="#asesorate"
@@ -357,41 +375,45 @@ function App() {
         </div>
 
         {/* Quiénes Somos Section */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
+        <div
+          id="quienes-somos"
           className="py-16 bg-gradient-to-b from-[#E5F0FF] to-white mt-14"
         >
           <div className="container mx-auto px-4">
-            <div className="text-center mb-8">
+            <ScrollReveal variant="slideUp" className="text-center mb-8">
               <h2 className="text-4xl font-bold text-[#1E293B] mb-6">
                 Quiénes somos
               </h2>
-            </div>
+            </ScrollReveal>
             <div className="max-w-4xl mx-auto text-lg leading-relaxed text-[#4B5563] space-y-6">
-              <p>
-                Somos un equipo de contadores públicos matriculados,
-                especializados en el régimen de monotributo y en asesoramiento
-                fiscal para trabajadores independientes, emprendedores y
-                pequeños negocios.
-              </p>
-              <p>
-                Con años de experiencia en el rubro, ofrecemos un servicio
-                profesional, ágil y confiable para ayudarte a realizar tu alta
-                en monotributo sin demoras ni complicaciones. Nos encargamos de
-                todo el proceso, desde la recopilación de datos hasta la
-                presentación final ante ARCA.
-              </p>
-              <p>
-                Nos destacamos por brindar una atención personalizada, con
-                tarifas claras y sin sorpresas, y por acompañarte en cada paso
-                para que empieces a facturar cuanto antes, con la tranquilidad
-                de estar en manos expertas.
-              </p>
+              <ScrollReveal variant="slideRight" delay={0.1}>
+                <p>
+                  Somos un equipo de contadores públicos matriculados,
+                  especializados en el régimen de monotributo y en asesoramiento
+                  fiscal para trabajadores independientes, emprendedores y
+                  pequeños negocios.
+                </p>
+              </ScrollReveal>
+              <ScrollReveal variant="slideRight" delay={0.2}>
+                <p>
+                  Con años de experiencia en el rubro, ofrecemos un servicio
+                  profesional, ágil y confiable para ayudarte a realizar tu alta
+                  en monotributo sin demoras ni complicaciones. Nos encargamos
+                  de todo el proceso, desde la recopilación de datos hasta la
+                  presentación final ante ARCA.
+                </p>
+              </ScrollReveal>
+              <ScrollReveal variant="slideRight" delay={0.3}>
+                <p>
+                  Nos destacamos por brindar una atención personalizada, con
+                  tarifas claras y sin sorpresas, y por acompañarte en cada paso
+                  para que empieces a facturar cuanto antes, con la tranquilidad
+                  de estar en manos expertas.
+                </p>
+              </ScrollReveal>
             </div>
           </div>
-        </motion.div>
+        </div>
 
         {/* Servicios Section */}
         <motion.div
@@ -402,209 +424,246 @@ function App() {
           className="py-20"
         >
           <div className="container mx-auto px-4">
-            <div className="text-center mb-16">
+            <ScrollReveal variant="slideUp" className="text-center mb-16">
               <h2 className="text-3xl font-bold text-[#1E293B] mb-4">
                 Planes y Precios
               </h2>
               <p className="text-lg text-[#6B7280] max-w-2xl mx-auto">
                 Elegí el plan que mejor se adapte a tus necesidades
               </p>
-            </div>
+            </ScrollReveal>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {/* Plan Base */}
-              <motion.div
-                whileHover={{
-                  y: -10,
-                  boxShadow: "0 10px 40px rgba(0, 102, 255, 0.15)",
-                }}
-                transition={{ duration: 0.2 }}
-                className="bg-white shadow-lg rounded-xl overflow-hidden border border-blue-100 flex flex-col cursor-pointer"
+              <ScrollReveal
+                variant="fadeIn"
+                duration={0.8}
+                delay={0.1}
+                threshold={0.1}
               >
-                <div className="bg-blue-600 py-6 px-6 text-white">
-                  <h3 className="text-2xl font-bold mb-2">Plan Base</h3>
-                  <p className="opacity-90 text-sm">
-                    Para emprendedores que inician su actividad
-                  </p>
-                </div>
-                <div className="p-6 flex-grow">
-                  <div className="mb-6">
-                    <p className="text-4xl font-bold text-gray-900">$150.000</p>
-                    <p className="text-gray-500 text-sm">por semestre</p>
+                <motion.div
+                  whileHover={{
+                    y: -10,
+                    boxShadow: "0 10px 40px rgba(0, 102, 255, 0.15)",
+                    transition: { duration: 0.3 },
+                  }}
+                  whileTap={{ scale: 0.98 }}
+                  transition={{ duration: 0.2 }}
+                  className="bg-white shadow-lg rounded-xl overflow-hidden border border-blue-100 flex flex-col h-[550px] cursor-pointer"
+                >
+                  <div className="bg-blue-600 py-6 px-6 text-white">
+                    <h3 className="text-2xl font-bold mb-2">Plan Base</h3>
+                    <p className="opacity-90 text-sm">
+                      Para emprendedores que inician su actividad
+                    </p>
                   </div>
-                  <ul className="space-y-3 mb-8">
-                    <li className="flex items-start">
-                      <CheckCircle2 className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
-                      <span className="text-gray-700">
-                        Alta de monotributo incluida
-                      </span>
-                    </li>
-                    <li className="flex items-start">
-                      <CheckCircle2 className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
-                      <span className="text-gray-700">
-                        4 consultas profesionales mensuales
-                      </span>
-                    </li>
-                    <li className="flex items-start">
-                      <CheckCircle2 className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
-                      <span className="text-gray-700">
-                        Recategorización semestral
-                      </span>
-                    </li>
-                    <li className="flex items-start">
-                      <CheckCircle2 className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
-                      <span className="text-gray-700">
-                        Asistencia vía email
-                      </span>
-                    </li>
-                  </ul>
-                </div>
-                <div className="px-6 pb-6">
-                  <button
-                    onClick={() => router.push("/registro?servicio=plan_base")}
-                    className="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors text-center"
-                  >
-                    Comenzar
-                  </button>
-                  <p className="text-xs text-gray-500 mt-3 text-center">
-                    * Compromiso mínimo de 6 meses
-                  </p>
-                </div>
-              </motion.div>
+                  <div className="p-6 flex-grow flex flex-col">
+                    <div className="mb-6">
+                      <p className="text-4xl font-bold text-gray-900">
+                        $150.000
+                      </p>
+                      <p className="text-gray-500 text-sm">por semestre</p>
+                    </div>
+                    <ul className="space-y-3 mb-8 flex-grow">
+                      <li className="flex items-start">
+                        <CheckCircle2 className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
+                        <span className="text-gray-700">
+                          Alta de monotributo incluida
+                        </span>
+                      </li>
+                      <li className="flex items-start">
+                        <CheckCircle2 className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
+                        <span className="text-gray-700">
+                          4 consultas profesionales mensuales
+                        </span>
+                      </li>
+                      <li className="flex items-start">
+                        <CheckCircle2 className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
+                        <span className="text-gray-700">
+                          Recategorización semestral
+                        </span>
+                      </li>
+                      <li className="flex items-start">
+                        <CheckCircle2 className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
+                        <span className="text-gray-700">
+                          Asistencia vía email
+                        </span>
+                      </li>
+                    </ul>
+                  </div>
+                  <div className="px-6 pb-6 mt-auto">
+                    <motion.button
+                      onClick={() =>
+                        router.push("/registro?servicio=plan_base")
+                      }
+                      className="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors text-center"
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      Comenzar
+                    </motion.button>
+                    <p className="text-xs text-gray-500 mt-3 text-center">
+                      * Compromiso mínimo de 6 meses
+                    </p>
+                  </div>
+                </motion.div>
+              </ScrollReveal>
 
               {/* Plan Full */}
-              <motion.div
-                whileHover={{
-                  y: -10,
-                  boxShadow: "0 10px 40px rgba(0, 102, 255, 0.15)",
-                }}
-                transition={{ duration: 0.2 }}
-                className="bg-white shadow-xl rounded-xl overflow-hidden border border-blue-100 flex flex-col relative z-10 transform md:scale-105 cursor-pointer"
+              <ScrollReveal
+                variant="fadeIn"
+                duration={0.8}
+                delay={0.2}
+                threshold={0.1}
               >
-                <div className="bg-blue-700 py-6 px-6 text-white">
-                  <h3 className="text-2xl font-bold mb-2">Plan Full</h3>
-                  <p className="opacity-90 text-sm">
-                    Para profesionales y comercios establecidos
-                  </p>
-                </div>
-                <div className="p-6 flex-grow">
-                  <div className="mb-6">
-                    <p className="text-4xl font-bold text-gray-900">$180.000</p>
-                    <p className="text-gray-500 text-sm">por semestre</p>
+                <motion.div
+                  whileHover={{
+                    y: -10,
+                    boxShadow: "0 10px 40px rgba(0, 102, 255, 0.15)",
+                    transition: { duration: 0.3 },
+                  }}
+                  whileTap={{ scale: 0.98 }}
+                  transition={{ duration: 0.2 }}
+                  className="bg-white shadow-xl rounded-xl overflow-hidden border border-blue-100 flex flex-col h-[550px] relative z-10 transform md:scale-105 cursor-pointer"
+                >
+                  <div className="bg-blue-700 py-6 px-6 text-white">
+                    <h3 className="text-2xl font-bold mb-2">Plan Full</h3>
+                    <p className="opacity-90 text-sm">
+                      Para profesionales y comercios establecidos
+                    </p>
                   </div>
-                  <ul className="space-y-3 mb-8">
-                    <li className="flex items-start">
-                      <CheckCircle2 className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
-                      <span className="text-gray-700">
-                        Alta de monotributo incluida
-                      </span>
-                    </li>
-                    <li className="flex items-start">
-                      <CheckCircle2 className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
-                      <span className="text-gray-700">
-                        8 consultas profesionales mensuales
-                      </span>
-                    </li>
-                    <li className="flex items-start">
-                      <CheckCircle2 className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
-                      <span className="text-gray-700">
-                        Recategorización incluida
-                      </span>
-                    </li>
-                    <li className="flex items-start">
-                      <CheckCircle2 className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
-                      <span className="text-gray-700">
-                        Emisión de 4 facturas mensuales
-                      </span>
-                    </li>
-                    <li className="flex items-start">
-                      <CheckCircle2 className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
-                      <span className="text-gray-700">
-                        Asistencia prioritaria
-                      </span>
-                    </li>
-                  </ul>
-                </div>
-                <div className="px-6 pb-6">
-                  <button
-                    onClick={() => router.push("/registro?servicio=plan_full")}
-                    className="w-full py-3 px-4 bg-blue-700 hover:bg-blue-800 text-white font-medium rounded-lg transition-colors shadow-lg text-center"
-                  >
-                    Comenzar
-                  </button>
-                  <p className="text-xs text-gray-500 mt-3 text-center">
-                    * Compromiso mínimo de 6 meses
-                  </p>
-                </div>
-              </motion.div>
+                  <div className="p-6 flex-grow flex flex-col">
+                    <div className="mb-6">
+                      <p className="text-4xl font-bold text-gray-900">
+                        $180.000
+                      </p>
+                      <p className="text-gray-500 text-sm">por semestre</p>
+                    </div>
+                    <ul className="space-y-3 mb-8 flex-grow">
+                      <li className="flex items-start">
+                        <CheckCircle2 className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
+                        <span className="text-gray-700">
+                          Alta de monotributo incluida
+                        </span>
+                      </li>
+                      <li className="flex items-start">
+                        <CheckCircle2 className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
+                        <span className="text-gray-700">
+                          8 consultas profesionales mensuales
+                        </span>
+                      </li>
+                      <li className="flex items-start">
+                        <CheckCircle2 className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
+                        <span className="text-gray-700">
+                          Recategorización incluida
+                        </span>
+                      </li>
+                      <li className="flex items-start">
+                        <CheckCircle2 className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
+                        <span className="text-gray-700">
+                          Emisión de 4 facturas mensuales
+                        </span>
+                      </li>
+                    </ul>
+                  </div>
+                  <div className="px-6 pb-6 mt-auto">
+                    <motion.button
+                      onClick={() =>
+                        router.push("/registro?servicio=plan_full")
+                      }
+                      className="w-full py-3 px-4 bg-blue-700 hover:bg-blue-800 text-white font-medium rounded-lg transition-colors shadow-lg text-center"
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      Comenzar
+                    </motion.button>
+                    <p className="text-xs text-gray-500 mt-3 text-center">
+                      * Compromiso mínimo de 6 meses
+                    </p>
+                  </div>
+                </motion.div>
+              </ScrollReveal>
 
               {/* Plan Premium */}
-              <motion.div
-                whileHover={{
-                  y: -10,
-                  boxShadow: "0 10px 40px rgba(0, 102, 255, 0.15)",
-                }}
-                transition={{ duration: 0.2 }}
-                className="bg-white shadow-lg rounded-xl overflow-hidden border border-blue-100 flex flex-col cursor-pointer"
+              <ScrollReveal
+                variant="fadeIn"
+                duration={0.8}
+                delay={0.3}
+                threshold={0.1}
               >
-                <div className="bg-indigo-800 py-6 px-6 text-white">
-                  <h3 className="text-2xl font-bold mb-2">Plan Premium</h3>
-                  <p className="opacity-90 text-sm">
-                    Para negocios con altas necesidades
-                  </p>
-                </div>
-                <div className="p-6 flex-grow">
-                  <div className="mb-6">
-                    <p className="text-4xl font-bold text-gray-900">$240.000</p>
-                    <p className="text-gray-500 text-sm">por semestre</p>
+                <motion.div
+                  whileHover={{
+                    y: -10,
+                    boxShadow: "0 10px 40px rgba(0, 102, 255, 0.15)",
+                    transition: { duration: 0.3 },
+                  }}
+                  whileTap={{ scale: 0.98 }}
+                  transition={{ duration: 0.2 }}
+                  className="bg-white shadow-lg rounded-xl overflow-hidden border border-blue-100 flex flex-col h-[550px] cursor-pointer"
+                >
+                  <div className="bg-indigo-800 py-6 px-6 text-white">
+                    <h3 className="text-2xl font-bold mb-2">Plan Premium</h3>
+                    <p className="opacity-90 text-sm">
+                      Para negocios con altas necesidades
+                    </p>
                   </div>
-                  <ul className="space-y-3 mb-8">
-                    <li className="flex items-start">
-                      <CheckCircle2 className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
-                      <span className="text-gray-700">
-                        Alta de monotributo incluida
-                      </span>
-                    </li>
-                    <li className="flex items-start">
-                      <CheckCircle2 className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
-                      <span className="text-gray-700">
-                        Consultas ilimitadas con contador
-                      </span>
-                    </li>
-                    <li className="flex items-start">
-                      <CheckCircle2 className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
-                      <span className="text-gray-700">
-                        Recategorización incluida
-                      </span>
-                    </li>
-                    <li className="flex items-start">
-                      <CheckCircle2 className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
-                      <span className="text-gray-700">
-                        Emisión de hasta 10 facturas mensuales
-                      </span>
-                    </li>
-                    <li className="flex items-start">
-                      <CheckCircle2 className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
-                      <span className="text-gray-700">
-                        Soporte prioritario 24/7
-                      </span>
-                    </li>
-                  </ul>
-                </div>
-                <div className="px-6 pb-6">
-                  <button
-                    onClick={() =>
-                      router.push("/registro?servicio=plan_premium")
-                    }
-                    className="w-full py-3 px-4 bg-indigo-800 hover:bg-indigo-900 text-white font-medium rounded-lg transition-colors text-center"
-                  >
-                    Comenzar
-                  </button>
-                  <p className="text-xs text-gray-500 mt-3 text-center">
-                    * Compromiso mínimo de 6 meses
-                  </p>
-                </div>
-              </motion.div>
+                  <div className="p-6 flex-grow flex flex-col">
+                    <div className="mb-6">
+                      <p className="text-4xl font-bold text-gray-900">
+                        $240.000
+                      </p>
+                      <p className="text-gray-500 text-sm">por semestre</p>
+                    </div>
+                    <ul className="space-y-3 mb-8 flex-grow">
+                      <li className="flex items-start">
+                        <CheckCircle2 className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
+                        <span className="text-gray-700">
+                          Alta de monotributo incluida
+                        </span>
+                      </li>
+                      <li className="flex items-start">
+                        <CheckCircle2 className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
+                        <span className="text-gray-700">
+                          Consultas ilimitadas con contador
+                        </span>
+                      </li>
+                      <li className="flex items-start">
+                        <CheckCircle2 className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
+                        <span className="text-gray-700">
+                          Recategorización incluida
+                        </span>
+                      </li>
+                      <li className="flex items-start">
+                        <CheckCircle2 className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
+                        <span className="text-gray-700">
+                          Emisión de hasta 10 facturas mensuales
+                        </span>
+                      </li>
+                      <li className="flex items-start">
+                        <CheckCircle2 className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
+                        <span className="text-gray-700">
+                          Soporte prioritario
+                        </span>
+                      </li>
+                    </ul>
+                  </div>
+                  <div className="px-6 pb-6 mt-auto">
+                    <motion.button
+                      onClick={() =>
+                        router.push("/registro?servicio=plan_premium")
+                      }
+                      className="w-full py-3 px-4 bg-indigo-800 hover:bg-indigo-900 text-white font-medium rounded-lg transition-colors text-center"
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      Comenzar
+                    </motion.button>
+                    <p className="text-xs text-gray-500 mt-3 text-center">
+                      * Compromiso mínimo de 6 meses
+                    </p>
+                  </div>
+                </motion.div>
+              </ScrollReveal>
             </div>
           </div>
         </motion.div>
@@ -662,7 +721,7 @@ function App() {
                 onClick={() => router.push("/registro?servicio=baja")}
                 className="bg-white shadow-md rounded-lg p-6 hover:shadow-lg transition-all duration-300 cursor-pointer text-center"
               >
-                <CreditCard className="w-10 h-10 text-[#0066FF] mb-4 mx-auto" />
+                <FileX2 className="w-10 h-10 text-[#0066FF] mb-4 mx-auto" />
                 <h3 className="text-lg font-semibold text-[#1E293B] mb-2">
                   Baja de Monotributo
                 </h3>
@@ -710,7 +769,7 @@ function App() {
                 }
                 className="bg-white shadow-md rounded-lg p-6 hover:shadow-lg transition-all duration-300 cursor-pointer text-center"
               >
-                <FileText className="w-10 h-10 text-[#0066FF] mb-4 mx-auto" />
+                <FilePlus className="w-10 h-10 text-[#0066FF] mb-4 mx-auto" />
                 <h3 className="text-lg font-semibold text-[#1E293B] mb-2">
                   Factura Adicional
                 </h3>
@@ -726,42 +785,28 @@ function App() {
         </motion.div>
 
         {/* Botón Calcula tu categoría */}
-        <div className="py-8 text-center">
-          <motion.div
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-          >
+        <div className="py-16 text-center">
+          <ScrollReveal variant="fadeIn" duration={0.8} threshold={0.1}>
             <motion.button
-              whileHover={{ scale: 1.05 }}
+              whileHover={{ scale: 1.05, transition: { duration: 0.3 } }}
               whileTap={{ scale: 0.95 }}
               onClick={() => router.push("/calcular-categoria")}
-              className="inline-flex items-center gap-3 bg-white text-[#0066FF] border-2 border-[#0066FF] px-10 py-5 rounded-2xl font-semibold text-xl hover:bg-[#E5F0FF] transition-colors"
+              className="inline-flex items-center gap-3 bg-white text-[#0066FF] border-2 border-[#0066FF] px-10 py-5 rounded-2xl font-semibold text-xl hover:bg-[#E5F0FF] transition-colors shadow-md hover:shadow-lg"
             >
               <Calculator className="w-7 h-7" />
               Calculá tu categoría
             </motion.button>
-          </motion.div>
+          </ScrollReveal>
         </div>
 
         {/* Asesoramiento Section */}
-        <motion.div
-          id="asesorate"
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          className="py-16 bg-[#E5F0FF]"
-        >
+        <div id="asesorate" className="py-16 bg-[#E5F0FF]">
           <AdvisorySection />
-        </motion.div>
+        </div>
 
         {/* Contacto Section */}
-        <motion.div
+        <div
           id="contacto"
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
           className="py-20 bg-gradient-to-br from-[#0066FF] to-[#1E293B] relative overflow-hidden"
         >
           {/* Decorative elements */}
@@ -771,64 +816,86 @@ function App() {
           <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-[#0066FF]/30 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
 
           <div className="container mx-auto px-4 relative">
-            <div className="text-center mb-16">
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5 }}
-                className="inline-block"
-              >
-                <h2 className="text-4xl font-bold text-white mb-4 relative">
-                  ¡ CONTACTANOS !
-                </h2>
-              </motion.div>
+            <ScrollReveal variant="slideUp" className="text-center mb-16">
+              <h2 className="text-4xl font-bold text-white mb-4 relative">
+                ¡ CONTACTANOS !
+              </h2>
               <p className="text-lg text-white/80 max-w-2xl mx-auto">
                 Estamos aquí para ayudarte con cualquier duda que tengas
               </p>
-            </div>
+            </ScrollReveal>
 
-            <div className="max-w-2xl mx-auto relative">
+            <ScrollReveal
+              variant="scale"
+              threshold={0.1}
+              className="max-w-2xl mx-auto relative"
+            >
               <form className="relative bg-gradient-to-br from-[#0066FF]/5 to-transparent rounded-2xl p-8 space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="relative">
-                    <input
-                      type="text"
-                      placeholder="Nombre"
-                      className="w-full px-4 py-3 rounded-lg bg-white border-none text-[#1E293B] placeholder-[#6B7280] focus:outline-none focus:ring-2 focus:ring-[#E5F0FF] focus:border-transparent transition-all duration-300"
-                    />
-                    <div className="absolute bottom-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-[#E5F0FF]/50 to-transparent" />
-                  </div>
-                  <div className="relative">
-                    <input
-                      type="email"
-                      placeholder="Email"
-                      className="w-full px-4 py-3 rounded-lg bg-white border-none text-[#1E293B] placeholder-[#6B7280] focus:outline-none focus:ring-2 focus:ring-[#E5F0FF] focus:border-transparent transition-all duration-300"
-                    />
-                    <div className="absolute bottom-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-[#E5F0FF]/50 to-transparent" />
-                  </div>
+                  <ScrollReveal variant="slideRight" delay={0.1}>
+                    <div className="relative">
+                      <input
+                        type="text"
+                        placeholder="Nombre"
+                        className="w-full px-4 py-3 rounded-lg bg-white border-none text-[#1E293B] placeholder-[#6B7280] focus:outline-none focus:ring-2 focus:ring-[#E5F0FF] focus:border-transparent transition-all duration-300"
+                      />
+                      <motion.div
+                        initial={{ scaleX: 0 }}
+                        whileInView={{ scaleX: 1 }}
+                        transition={{ duration: 0.5, delay: 0.2 }}
+                        className="absolute bottom-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-[#E5F0FF]/50 to-transparent"
+                        style={{ transformOrigin: "left" }}
+                      />
+                    </div>
+                  </ScrollReveal>
+                  <ScrollReveal variant="slideLeft" delay={0.1}>
+                    <div className="relative">
+                      <input
+                        type="email"
+                        placeholder="Email"
+                        className="w-full px-4 py-3 rounded-lg bg-white border-none text-[#1E293B] placeholder-[#6B7280] focus:outline-none focus:ring-2 focus:ring-[#E5F0FF] focus:border-transparent transition-all duration-300"
+                      />
+                      <motion.div
+                        initial={{ scaleX: 0 }}
+                        whileInView={{ scaleX: 1 }}
+                        transition={{ duration: 0.5, delay: 0.3 }}
+                        className="absolute bottom-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-[#E5F0FF]/50 to-transparent"
+                        style={{ transformOrigin: "left" }}
+                      />
+                    </div>
+                  </ScrollReveal>
                 </div>
-                <div className="relative">
-                  <textarea
-                    placeholder="Tu mensaje"
-                    rows="4"
-                    className="w-full px-4 py-3 rounded-lg bg-white border-none text-[#1E293B] placeholder-[#6B7280] focus:outline-none focus:ring-2 focus:ring-[#E5F0FF] focus:border-transparent transition-all duration-300"
-                  ></textarea>
-                  <div className="absolute bottom-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-[#E5F0FF]/50 to-transparent" />
-                </div>
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  type="submit"
-                  className="w-full bg-gradient-to-r from-[#E5F0FF] to-white text-[#0066FF] px-8 py-4 rounded-lg font-semibold text-lg transition-all duration-300 shadow-lg hover:shadow-xl relative group overflow-hidden"
-                >
-                  <span className="relative z-10">Enviar mensaje</span>
-                  <div className="absolute inset-0 bg-gradient-to-r from-white to-[#E5F0FF] transform translate-x-full group-hover:translate-x-0 transition-transform duration-300" />
-                </motion.button>
+                <ScrollReveal variant="slideUp" delay={0.2}>
+                  <div className="relative">
+                    <textarea
+                      placeholder="Tu mensaje"
+                      rows="4"
+                      className="w-full px-4 py-3 rounded-lg bg-white border-none text-[#1E293B] placeholder-[#6B7280] focus:outline-none focus:ring-2 focus:ring-[#E5F0FF] focus:border-transparent transition-all duration-300"
+                    ></textarea>
+                    <motion.div
+                      initial={{ scaleX: 0 }}
+                      whileInView={{ scaleX: 1 }}
+                      transition={{ duration: 0.5, delay: 0.4 }}
+                      className="absolute bottom-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-[#E5F0FF]/50 to-transparent"
+                      style={{ transformOrigin: "left" }}
+                    />
+                  </div>
+                </ScrollReveal>
+                <ScrollReveal variant="fadeIn" delay={0.3}>
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    type="submit"
+                    className="w-full bg-gradient-to-r from-[#E5F0FF] to-white text-[#0066FF] px-8 py-4 rounded-lg font-semibold text-lg transition-all duration-300 shadow-lg hover:shadow-xl relative group overflow-hidden"
+                  >
+                    <span className="relative z-10">Enviar mensaje</span>
+                    <div className="absolute inset-0 bg-gradient-to-r from-white to-[#E5F0FF] transform translate-x-full group-hover:translate-x-0 transition-transform duration-300" />
+                  </motion.button>
+                </ScrollReveal>
               </form>
-            </div>
+            </ScrollReveal>
           </div>
-        </motion.div>
+        </div>
       </div>
 
       {/* Floating WhatsApp Button */}

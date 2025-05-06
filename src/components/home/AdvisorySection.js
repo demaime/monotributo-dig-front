@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { FileText, CheckCircle2, CreditCard, Key } from "lucide-react";
 import Modal from "../ui/Modal";
+import ScrollReveal from "../ui/ScrollReveal";
+import { motion } from "framer-motion";
 
 const advisoryCards = [
   {
@@ -130,9 +132,9 @@ const AdvisorySection = () => {
   const [selectedCard, setSelectedCard] = useState(null);
 
   return (
-    <section className="py-8 bg-[#E5F0FF]">
+    <section id="asesorate" className="py-16 bg-[#E5F0FF]">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-12">
+        <ScrollReveal variant="slideUp" className="text-center mb-12">
           <h2 className="text-3xl font-bold text-[#1E293B] mb-4">
             Asesorate sobre el Monotributo
           </h2>
@@ -140,21 +142,39 @@ const AdvisorySection = () => {
             Encuentra respuestas a las preguntas más frecuentes sobre el
             Monotributo
           </p>
-        </div>
+        </ScrollReveal>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {advisoryCards.map((card, index) => (
-            <div
+            <ScrollReveal
               key={index}
-              onClick={() => setSelectedCard(card)}
-              className="bg-white shadow-lg rounded-xl p-6 hover:shadow-xl transition-all duration-300 cursor-pointer"
+              variant="scale"
+              delay={index * 0.1}
+              threshold={0.2}
             >
-              <card.icon className="w-12 h-12 text-[#0066FF] mb-4" />
-              <h3 className="text-xl font-semibold text-[#1E293B] mb-3">
-                {card.title}
-              </h3>
-              <p className="text-[#6B7280]">{card.shortDescription}</p>
-            </div>
+              <motion.div
+                onClick={() => setSelectedCard(card)}
+                className="bg-white shadow-lg rounded-xl p-6 h-full transition-all duration-300 cursor-pointer"
+                whileHover={{
+                  y: -10,
+                  boxShadow: "0 10px 40px rgba(0, 102, 255, 0.15)",
+                  scale: 1.02,
+                }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <motion.div
+                  initial={{ scale: 1 }}
+                  whileHover={{ scale: 1.1, rotate: 5 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                >
+                  <card.icon className="w-12 h-12 text-[#0066FF] mb-4" />
+                </motion.div>
+                <h3 className="text-xl font-semibold text-[#1E293B] mb-3">
+                  {card.title}
+                </h3>
+                <p className="text-[#6B7280]">{card.shortDescription}</p>
+              </motion.div>
+            </ScrollReveal>
           ))}
         </div>
       </div>
