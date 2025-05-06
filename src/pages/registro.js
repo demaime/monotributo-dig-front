@@ -351,6 +351,9 @@ export default function Registro() {
   // Nuevo estado para modales de Superficie y Consumo
   const [isSuperficieModalOpen, setIsSuperficieModalOpen] = useState(false);
   const [isConsumoModalOpen, setIsConsumoModalOpen] = useState(false);
+  // Añadir estado para controlar la carga
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState(null);
   // ID de transacción para asociar archivos con formulario
   const [transactionId] = useState(
     () => `trans_${Date.now()}_${Math.random().toString(36).substring(2, 10)}`
@@ -728,6 +731,9 @@ export default function Registro() {
       // Aquí finalizaríamos el proceso y enviaríamos los datos al backend
       console.log("Completando registro con ID de transacción:", transactionId);
 
+      // Indicar que se está enviando
+      setIsSubmitting(true);
+
       // Primero subimos los archivos
       const uploadFiles = async () => {
         const formDataFiles = new FormData();
@@ -757,7 +763,7 @@ export default function Registro() {
           return true;
         } catch (error) {
           console.error("Error al subir archivos:", error);
-          alert("Error al subir los archivos: " + error.message);
+          setSubmitError("Error al subir los archivos: " + error.message);
           return false;
         }
       };
@@ -792,57 +798,73 @@ export default function Registro() {
           return true;
         } catch (error) {
           console.error("Error al enviar formulario:", error);
-          alert("Error al enviar el formulario: " + error.message);
+          setSubmitError("Error al enviar el formulario: " + error.message);
           return false;
         }
       };
 
       // Ejecutar las funciones en secuencia
-      alert("Enviando información... por favor espere.");
-      uploadFiles().then((filesUploaded) => {
-        if (filesUploaded) {
-          submitFormData().then((formSubmitted) => {
-            if (formSubmitted) {
-              // Determinar si es una suscripción basado en el tipo de servicio
-              const isSubscription = [
-                "plan_base",
-                "plan_full",
-                "plan_premium",
-              ].includes(selectedService);
+      // Eliminar el alert y usar el estado de isSubmitting
+      uploadFiles()
+        .then((filesUploaded) => {
+          if (filesUploaded) {
+            submitFormData()
+              .then((formSubmitted) => {
+                if (formSubmitted) {
+                  // Determinar si es una suscripción basado en el tipo de servicio
+                  const isSubscription = [
+                    "plan_base",
+                    "plan_full",
+                    "plan_premium",
+                  ].includes(selectedService);
 
-              // Ajustar precios según el tipo de servicio
-              let precio;
-              // Precios para planes semestrales (con API de suscripción)
-              if (selectedService === "plan_base") {
-                precio = 150000;
-              } else if (selectedService === "plan_full") {
-                precio = 180000;
-              } else if (selectedService === "plan_premium") {
-                precio = 240000;
-              }
-              // Precios para servicios únicos (con API de checkout)
-              else if (selectedService === "alta") {
-                precio = 75000;
-              } else if (selectedService === "baja") {
-                precio = 75000;
-              } else if (selectedService === "recategorizacion") {
-                precio = 50000;
-              } else if (selectedService === "factura_adicional") {
-                precio = 2000;
-              } else {
-                precio = 75000; // Precio predeterminado por si acaso
-              }
+                  // Ajustar precios según el tipo de servicio
+                  let precio;
+                  // Precios para planes semestrales (con API de suscripción)
+                  if (selectedService === "plan_base") {
+                    precio = 150000;
+                  } else if (selectedService === "plan_full") {
+                    precio = 180000;
+                  } else if (selectedService === "plan_premium") {
+                    precio = 240000;
+                  }
+                  // Precios para servicios únicos (con API de checkout)
+                  else if (selectedService === "alta") {
+                    precio = 75000;
+                  } else if (selectedService === "baja") {
+                    precio = 75000;
+                  } else if (selectedService === "recategorizacion") {
+                    precio = 50000;
+                  } else if (selectedService === "factura_adicional") {
+                    precio = 2000;
+                  } else {
+                    precio = 75000; // Precio predeterminado por si acaso
+                  }
 
-              // Redirigir a la página de pago
-              router.push(
-                `/payment?service=${selectedService}&price=${precio}&transactionId=${transactionId}${
-                  isSubscription ? "&isSubscription=true" : ""
-                }`
-              );
-            }
-          });
-        }
-      });
+                  // Redirigir a la página de pago
+                  router.push(
+                    `/payment?service=${selectedService}&price=${precio}&transactionId=${transactionId}${
+                      isSubscription ? "&isSubscription=true" : ""
+                    }`
+                  );
+                } else {
+                  // Si hay un error, desactivar el estado de carga
+                  setIsSubmitting(false);
+                }
+              })
+              .catch(() => {
+                // Si hay un error, desactivar el estado de carga
+                setIsSubmitting(false);
+              });
+          } else {
+            // Si hay un error, desactivar el estado de carga
+            setIsSubmitting(false);
+          }
+        })
+        .catch(() => {
+          // Si hay un error, desactivar el estado de carga
+          setIsSubmitting(false);
+        });
     }
   };
 
@@ -2662,19 +2684,43 @@ export default function Registro() {
           trámites correspondientes en su nombre.
         </div>
 
+        {submitError && (
+          <div className="mt-4 mb-4 p-3 bg-red-100 border-l-4 border-red-500 text-red-700 text-sm">
+            <p className="font-semibold">Error</p>
+            <p>{submitError}</p>
+            <button
+              onClick={() => setSubmitError(null)}
+              className="mt-2 text-xs underline text-red-600"
+            >
+              Intentar nuevamente
+            </button>
+          </div>
+        )}
+
         <div className="flex justify-between">
           <button
             onClick={handleBack}
             className="flex items-center px-3 py-1.5 border rounded-md text-xs"
+            disabled={isSubmitting}
           >
             <ArrowLeft className="w-3 h-3 mr-1" />
             Anterior
           </button>
           <button
             onClick={handleNext}
+            disabled={isSubmitting}
             className="flex items-center px-3 py-1.5 border border-transparent rounded-md shadow-sm text-xs font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
           >
-            <CheckCircle className="w-3 h-3 mr-1" /> Confirmar Solicitud
+            {isSubmitting ? (
+              <>
+                <div className="w-3 h-3 mr-1 border-t-2 border-b-2 border-white rounded-full animate-spin"></div>
+                Enviando...
+              </>
+            ) : (
+              <>
+                <CheckCircle className="w-3 h-3 mr-1" /> Confirmar Solicitud
+              </>
+            )}
           </button>
         </div>
       </motion.div>
