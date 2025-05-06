@@ -17,13 +17,17 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
 const servicios = [
-  { id: "plan_base", nombre: "Plan Base" },
-  { id: "plan_full", nombre: "Plan Full" },
-  { id: "plan_premium", nombre: "Plan Premium" },
-  { id: "alta", nombre: "Alta de Monotributo" },
-  { id: "recategorizacion", nombre: "Recategorización" },
-  { id: "baja", nombre: "Baja de Monotributo" },
-  { id: "factura_adicional", nombre: "Emisión de Factura Adicional" },
+  { id: "plan_base", nombre: "Plan Base", precio: 150000 },
+  { id: "plan_full", nombre: "Plan Full", precio: 180000 },
+  { id: "plan_premium", nombre: "Plan Premium", precio: 240000 },
+  { id: "alta", nombre: "Alta de Monotributo", precio: 75000 },
+  { id: "recategorizacion", nombre: "Recategorización", precio: 50000 },
+  { id: "baja", nombre: "Baja de Monotributo", precio: 75000 },
+  {
+    id: "factura_adicional",
+    nombre: "Emisión de Factura Adicional",
+    precio: 2000,
+  },
 ];
 
 // Define los servicios que siguen el flujo corto (paso 2 simplificado)
@@ -543,11 +547,64 @@ export default function Registro() {
       }
 
       if (serviciosFlujoCorto.includes(selectedService)) {
+        // Generar ID de transacción
+        const transId = transactionId;
         console.log("Datos del formulario (Flujo Corto):", {
           ...formData,
           servicio: selectedService,
+          transactionId: transId,
         });
-        showToast("Flujo corto completado (temporal). Ver consola.", "success");
+
+        // Obtener el precio del servicio seleccionado
+        const servicioSeleccionado = servicios.find(
+          (s) => s.id === selectedService
+        );
+        const precio = servicioSeleccionado ? servicioSeleccionado.precio : 0;
+
+        // Indicar que se está enviando
+        setIsSubmitting(true);
+
+        // Enviar la información al backend
+        const submitFormData = async () => {
+          try {
+            const API_BASE_URL =
+              process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api";
+            const response = await fetch(`${API_BASE_URL}/submit-form`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                formData: {
+                  ...formData,
+                  servicio: selectedService,
+                },
+                transactionId: transId,
+              }),
+            });
+
+            const result = await response.json();
+            if (!result.success) {
+              throw new Error(
+                result.message || "Error al enviar el formulario"
+              );
+            }
+
+            // Redirigir a la página de pago
+            router.push(
+              `/payment?service=${selectedService}&price=${precio}&transactionId=${transId}`
+            );
+
+            return true;
+          } catch (error) {
+            console.error("Error al enviar formulario:", error);
+            setSubmitError("Error al enviar el formulario: " + error.message);
+            setIsSubmitting(false);
+            return false;
+          }
+        };
+
+        submitFormData();
       } else if (serviciosFlujoAlta.includes(selectedService)) {
         // Para flujo de alta, continuamos con el paso de tipo de trabajo
         setCurrentStep(10);
@@ -965,6 +1022,11 @@ export default function Registro() {
               className="sr-only"
             />
             <span className="font-medium text-gray-700">{servicio.nombre}</span>
+            {selectedService === servicio.id && (
+              <span className="ml-auto text-gray-500 text-sm">
+                ${new Intl.NumberFormat("es-AR").format(servicio.precio)}
+              </span>
+            )}
           </label>
         ))}
       </div>
