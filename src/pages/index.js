@@ -284,7 +284,7 @@ function App() {
                     Pagos Online
                   </h3>
                   <p className="text-[#6B7280] text-xs">
-                    Paga tus impuestos de forma segura
+                    Paga tus impuestos sin moverte de tu casa
                   </p>
                 </motion.div>
               </motion.div>
@@ -348,7 +348,7 @@ function App() {
                     Pagos Online
                   </h3>
                   <p className="text-[#6B7280] text-xs">
-                    Paga tus impuestos de forma segura
+                    Paga tus impuestos sin moverte de tu casa
                   </p>
                 </div>
               </div>
@@ -356,25 +356,42 @@ function App() {
           </motion.div>
         </div>
 
-        {/* Botón Calcula tu categoría */}
-        <div className="py-8 text-center mt-10">
-          <motion.div
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-          >
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => router.push("/calcular-categoria")}
-              className="inline-flex items-center gap-3 bg-white text-[#0066FF] border-2 border-[#0066FF] px-10 py-5 rounded-2xl font-semibold text-xl hover:bg-[#E5F0FF] transition-colors"
-            >
-              <Calculator className="w-7 h-7" />
-              Calculá tu categoría
-            </motion.button>
-          </motion.div>
-        </div>
+        {/* Quiénes Somos Section */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          className="py-16 bg-gradient-to-b from-[#E5F0FF] to-white mt-14"
+        >
+          <div className="container mx-auto px-4">
+            <div className="text-center mb-8">
+              <h2 className="text-4xl font-bold text-[#1E293B] mb-6">
+                Quiénes somos
+              </h2>
+            </div>
+            <div className="max-w-4xl mx-auto text-lg leading-relaxed text-[#4B5563] space-y-6">
+              <p>
+                Somos un equipo de contadores públicos matriculados,
+                especializados en el régimen de monotributo y en asesoramiento
+                fiscal para trabajadores independientes, emprendedores y
+                pequeños negocios.
+              </p>
+              <p>
+                Con años de experiencia en el rubro, ofrecemos un servicio
+                profesional, ágil y confiable para ayudarte a realizar tu alta
+                en monotributo sin demoras ni complicaciones. Nos encargamos de
+                todo el proceso, desde la recopilación de datos hasta la
+                presentación final ante ARCA.
+              </p>
+              <p>
+                Nos destacamos por brindar una atención personalizada, con
+                tarifas claras y sin sorpresas, y por acompañarte en cada paso
+                para que empieces a facturar cuanto antes, con la tranquilidad
+                de estar en manos expertas.
+              </p>
+            </div>
+          </div>
+        </motion.div>
 
         {/* Servicios Section */}
         <motion.div
@@ -382,7 +399,7 @@ function App() {
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
-          className="py-5"
+          className="py-20"
         >
           <div className="container mx-auto px-4">
             <div className="text-center mb-16">
@@ -412,8 +429,8 @@ function App() {
                 </div>
                 <div className="p-6 flex-grow">
                   <div className="mb-6">
-                    <p className="text-4xl font-bold text-gray-900">$25.000</p>
-                    <p className="text-gray-500 text-sm">por mes</p>
+                    <p className="text-4xl font-bold text-gray-900">$150.000</p>
+                    <p className="text-gray-500 text-sm">por semestre</p>
                   </div>
                   <ul className="space-y-3 mb-8">
                     <li className="flex items-start">
@@ -472,8 +489,8 @@ function App() {
                 </div>
                 <div className="p-6 flex-grow">
                   <div className="mb-6">
-                    <p className="text-4xl font-bold text-gray-900">$30.000</p>
-                    <p className="text-gray-500 text-sm">por mes</p>
+                    <p className="text-4xl font-bold text-gray-900">$180.000</p>
+                    <p className="text-gray-500 text-sm">por semestre</p>
                   </div>
                   <ul className="space-y-3 mb-8">
                     <li className="flex items-start">
@@ -538,8 +555,8 @@ function App() {
                 </div>
                 <div className="p-6 flex-grow">
                   <div className="mb-6">
-                    <p className="text-4xl font-bold text-gray-900">$40.000</p>
-                    <p className="text-gray-500 text-sm">por mes</p>
+                    <p className="text-4xl font-bold text-gray-900">$240.000</p>
+                    <p className="text-gray-500 text-sm">por semestre</p>
                   </div>
                   <ul className="space-y-3 mb-8">
                     <li className="flex items-start">
@@ -610,13 +627,16 @@ function App() {
                 específicas.
               </p>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+
+            {/* Cambiamos la grid para una mejor distribución en 4 columnas en desktop y 2 en tablets */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 max-w-6xl mx-auto">
               {/* Card Alta */}
               <motion.div
                 whileHover={{
                   y: -5,
                   boxShadow: "0 5px 20px rgba(0, 0, 0, 0.08)",
                 }}
+                transition={{ duration: 0.1 }}
                 onClick={() => router.push("/registro?servicio=alta")}
                 className="bg-white shadow-md rounded-lg p-6 hover:shadow-lg transition-all duration-300 cursor-pointer text-center"
               >
@@ -638,6 +658,7 @@ function App() {
                   y: -5,
                   boxShadow: "0 5px 20px rgba(0, 0, 0, 0.08)",
                 }}
+                transition={{ duration: 0.1 }}
                 onClick={() => router.push("/registro?servicio=baja")}
                 className="bg-white shadow-md rounded-lg p-6 hover:shadow-lg transition-all duration-300 cursor-pointer text-center"
               >
@@ -659,6 +680,7 @@ function App() {
                   y: -5,
                   boxShadow: "0 5px 20px rgba(0, 0, 0, 0.08)",
                 }}
+                transition={{ duration: 0.1 }}
                 onClick={() =>
                   router.push("/registro?servicio=recategorizacion")
                 }
@@ -672,12 +694,56 @@ function App() {
                   Ajustamos tu categoría según tus ingresos.
                 </p>
                 <span className="text-blue-600 font-medium text-sm hover:underline">
-                  Solicitar por $50.000
+                  Solicitar por $5.000
+                </span>
+              </motion.div>
+
+              {/* Card Factura Adicional */}
+              <motion.div
+                whileHover={{
+                  y: -5,
+                  boxShadow: "0 5px 20px rgba(0, 0, 0, 0.08)",
+                }}
+                transition={{ duration: 0.1 }}
+                onClick={() =>
+                  router.push("/registro?servicio=factura_adicional")
+                }
+                className="bg-white shadow-md rounded-lg p-6 hover:shadow-lg transition-all duration-300 cursor-pointer text-center"
+              >
+                <FileText className="w-10 h-10 text-[#0066FF] mb-4 mx-auto" />
+                <h3 className="text-lg font-semibold text-[#1E293B] mb-2">
+                  Factura Adicional
+                </h3>
+                <p className="text-sm text-[#6B7280] mb-4">
+                  Emisión de facturas adicionales para tu plan.
+                </p>
+                <span className="text-blue-600 font-medium text-sm hover:underline">
+                  Solicitar por $2.000
                 </span>
               </motion.div>
             </div>
           </div>
         </motion.div>
+
+        {/* Botón Calcula tu categoría */}
+        <div className="py-8 text-center">
+          <motion.div
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+          >
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => router.push("/calcular-categoria")}
+              className="inline-flex items-center gap-3 bg-white text-[#0066FF] border-2 border-[#0066FF] px-10 py-5 rounded-2xl font-semibold text-xl hover:bg-[#E5F0FF] transition-colors"
+            >
+              <Calculator className="w-7 h-7" />
+              Calculá tu categoría
+            </motion.button>
+          </motion.div>
+        </div>
 
         {/* Asesoramiento Section */}
         <motion.div

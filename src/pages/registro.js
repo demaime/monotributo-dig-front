@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import {
   ArrowLeft,
@@ -7,6 +7,8 @@ import {
   XCircle,
   X,
   CheckCircle,
+  Upload,
+  Trash2,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import DatePicker from "react-datepicker";
@@ -337,6 +339,10 @@ export default function Registro() {
     jurisdiccionCual: "",
     dniCoincideActividad: null,
     domicilioActividad: "",
+    // Nuevos campos para archivos
+    frontDniFile: null,
+    backDniFile: null,
+    selfieFile: null,
   });
   const [direction, setDirection] = useState(1);
   const [cuilFamiliarActual, setCuilFamiliarActual] = useState("");
@@ -345,6 +351,23 @@ export default function Registro() {
   // Nuevo estado para modales de Superficie y Consumo
   const [isSuperficieModalOpen, setIsSuperficieModalOpen] = useState(false);
   const [isConsumoModalOpen, setIsConsumoModalOpen] = useState(false);
+  // ID de transacción para asociar archivos con formulario
+  const [transactionId] = useState(
+    () => `trans_${Date.now()}_${Math.random().toString(36).substring(2, 10)}`
+  );
+
+  // Efecto para preseleccionar el servicio desde la URL
+  useEffect(() => {
+    if (router.isReady && router.query.servicio) {
+      const servicioFromUrl = router.query.servicio;
+      // Verificar si el servicio existe en nuestra lista
+      const servicioExiste = servicios.some((s) => s.id === servicioFromUrl);
+
+      if (servicioExiste) {
+        setSelectedService(servicioFromUrl);
+      }
+    }
+  }, [router.isReady, router.query]);
 
   const handleChange = (e) => {
     const { name, value, type } = e.target;
@@ -455,6 +478,28 @@ export default function Registro() {
   };
   // --- Fin Handlers Modales ---
 
+  // Función para manejar la selección de archivos
+  const handleFileChange = (e) => {
+    const { name, files } = e.target;
+
+    if (files && files[0]) {
+      // Actualizar el estado del archivo
+      setFormData((prev) => ({
+        ...prev,
+        [`${name}File`]: files[0],
+      }));
+    }
+  };
+
+  // Función para eliminar un archivo
+  const handleRemoveFile = (fileType) => {
+    // Limpiar el archivo del formulario
+    setFormData((prev) => ({
+      ...prev,
+      [`${fileType}File`]: null,
+    }));
+  };
+
   const handleNext = () => {
     setDirection(1);
     if (currentStep === 1) {
@@ -465,12 +510,10 @@ export default function Registro() {
       if (serviciosFlujoCorto.includes(selectedService)) {
         setCurrentStep(2);
       } else if (serviciosFlujoAlta.includes(selectedService)) {
-        setCurrentStep(10);
+        // Primero iremos al paso de datos personales
+        setCurrentStep(2);
       }
-    } else if (
-      currentStep === 2 &&
-      serviciosFlujoCorto.includes(selectedService)
-    ) {
+    } else if (currentStep === 2) {
       if (
         !formData.apellido ||
         !formData.nombre ||
@@ -482,11 +525,17 @@ export default function Registro() {
         );
         return;
       }
-      console.log("Datos del formulario (Flujo Corto):", {
-        ...formData,
-        servicio: selectedService,
-      });
-      alert("Flujo corto completado (temporal). Ver consola.");
+
+      if (serviciosFlujoCorto.includes(selectedService)) {
+        console.log("Datos del formulario (Flujo Corto):", {
+          ...formData,
+          servicio: selectedService,
+        });
+        alert("Flujo corto completado (temporal). Ver consola.");
+      } else if (serviciosFlujoAlta.includes(selectedService)) {
+        // Para flujo de alta, continuamos con el paso de tipo de trabajo
+        setCurrentStep(10);
+      }
     } else if (
       currentStep === 10 &&
       serviciosFlujoAlta.includes(selectedService)
@@ -599,19 +648,19 @@ export default function Registro() {
       serviciosFlujoAlta.includes(selectedService)
     ) {
       if (formData.sumarAportesConyuge === null) {
-        alert("Indique si suma aportes del cónyuge.");
+        alert("Indique si desea sumar aportes del cónyuge.");
         return;
       }
       if (
         formData.sumarAportesConyuge === "si" &&
         !formData.cuitConyuge.trim()
       ) {
-        alert("Ingrese CUIT/CUIL del cónyuge.");
+        alert("Ingrese el CUIL del cónyuge.");
         return;
       }
       console.log("Datos Paso 14:", {
-        sumarConyuge: formData.sumarAportesConyuge,
-        cuitConyuge: formData.cuitConyuge,
+        conyuge: formData.sumarAportesConyuge,
+        cuil: formData.cuitConyuge,
         familiares: formData.familiaresCuil,
       });
       setCurrentStep(15);
@@ -620,7 +669,9 @@ export default function Registro() {
       serviciosFlujoAlta.includes(selectedService)
     ) {
       if (formData.aportaOtraJurisdiccion === null) {
-        alert("Indique si realiza aportes en otra jurisdicción.");
+        alert(
+          "Indique si realiza aportes por alguna actividad en otra jurisdicción."
+        );
         return;
       }
       if (
@@ -628,7 +679,7 @@ export default function Registro() {
         (!formData.jurisdiccionDonde.trim() ||
           !formData.jurisdiccionCual.trim())
       ) {
-        alert("Complete 'Dónde' y 'Cuál' de la otra jurisdicción.");
+        alert("Complete los datos de la actividad en otra jurisdicción.");
         return;
       }
       if (formData.dniCoincideActividad === null) {
@@ -645,21 +696,118 @@ export default function Registro() {
         return;
       }
       console.log("Datos Paso 15:", {
-        otraJurisdiccion: formData.aportaOtraJurisdiccion,
-        jurisDonde: formData.jurisdiccionDonde,
-        jurisCual: formData.jurisdiccionCual,
-        dniCoincide: formData.dniCoincideActividad,
-        domActividad: formData.domicilioActividad,
+        otraJ: formData.aportaOtraJurisdiccion,
+        donde: formData.jurisdiccionDonde,
+        cual: formData.jurisdiccionCual,
+        coincideDni: formData.dniCoincideActividad,
+        domAct: formData.domicilioActividad,
       });
+      // Después del paso 15, ahora vamos al paso de adjuntar archivos
       setCurrentStep(16);
     } else if (
       currentStep === 16 &&
       serviciosFlujoAlta.includes(selectedService)
     ) {
-      console.log("FORMULARIO COMPLETO:", formData);
-      alert(
-        "¡Solicitud Confirmada! (Simulado) - Revisa la consola para ver todos los datos."
-      );
+      // Validamos que se hayan cargado todos los documentos
+      if (
+        !formData.frontDniFile ||
+        !formData.backDniFile ||
+        !formData.selfieFile
+      ) {
+        alert(
+          "Por favor, cargue todas las imágenes requeridas (frente del DNI, dorso del DNI y selfie)."
+        );
+        return;
+      }
+      // Avanzamos al resumen
+      setCurrentStep(17);
+    } else if (
+      currentStep === 17 &&
+      serviciosFlujoAlta.includes(selectedService)
+    ) {
+      // Aquí finalizaríamos el proceso y enviaríamos los datos al backend
+      console.log("Completando registro con ID de transacción:", transactionId);
+
+      // Primero subimos los archivos
+      const uploadFiles = async () => {
+        const formDataFiles = new FormData();
+        formDataFiles.append("transactionId", transactionId);
+
+        if (formData.frontDniFile) {
+          formDataFiles.append("frontDni", formData.frontDniFile);
+        }
+        if (formData.backDniFile) {
+          formDataFiles.append("backDni", formData.backDniFile);
+        }
+        if (formData.selfieFile) {
+          formDataFiles.append("selfie", formData.selfieFile);
+        }
+
+        try {
+          const response = await fetch("/api/upload-documents", {
+            method: "POST",
+            body: formDataFiles,
+          });
+          const result = await response.json();
+          if (!result.success) {
+            throw new Error(result.message || "Error al subir los archivos");
+          }
+          return true;
+        } catch (error) {
+          console.error("Error al subir archivos:", error);
+          alert("Error al subir los archivos: " + error.message);
+          return false;
+        }
+      };
+
+      // Luego enviamos los datos del formulario
+      const submitFormData = async () => {
+        try {
+          const response = await fetch("/api/submit-form", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              formData: {
+                ...formData,
+                servicio: selectedService,
+                // Excluimos los archivos del formData porque ya los enviamos
+                frontDniFile: undefined,
+                backDniFile: undefined,
+                selfieFile: undefined,
+              },
+              transactionId,
+            }),
+          });
+
+          const result = await response.json();
+          if (!result.success) {
+            throw new Error(result.message || "Error al enviar el formulario");
+          }
+          return true;
+        } catch (error) {
+          console.error("Error al enviar formulario:", error);
+          alert("Error al enviar el formulario: " + error.message);
+          return false;
+        }
+      };
+
+      // Ejecutar las funciones en secuencia
+      alert("Enviando información... por favor espere.");
+      uploadFiles().then((filesUploaded) => {
+        if (filesUploaded) {
+          submitFormData().then((formSubmitted) => {
+            if (formSubmitted) {
+              // Redirigir a la página de pago en lugar de mostrar alerta y volver al inicio
+              const precio = selectedService === "alta" ? 25000 : 10000;
+              router.push(
+                `/payment?service=${selectedService}&price=${precio}&transactionId=${transactionId}`
+              );
+            }
+          });
+        }
+      });
     }
   };
 
@@ -668,7 +816,8 @@ export default function Registro() {
     if (currentStep === 2) {
       setCurrentStep(1);
     } else if (currentStep === 10) {
-      setCurrentStep(1);
+      // Ahora retrocedemos al paso de datos personales
+      setCurrentStep(2);
     } else if (currentStep === 11) {
       setCurrentStep(10);
     } else if (currentStep === 12) {
@@ -763,8 +912,8 @@ export default function Registro() {
       animate="visible"
       exit="exit"
     >
-      <h1 className="text-2xl font-bold text-center text-gray-800 mb-6">
-        Completa tus Datos
+      <h1 className="text-xl font-bold text-center text-gray-800 mb-6">
+        Completa tus Datos Personales
       </h1>
       <p className="text-center text-gray-600 mb-6 text-sm">
         Servicio:{" "}
@@ -825,6 +974,7 @@ export default function Registro() {
             onChange={handleChange}
             required
             className="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm"
+            placeholder="Sin puntos ni guiones"
           />
         </div>
 
@@ -854,23 +1004,25 @@ export default function Registro() {
           />
         </div>
 
-        <div className="md:col-span-2">
-          <label
-            htmlFor="mensaje"
-            className="block text-xs font-medium text-gray-600 mb-1"
-          >
-            Mensaje (Opcional)
-          </label>
-          <textarea
-            id="mensaje"
-            name="mensaje"
-            rows="3"
-            value={formData.mensaje}
-            onChange={handleChange}
-            className="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm"
-            placeholder="Aclaraciones adicionales..."
-          ></textarea>
-        </div>
+        {serviciosFlujoCorto.includes(selectedService) && (
+          <div className="md:col-span-2">
+            <label
+              htmlFor="mensaje"
+              className="block text-xs font-medium text-gray-600 mb-1"
+            >
+              Mensaje (Opcional)
+            </label>
+            <textarea
+              id="mensaje"
+              name="mensaje"
+              rows="3"
+              value={formData.mensaje}
+              onChange={handleChange}
+              className="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm"
+              placeholder="Aclaraciones adicionales..."
+            ></textarea>
+          </div>
+        )}
       </div>
 
       <div className="flex justify-between mt-8">
@@ -2012,199 +2164,482 @@ export default function Registro() {
     </motion.div>
   );
 
-  const renderResumenStep16 = () => {
+  const renderDocumentosStep16 = () => (
+    <motion.div
+      key="step16"
+      custom={direction}
+      variants={stepVariants}
+      initial="hidden"
+      animate="visible"
+      exit="exit"
+    >
+      <h1 className="text-lg font-bold text-gray-900 mb-4 text-center">
+        Documentación Requerida
+      </h1>
+      <p className="text-xs text-gray-600 mb-3">
+        Para completar el trámite de alta, por favor suba las siguientes
+        fotografías:
+      </p>
+
+      <div className="space-y-3">
+        {/* Frente del DNI */}
+        <div className="border rounded-md p-3">
+          <h3 className="text-sm font-medium text-gray-800 mb-1">
+            Frente del DNI <span className="text-red-500">*</span>
+          </h3>
+          <div className="flex items-center justify-between">
+            <div className="flex-1">
+              <label
+                htmlFor="frontDni"
+                className={`flex items-center justify-center p-2 border border-dashed rounded-md cursor-pointer ${
+                  formData.frontDniFile
+                    ? "border-green-500 bg-green-50"
+                    : "border-gray-300 hover:border-blue-500"
+                }`}
+              >
+                <div className="text-center">
+                  <Upload className="w-4 h-4 text-gray-400 mx-auto mb-1" />
+                  <span className="text-xs text-gray-500">
+                    {formData.frontDniFile
+                      ? formData.frontDniFile.name
+                      : "Subir frente del DNI"}
+                  </span>
+                </div>
+                <input
+                  id="frontDni"
+                  name="frontDni"
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleFileChange}
+                />
+              </label>
+            </div>
+
+            {formData.frontDniFile && (
+              <button
+                type="button"
+                onClick={() => handleRemoveFile("frontDni")}
+                className="ml-2 p-1 text-red-600 hover:text-red-800"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Dorso del DNI */}
+        <div className="border rounded-md p-3">
+          <h3 className="text-sm font-medium text-gray-800 mb-1">
+            Dorso del DNI <span className="text-red-500">*</span>
+          </h3>
+          <div className="flex items-center justify-between">
+            <div className="flex-1">
+              <label
+                htmlFor="backDni"
+                className={`flex items-center justify-center p-2 border border-dashed rounded-md cursor-pointer ${
+                  formData.backDniFile
+                    ? "border-green-500 bg-green-50"
+                    : "border-gray-300 hover:border-blue-500"
+                }`}
+              >
+                <div className="text-center">
+                  <Upload className="w-4 h-4 text-gray-400 mx-auto mb-1" />
+                  <span className="text-xs text-gray-500">
+                    {formData.backDniFile
+                      ? formData.backDniFile.name
+                      : "Subir dorso del DNI"}
+                  </span>
+                </div>
+                <input
+                  id="backDni"
+                  name="backDni"
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleFileChange}
+                />
+              </label>
+            </div>
+
+            {formData.backDniFile && (
+              <button
+                type="button"
+                onClick={() => handleRemoveFile("backDni")}
+                className="ml-2 p-1 text-red-600 hover:text-red-800"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Selfie */}
+        <div className="border rounded-md p-3">
+          <h3 className="text-sm font-medium text-gray-800 mb-1">
+            Selfie <span className="text-red-500">*</span>
+          </h3>
+          <div className="flex items-center justify-between">
+            <div className="flex-1">
+              <label
+                htmlFor="selfie"
+                className={`flex items-center justify-center p-2 border border-dashed rounded-md cursor-pointer ${
+                  formData.selfieFile
+                    ? "border-green-500 bg-green-50"
+                    : "border-gray-300 hover:border-blue-500"
+                }`}
+              >
+                <div className="text-center">
+                  <Upload className="w-4 h-4 text-gray-400 mx-auto mb-1" />
+                  <span className="text-xs text-gray-500">
+                    {formData.selfieFile
+                      ? formData.selfieFile.name
+                      : "Subir selfie"}
+                  </span>
+                </div>
+                <input
+                  id="selfie"
+                  name="selfie"
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleFileChange}
+                />
+              </label>
+            </div>
+
+            {formData.selfieFile && (
+              <button
+                type="button"
+                onClick={() => handleRemoveFile("selfie")}
+                className="ml-2 p-1 text-red-600 hover:text-red-800"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <div className="text-xs text-gray-500 mt-3 mb-4">
+        <p>Las imágenes deben ser claras y legibles.</p>
+        <p>La selfie debe mostrar claramente tu rostro.</p>
+      </div>
+
+      <div className="flex justify-between mt-6">
+        <button
+          onClick={handleBack}
+          className="flex items-center px-3 py-1.5 border rounded-md text-xs"
+        >
+          <ArrowLeft className="w-3 h-3 mr-1" />
+          Anterior
+        </button>
+        <button
+          onClick={handleNext}
+          disabled={
+            !formData.frontDniFile ||
+            !formData.backDniFile ||
+            !formData.selfieFile
+          }
+          className={`flex items-center px-3 py-1.5 border rounded-md text-xs text-white ${
+            formData.frontDniFile && formData.backDniFile && formData.selfieFile
+              ? "bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              : "bg-gray-400 cursor-not-allowed"
+          }`}
+        >
+          Siguiente <ArrowRight className="w-3 h-3 ml-1" />
+        </button>
+      </div>
+    </motion.div>
+  );
+
+  const renderResumenStep17 = () => {
     const displayValue = (value) =>
       value === "si" ? "Sí" : value === "no" ? "No" : value || "-";
+
     const formatDate = (date) =>
       date
-        ? new Date(date).toLocaleDateString("es-AR", {
-            month: "2-digit",
+        ? new Intl.DateTimeFormat("es-AR", {
             year: "numeric",
-          })
+            month: "long",
+          }).format(date)
         : "-";
+
     const getServiceName = (id) =>
       servicios.find((s) => s.id === id)?.nombre || "No especificado";
+
     const getAporteName = (id) =>
       opcionesAportes.find((a) => a.id === id)?.label || "-";
 
+    // Verificamos si el servicio seleccionado es uno de los servicios de alta
+    const isAlta = serviciosFlujoAlta.includes(selectedService);
+
     return (
       <motion.div
-        key="step16"
+        key="step17"
         custom={direction}
         variants={stepVariants}
         initial="hidden"
         animate="visible"
         exit="exit"
       >
-        <h1 className="text-2xl font-bold text-center text-gray-800 mb-4">
-          Resumen de tu Solicitud
+        <h1 className="text-xl font-bold text-gray-900 mb-4 text-center">
+          Resumen del trámite
         </h1>
-        <p className="text-sm text-center text-gray-600 mb-6">
-          Por favor, revisá cuidadosamente la información antes de confirmar.
-        </p>
 
-        <div className="space-y-4 bg-gray-50 p-4 rounded-lg border border-gray-200 text-sm">
-          <h2 className="text-lg font-semibold text-gray-700 border-b pb-2 mb-3">
-            Detalles del Servicio
-          </h2>
-          <p>
-            <strong>Servicio Solicitado:</strong>{" "}
-            {getServiceName(selectedService)}
-          </p>
-
-          <h2 className="text-lg font-semibold text-gray-700 border-b pb-2 mb-3 mt-4">
-            Información General
-          </h2>
-          <p>
-            <strong>Cómo vas a trabajar:</strong>{" "}
-            {opcionesTipoTrabajo.find((t) => t.id === formData.tipoTrabajo)
-              ?.label || "-"}
-          </p>
-          {formData.tipoTrabajo === "cooperativa" && (
-            <p>
-              <strong>CUIT Cooperativa:</strong>{" "}
-              {displayValue(formData.cuitCooperativa)}
-            </p>
-          )}
-          <p>
-            <strong>Mes Inicio Actividades:</strong>{" "}
-            {formatDate(formData.mesInicio)}
-          </p>
-          <p>
-            <strong>Facturación Anual Estimada:</strong>{" "}
-            {displayValue(formData.facturacionAnualEstimada)}
-          </p>
-          <p>
-            <strong>Actividades Desarrolladas:</strong>{" "}
-            {displayValue(formData.actividadesDesarrolladas)}
-          </p>
-          <p>
-            <strong>Usa Local/Oficina:</strong>{" "}
-            {displayValue(formData.tieneLocal)}
-          </p>
-          {formData.tieneLocal === "si" && (
-            <p>
-              <strong>Domicilio del Local:</strong>{" "}
-              {displayValue(formData.domicilioLocal)}
-            </p>
-          )}
-          {/* Mostrar detalles adicionales del local en el resumen */}
-          {formData.tieneLocal === "si" && (
-            <>
-              <p className="mt-2 pt-2 border-t border-gray-200">
-                <strong>Local Alquilado:</strong>{" "}
-                {displayValue(formData.esAlquilado)}
-              </p>
-              {formData.esAlquilado === "si" && (
-                <p>
-                  <strong>Monto Alquiler Anual:</strong> $
-                  {displayValue(formData.montoAlquilerAnual)}
-                </p>
-              )}
-              <p>
-                <strong>Superficie Afectada:</strong>{" "}
-                {displayValue(formData.superficieAfectada)} m²
-              </p>
-              <p>
-                <strong>Consumo Energía Anual:</strong>{" "}
-                {displayValue(formData.consumoEnergiaAnual)}
-              </p>
-            </>
-          )}
-
-          <h2 className="text-lg font-semibold text-gray-700 border-b pb-2 mb-3 mt-4">
-            Aportes y Obra Social
-          </h2>
-          <p>
-            <strong>Situación Aportes Jub.:</strong>{" "}
-            {getAporteName(formData.aporteJubilacion)}
-          </p>
-          {formData.aporteJubilacion === "dependencia" && (
-            <p>
-              <strong>CUIT Empleador:</strong>{" "}
-              {displayValue(formData.cuitEmpleador)}
-            </p>
-          )}
-          {formData.aporteJubilacion === "caja_provincial" && (
-            <p>
-              <strong>CUIT Caja Previsional:</strong>{" "}
-              {displayValue(formData.cuitCajaPrevisional)}
-            </p>
-          )}
-          {formData.aporteJubilacion === "activo" && (
-            <>
-              <p>
-                <strong>Obra Social Seleccionada:</strong>{" "}
-                {displayValue(formData.obraSocialSeleccionada)}
-              </p>
-              <p>
-                <strong>Sumar Aportes Cónyuge:</strong>{" "}
-                {displayValue(formData.sumarAportesConyuge)}
-              </p>
-              {formData.sumarAportesConyuge === "si" && (
-                <p>
-                  <strong>CUIT/CUIL Cónyuge:</strong>{" "}
-                  {displayValue(formData.cuitConyuge)}
-                </p>
-              )}
-              {formData.familiaresCuil.length > 0 && (
-                <div>
-                  <strong>CUILs Familiares Adheridos:</strong>
-                  <ul className="list-disc list-inside ml-4">
-                    {formData.familiaresCuil.map((cuil, i) => (
-                      <li key={i}>{cuil}</li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </>
-          )}
-
-          <h2 className="text-lg font-semibold text-gray-700 border-b pb-2 mb-3 mt-4">
-            Información Adicional
-          </h2>
-          <p>
-            <strong>Aporta en otra Jurisdicción:</strong>{" "}
-            {displayValue(formData.aportaOtraJurisdiccion)}
-          </p>
-          {formData.aportaOtraJurisdiccion === "si" && (
-            <>
-              <p>
-                <strong>Describa la actividad reaizada:</strong>{" "}
-                {displayValue(formData.jurisdiccionDonde)}
-              </p>
-              <p>
-                <strong>Indique el domicilio donde factura:</strong>{" "}
-                {displayValue(formData.jurisdiccionCual)}
-              </p>
-            </>
-          )}
-          <p>
-            <strong>Domicilio DNI coincide con Actividad:</strong>{" "}
-            {displayValue(formData.dniCoincideActividad)}
-          </p>
-          {formData.dniCoincideActividad === "no" && (
-            <p>
-              <strong>Domicilio Actividad:</strong>{" "}
-              {displayValue(formData.domicilioActividad)}
-            </p>
-          )}
+        <div className="mb-3 text-sm text-gray-700 border-b border-gray-200 pb-3">
+          <div className="font-medium mb-1 text-gray-900">Servicio:</div>
+          <div>{getServiceName(selectedService)}</div>
         </div>
 
-        <div className="flex justify-between mt-8">
+        <div className="mb-3 text-sm text-gray-700 border-b border-gray-200 pb-3">
+          <div className="font-medium mb-1 text-gray-900">Datos personales</div>
+          <div className="grid grid-cols-2 gap-x-4 gap-y-1">
+            <div>
+              <span className="text-gray-600">Nombre: </span>
+              {displayValue(formData.nombre)}
+            </div>
+            <div>
+              <span className="text-gray-600">Apellido: </span>
+              {displayValue(formData.apellido)}
+            </div>
+            <div>
+              <span className="text-gray-600">DNI: </span>
+              {displayValue(formData.dni)}
+            </div>
+            <div>
+              <span className="text-gray-600">Clave Fiscal: </span>
+              {displayValue(formData.claveFiscal)}
+            </div>
+          </div>
+        </div>
+
+        {isAlta && (
+          <>
+            <div className="mb-3 text-sm text-gray-700 border-b border-gray-200 pb-3">
+              <div className="font-medium mb-1 text-gray-900">
+                Información laboral
+              </div>
+              <div className="grid grid-cols-2 gap-x-4 gap-y-1">
+                <div>
+                  <span className="text-gray-600">Modalidad: </span>
+                  {formData.tipoTrabajo === "independiente"
+                    ? "Independiente"
+                    : formData.tipoTrabajo === "cooperativa"
+                    ? "Cooperativa"
+                    : formData.tipoTrabajo === "promovido"
+                    ? "Promovido"
+                    : formData.tipoTrabajo === "locador"
+                    ? "Locación"
+                    : "-"}
+                </div>
+                {formData.tipoTrabajo === "cooperativa" && (
+                  <div>
+                    <span className="text-gray-600">CUIT Cooperativa: </span>
+                    {displayValue(formData.cuitCooperativa)}
+                  </div>
+                )}
+                <div>
+                  <span className="text-gray-600">Mes de inicio: </span>
+                  {formatDate(formData.mesInicio)}
+                </div>
+                <div>
+                  <span className="text-gray-600">Facturación anual: </span>$
+                  {displayValue(formData.facturacionAnualEstimada)}
+                </div>
+              </div>
+              <div className="mt-1">
+                <span className="text-gray-600">Actividades: </span>
+                {displayValue(formData.actividadesDesarrolladas)}
+              </div>
+            </div>
+
+            <div className="mb-3 text-sm text-gray-700 border-b border-gray-200 pb-3">
+              <div className="font-medium mb-1 text-gray-900">
+                Información del local
+              </div>
+              <div className="grid grid-cols-2 gap-x-4 gap-y-1">
+                <div>
+                  <span className="text-gray-600">Tiene local: </span>
+                  {displayValue(formData.tieneLocal)}
+                </div>
+                {formData.tieneLocal === "si" && (
+                  <>
+                    <div>
+                      <span className="text-gray-600">Domicilio: </span>
+                      {displayValue(formData.domicilioLocal)}
+                    </div>
+                    <div>
+                      <span className="text-gray-600">Es alquilado: </span>
+                      {displayValue(formData.esAlquilado)}
+                    </div>
+                    {formData.esAlquilado === "si" && (
+                      <div>
+                        <span className="text-gray-600">Alquiler anual: $</span>
+                        {displayValue(formData.montoAlquilerAnual)}
+                      </div>
+                    )}
+                    <div>
+                      <span className="text-gray-600">
+                        Superficie afectada:{" "}
+                      </span>
+                      {displayValue(formData.superficieAfectada)}
+                    </div>
+                    <div>
+                      <span className="text-gray-600">
+                        Consumo de energía:{" "}
+                      </span>
+                      {displayValue(formData.consumoEnergiaAnual)}
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+
+            <div className="mb-3 text-sm text-gray-700 border-b border-gray-200 pb-3">
+              <div className="font-medium mb-1 text-gray-900">
+                Aportes jubilatorios
+              </div>
+              <div className="grid grid-cols-2 gap-x-4 gap-y-1">
+                <div>
+                  <span className="text-gray-600">Situación: </span>
+                  {getAporteName(formData.aporteJubilacion)}
+                </div>
+                {formData.aporteJubilacion === "dependencia" && (
+                  <div>
+                    <span className="text-gray-600">DNI Empleador: </span>
+                    {displayValue(formData.cuitEmpleador)}
+                  </div>
+                )}
+                {formData.aporteJubilacion === "caja_provincial" && (
+                  <div>
+                    <span className="text-gray-600">
+                      DNI Caja Previsional:{" "}
+                    </span>
+                    {displayValue(formData.cuitCajaPrevisional)}
+                  </div>
+                )}
+                {formData.aporteJubilacion === "activo" && (
+                  <>
+                    <div>
+                      <span className="text-gray-600">Obra Social: </span>
+                      {displayValue(formData.obraSocialSeleccionada)}
+                    </div>
+                    <div>
+                      <span className="text-gray-600">
+                        Aportes del cónyuge:{" "}
+                      </span>
+                      {displayValue(formData.sumarAportesConyuge)}
+                    </div>
+                    {formData.sumarAportesConyuge === "si" && (
+                      <div>
+                        <span className="text-gray-600">DNI Cónyuge: </span>
+                        {displayValue(formData.cuitConyuge)}
+                      </div>
+                    )}
+                    {formData.familiaresCuil.length > 0 && (
+                      <div className="col-span-2">
+                        <span className="text-gray-600">
+                          Familiares a cargo:{" "}
+                        </span>
+                        <ul className="list-disc list-inside pl-2 text-xs">
+                          {formData.familiaresCuil.map((cuil, index) => (
+                            <li key={index}>{cuil}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
+            </div>
+
+            <div className="mb-3 text-sm text-gray-700 border-b border-gray-200 pb-3">
+              <div className="font-medium mb-1 text-gray-900">
+                Información adicional
+              </div>
+              <div className="grid grid-cols-2 gap-x-4 gap-y-1">
+                <div>
+                  <span className="text-gray-600">
+                    Aporta en otra jurisdicción:{" "}
+                  </span>
+                  {displayValue(formData.aportaOtraJurisdiccion)}
+                </div>
+                {formData.aportaOtraJurisdiccion === "si" && (
+                  <>
+                    <div>
+                      <span className="text-gray-600">Actividad: </span>
+                      {displayValue(formData.jurisdiccionDonde)}
+                    </div>
+                    <div>
+                      <span className="text-gray-600">Domicilio: </span>
+                      {displayValue(formData.jurisdiccionCual)}
+                    </div>
+                  </>
+                )}
+                <div>
+                  <span className="text-gray-600">
+                    DNI coincide con actividad:{" "}
+                  </span>
+                  {displayValue(formData.dniCoincideActividad)}
+                </div>
+                {formData.dniCoincideActividad === "no" && (
+                  <div>
+                    <span className="text-gray-600">
+                      Domicilio de actividad:{" "}
+                    </span>
+                    {displayValue(formData.domicilioActividad)}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="mb-3 text-xs text-gray-700 pb-3">
+              <div className="font-medium mb-1 text-gray-900">
+                Documentación adjunta
+              </div>
+              <ul className="list-disc list-inside">
+                <li>
+                  Frente del DNI:{" "}
+                  {formData.frontDniFile ? formData.frontDniFile.name : "-"}
+                </li>
+                <li>
+                  Dorso del DNI:{" "}
+                  {formData.backDniFile ? formData.backDniFile.name : "-"}
+                </li>
+                <li>
+                  Selfie: {formData.selfieFile ? formData.selfieFile.name : "-"}
+                </li>
+              </ul>
+            </div>
+          </>
+        )}
+
+        {!isAlta && formData.mensaje && (
+          <div className="mb-3 text-sm text-gray-700 border-b border-gray-200 pb-3">
+            <div className="font-medium mb-1 text-gray-900">Mensaje:</div>
+            <div>{displayValue(formData.mensaje)}</div>
+          </div>
+        )}
+
+        <div className="mt-4 text-xs text-gray-500 mb-4">
+          Al confirmar esta solicitud, autoriza a nuestro equipo a realizar los
+          trámites correspondientes en su nombre.
+        </div>
+
+        <div className="flex justify-between">
           <button
             onClick={handleBack}
-            className="flex items-center px-4 py-2 border rounded-md text-sm"
+            className="flex items-center px-3 py-1.5 border rounded-md text-xs"
           >
-            {" "}
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Anterior{" "}
+            <ArrowLeft className="w-3 h-3 mr-1" />
+            Anterior
           </button>
           <button
             onClick={handleNext}
-            className="flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+            className="flex items-center px-3 py-1.5 border border-transparent rounded-md shadow-sm text-xs font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
           >
-            <CheckCircle className="w-4 h-4 mr-2" /> Confirmar Solicitud
+            <CheckCircle className="w-3 h-3 mr-1" /> Confirmar Solicitud
           </button>
         </div>
       </motion.div>
@@ -2216,11 +2651,8 @@ export default function Registro() {
       case 1:
         return renderStep1();
       case 2:
-        if (serviciosFlujoCorto.includes(selectedService)) {
-          return renderStep2();
-        }
-        console.warn("Invalid state");
-        return <p>Invalid config.</p>;
+        // El paso 2 ahora es para todos los servicios
+        return renderStep2();
       case 10:
         if (serviciosFlujoAlta.includes(selectedService)) {
           return renderAltaStep10();
@@ -2265,9 +2697,15 @@ export default function Registro() {
         return <p>Invalid config.</p>;
       case 16:
         if (serviciosFlujoAlta.includes(selectedService)) {
-          return renderResumenStep16();
+          return renderDocumentosStep16();
         }
         console.warn("Invalid state for step 16");
+        return <p>Invalid config.</p>;
+      case 17:
+        if (serviciosFlujoAlta.includes(selectedService)) {
+          return renderResumenStep17();
+        }
+        console.warn("Invalid state for step 17");
         return <p>Invalid config.</p>;
       default:
         return renderStep1();

@@ -130,7 +130,7 @@ const AdvisorySection = () => {
   const [selectedCard, setSelectedCard] = useState(null);
 
   return (
-    <section className="py-16 bg-[#E5F0FF]">
+    <section className="py-8 bg-[#E5F0FF]">
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
           <h2 className="text-3xl font-bold text-[#1E293B] mb-4">

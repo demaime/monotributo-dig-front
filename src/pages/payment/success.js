@@ -1,14 +1,14 @@
-import { useEffect } from 'react';
-import { useRouter } from 'next/router';
-import { motion } from 'framer-motion';
-import { CheckCircle } from 'lucide-react';
+import { useEffect } from "react";
+import { useRouter } from "next/router";
+import { motion } from "framer-motion";
+import { CheckCircle } from "lucide-react";
 
 export default function PaymentSuccess() {
   const router = useRouter();
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      router.push('/');
+      router.push("/");
     }, 5000);
 
     return () => clearTimeout(timer);
@@ -28,7 +28,9 @@ export default function PaymentSuccess() {
           ¡Pago Exitoso!
         </h1>
         <p className="text-[#6B7280] mb-8">
-          Gracias por confiar en nosotros. Nos pondremos en contacto contigo pronto para continuar con el trámite.
+          Tu registro se ha completado y tu pago ha sido procesado
+          correctamente. Recibirás un correo electrónico con los detalles de tu
+          trámite en breve.
         </p>
         <p className="text-sm text-[#6B7280]">
           Serás redirigido al inicio en unos segundos...
@@ -36,4 +38,4 @@ export default function PaymentSuccess() {
       </motion.div>
     </div>
   );
-} 
+}

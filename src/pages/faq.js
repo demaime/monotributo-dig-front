@@ -39,22 +39,24 @@ export default function FAQ() {
                     ¿Cuáles son los planes disponibles?
                   </dt>
                   <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                    <p className="mb-2">Ofrecemos los siguientes planes:</p>
+                    <p className="mb-2">
+                      Ofrecemos los siguientes planes semestrales:
+                    </p>
                     <ul className="list-disc pl-5 space-y-2">
                       <li>
-                        <strong>Plan Base ($25.000/mes):</strong> Incluye alta
-                        de monotributo, 4 consultas profesionales mensuales con
-                        contador matriculado y recategorización semestral.
+                        <strong>Plan Base ($150.000/semestre):</strong> Incluye
+                        alta de monotributo, 4 consultas profesionales mensuales
+                        con contador matriculado y recategorización semestral.
                       </li>
                       <li>
-                        <strong>Plan Full ($30.000/mes):</strong> Incluye alta
-                        de monotributo, recategorización, 8 consultas
+                        <strong>Plan Full ($180.000/semestre):</strong> Incluye
+                        alta de monotributo, recategorización, 8 consultas
                         profesionales mensuales con contador matriculado y
                         emisión de 4 facturas mensuales.
                       </li>
                       <li>
-                        <strong>Plan Premium ($40.000/mes):</strong> Incluye
-                        alta de monotributo, recategorización, consultas
+                        <strong>Plan Premium ($240.000/semestre):</strong>{" "}
+                        Incluye alta de monotributo, recategorización, consultas
                         mensuales ilimitadas con contador matriculado y emisión
                         de hasta 10 facturas mensuales.
                       </li>
@@ -74,7 +76,7 @@ export default function FAQ() {
                         <strong>Baja de Monotributo:</strong> $75.000
                       </li>
                       <li>
-                        <strong>Recategorización:</strong> $50.000
+                        <strong>Recategorización:</strong> $5.000
                       </li>
                       <li>
                         <strong>Factura Adicional:</strong> $2.000 cada una
@@ -89,9 +91,8 @@ export default function FAQ() {
                   </dt>
                   <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
                     <p>
-                      Sí, todos nuestros planes de suscripción tienen un
-                      compromiso mínimo de 6 meses. La facturación es mensual,
-                      pero el compromiso es semestral.
+                      Sí, todos nuestros planes se contratan por semestre. La
+                      facturación se realiza de forma semestral (cada 6 meses).
                     </p>
                   </dd>
                 </div>
