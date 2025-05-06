@@ -9,6 +9,8 @@ import {
   CheckCircle,
   Upload,
   Trash2,
+  AlertCircle,
+  Info,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import DatePicker from "react-datepicker";
@@ -315,6 +317,8 @@ export default function Registro() {
     nombre: "",
     dni: "",
     claveFiscal: "",
+    telefono: "", // Add new field for phone
+    email: "", // Add new field for email
     mensaje: "",
     tipoTrabajo: "",
     cuitCooperativa: "", // <-- Añadir nuevo campo al estado
@@ -354,6 +358,12 @@ export default function Registro() {
   // Añadir estado para controlar la carga
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState(null);
+  // Estado para notificaciones toast
+  const [toast, setToast] = useState({
+    show: false,
+    message: "",
+    type: "info",
+  }); // type puede ser: info, error, warning, success
   // ID de transacción para asociar archivos con formulario
   const [transactionId] = useState(
     () => `trans_${Date.now()}_${Math.random().toString(36).substring(2, 10)}`
@@ -436,9 +446,9 @@ export default function Registro() {
       }));
       setCuilFamiliarActual("");
     } else if (!cuilToAdd) {
-      alert("Ingrese el CUIL del familiar.");
+      showToast("Ingrese el CUIL del familiar.", "warning");
     } else {
-      alert("Este CUIL ya fue agregado.");
+      showToast("Este CUIL ya fue agregado.", "warning");
     }
   };
 
@@ -507,7 +517,7 @@ export default function Registro() {
     setDirection(1);
     if (currentStep === 1) {
       if (!selectedService) {
-        alert("Por favor, seleccione un servicio.");
+        showToast("Por favor, seleccione un servicio.", "warning");
         return;
       }
       if (serviciosFlujoCorto.includes(selectedService)) {
@@ -521,10 +531,13 @@ export default function Registro() {
         !formData.apellido ||
         !formData.nombre ||
         !formData.dni ||
-        !formData.claveFiscal
+        !formData.claveFiscal ||
+        !formData.telefono ||
+        !formData.email
       ) {
-        alert(
-          "Por favor, complete todos los campos requeridos (excepto mensaje)."
+        showToast(
+          "Por favor, complete todos los campos requeridos (excepto mensaje).",
+          "warning"
         );
         return;
       }
@@ -534,7 +547,7 @@ export default function Registro() {
           ...formData,
           servicio: selectedService,
         });
-        alert("Flujo corto completado (temporal). Ver consola.");
+        showToast("Flujo corto completado (temporal). Ver consola.", "success");
       } else if (serviciosFlujoAlta.includes(selectedService)) {
         // Para flujo de alta, continuamos con el paso de tipo de trabajo
         setCurrentStep(10);
@@ -544,7 +557,7 @@ export default function Registro() {
       serviciosFlujoAlta.includes(selectedService)
     ) {
       if (!formData.tipoTrabajo) {
-        alert("Por favor, seleccione cómo va a trabajar.");
+        showToast("Por favor, seleccione cómo va a trabajar.", "warning");
         return;
       }
       // Validar CUIT Cooperativa si es necesario
@@ -552,7 +565,7 @@ export default function Registro() {
         formData.tipoTrabajo === "cooperativa" &&
         !formData.cuitCooperativa.trim()
       ) {
-        alert("Por favor, ingrese el CUIT de la cooperativa.");
+        showToast("Por favor, ingrese el CUIT de la cooperativa.", "warning");
         return;
       }
       setCurrentStep(11);
@@ -565,38 +578,48 @@ export default function Registro() {
         !formData.facturacionAnualEstimada ||
         !formData.actividadesDesarrolladas.trim()
       ) {
-        alert(
-          "Por favor, complete Mes de Inicio, Facturación Anual y Actividades Desarrolladas."
+        showToast(
+          "Por favor, complete Mes de Inicio, Facturación Anual y Actividades Desarrolladas.",
+          "warning"
         );
         return;
       }
       if (formData.tieneLocal === null) {
-        alert("Por favor, indique si tiene o usa un local/oficina.");
+        showToast(
+          "Por favor, indique si tiene o usa un local/oficina.",
+          "warning"
+        );
         return;
       }
       if (formData.tieneLocal === "si" && !formData.domicilioLocal.trim()) {
-        alert("Por favor, complete el domicilio del local.");
+        showToast("Por favor, complete el domicilio del local.", "warning");
         return;
       }
       // --> Validación nuevos campos del local
       if (formData.tieneLocal === "si") {
         if (formData.esAlquilado === null) {
-          alert("Por favor, indique si el local es alquilado.");
+          showToast("Por favor, indique si el local es alquilado.", "warning");
           return;
         }
         if (
           formData.esAlquilado === "si" &&
           !formData.montoAlquilerAnual.trim()
         ) {
-          alert("Por favor, ingrese el monto anual del alquiler.");
+          showToast(
+            "Por favor, ingrese el monto anual del alquiler.",
+            "warning"
+          );
           return;
         }
         if (!formData.superficieAfectada.trim()) {
-          alert("Por favor, ingrese la superficie afectada.");
+          showToast("Por favor, ingrese la superficie afectada.", "warning");
           return;
         }
         if (!formData.consumoEnergiaAnual) {
-          alert("Por favor, seleccione el rango de consumo de energía.");
+          showToast(
+            "Por favor, seleccione el rango de consumo de energía.",
+            "warning"
+          );
           return;
         }
       }
@@ -607,21 +630,21 @@ export default function Registro() {
       serviciosFlujoAlta.includes(selectedService)
     ) {
       if (!formData.aporteJubilacion) {
-        alert("Seleccione su situación de aportes.");
+        showToast("Seleccione su situación de aportes.", "warning");
         return;
       }
       if (
         formData.aporteJubilacion === "dependencia" &&
         !formData.cuitEmpleador.trim()
       ) {
-        alert("Ingrese CUIT del empleador.");
+        showToast("Ingrese CUIT del empleador.", "warning");
         return;
       }
       if (
         formData.aporteJubilacion === "caja_provincial" &&
         !formData.cuitCajaPrevisional.trim()
       ) {
-        alert("Ingrese CUIT de la Caja Previsional.");
+        showToast("Ingrese CUIT de la Caja Previsional.", "warning");
         return;
       }
       console.log("Datos Paso 12:", {
@@ -640,7 +663,7 @@ export default function Registro() {
       serviciosFlujoAlta.includes(selectedService)
     ) {
       if (!formData.obraSocialSeleccionada) {
-        alert("Seleccione una Obra Social.");
+        showToast("Seleccione una Obra Social.", "warning");
         return;
       }
       console.log("Datos Paso 13:", { os: formData.obraSocialSeleccionada });
@@ -651,14 +674,14 @@ export default function Registro() {
       serviciosFlujoAlta.includes(selectedService)
     ) {
       if (formData.sumarAportesConyuge === null) {
-        alert("Indique si desea sumar aportes del cónyuge.");
+        showToast("Indique si desea sumar aportes del cónyuge.", "warning");
         return;
       }
       if (
         formData.sumarAportesConyuge === "si" &&
         !formData.cuitConyuge.trim()
       ) {
-        alert("Ingrese el CUIL del cónyuge.");
+        showToast("Ingrese el CUIL del cónyuge.", "warning");
         return;
       }
       console.log("Datos Paso 14:", {
@@ -672,8 +695,9 @@ export default function Registro() {
       serviciosFlujoAlta.includes(selectedService)
     ) {
       if (formData.aportaOtraJurisdiccion === null) {
-        alert(
-          "Indique si realiza aportes por alguna actividad en otra jurisdicción."
+        showToast(
+          "Indique si realiza aportes por alguna actividad en otra jurisdicción.",
+          "warning"
         );
         return;
       }
@@ -682,12 +706,16 @@ export default function Registro() {
         (!formData.jurisdiccionDonde.trim() ||
           !formData.jurisdiccionCual.trim())
       ) {
-        alert("Complete los datos de la actividad en otra jurisdicción.");
+        showToast(
+          "Complete los datos de la actividad en otra jurisdicción.",
+          "warning"
+        );
         return;
       }
       if (formData.dniCoincideActividad === null) {
-        alert(
-          "Indique si el domicilio de su DNI coincide con el de su actividad."
+        showToast(
+          "Indique si el domicilio de su DNI coincide con el de su actividad.",
+          "warning"
         );
         return;
       }
@@ -695,7 +723,10 @@ export default function Registro() {
         formData.dniCoincideActividad === "no" &&
         !formData.domicilioActividad.trim()
       ) {
-        alert("Ingrese el domicilio donde realiza la actividad.");
+        showToast(
+          "Ingrese el domicilio donde realiza la actividad.",
+          "warning"
+        );
         return;
       }
       console.log("Datos Paso 15:", {
@@ -717,8 +748,9 @@ export default function Registro() {
         !formData.backDniFile ||
         !formData.selfieFile
       ) {
-        alert(
-          "Por favor, cargue todas las imágenes requeridas (frente del DNI, dorso del DNI y selfie)."
+        showToast(
+          "Por favor, cargue todas las imágenes requeridas (frente del DNI, dorso del DNI y selfie).",
+          "warning"
         );
         return;
       }
@@ -1061,6 +1093,44 @@ export default function Registro() {
           />
         </div>
 
+        <div>
+          <label
+            htmlFor="telefono"
+            className="block text-xs font-medium text-gray-600 mb-1"
+          >
+            Teléfono <span className="text-red-500">*</span>
+          </label>
+          <input
+            type="tel"
+            id="telefono"
+            name="telefono"
+            value={formData.telefono}
+            onChange={handleChange}
+            required
+            className="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm"
+            placeholder="Sin espacios ni guiones"
+          />
+        </div>
+
+        <div>
+          <label
+            htmlFor="email"
+            className="block text-xs font-medium text-gray-600 mb-1"
+          >
+            Email <span className="text-red-500">*</span>
+          </label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            value={formData.email}
+            onChange={handleChange}
+            required
+            className="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm"
+            placeholder="ejemplo@correo.com"
+          />
+        </div>
+
         {serviciosFlujoCorto.includes(selectedService) && (
           <div className="md:col-span-2">
             <label
@@ -1096,13 +1166,17 @@ export default function Registro() {
             !formData.apellido ||
             !formData.nombre ||
             !formData.dni ||
-            !formData.claveFiscal
+            !formData.claveFiscal ||
+            !formData.telefono ||
+            !formData.email
           }
           className={`flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ${
             formData.apellido &&
             formData.nombre &&
             formData.dni &&
-            formData.claveFiscal
+            formData.claveFiscal &&
+            formData.telefono &&
+            formData.email
               ? "bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
               : "bg-gray-400 cursor-not-allowed"
           }`}
@@ -2468,6 +2542,14 @@ export default function Registro() {
               <span className="text-gray-600">Clave Fiscal: </span>
               {displayValue(formData.claveFiscal)}
             </div>
+            <div>
+              <span className="text-gray-600">Teléfono: </span>
+              {displayValue(formData.telefono)}
+            </div>
+            <div>
+              <span className="text-gray-600">Email: </span>
+              {displayValue(formData.email)}
+            </div>
           </div>
         </div>
 
@@ -2793,8 +2875,65 @@ export default function Registro() {
     }
   };
 
+  // Función para mostrar mensajes de notificación
+  const showToast = (message, type = "info") => {
+    setToast({ show: true, message, type });
+    // Auto-ocultar después de 5 segundos
+    setTimeout(() => {
+      setToast({ show: false, message: "", type: "info" });
+    }, 5000);
+  };
+
+  // Componente Toast que se muestra solo cuando toast.show es true
+  const Toast = () => {
+    if (!toast.show) return null;
+
+    const icons = {
+      success: <CheckCircle className="w-4 h-4 text-green-500" />,
+      error: <AlertCircle className="w-4 h-4 text-red-500" />,
+      warning: <AlertCircle className="w-4 h-4 text-amber-500" />,
+      info: <Info className="w-4 h-4 text-blue-500" />,
+    };
+
+    const colors = {
+      success: "bg-green-50 border-green-400 text-green-800",
+      error: "bg-red-50 border-red-400 text-red-800",
+      warning: "bg-amber-50 border-amber-400 text-amber-800",
+      info: "bg-blue-50 border-blue-400 text-blue-800",
+    };
+
+    return (
+      <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 w-full max-w-sm">
+        <motion.div
+          initial={{ y: -100, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          exit={{ y: -100, opacity: 0 }}
+          className={`p-3 rounded-md shadow-md border-l-4 ${
+            colors[toast.type]
+          }`}
+        >
+          <div className="flex items-start">
+            <div className="flex-shrink-0 mr-2 mt-0.5">{icons[toast.type]}</div>
+            <div className="ml-2 mr-6 flex-1">
+              <p className="text-sm">{toast.message}</p>
+            </div>
+            <button
+              onClick={() => setToast({ ...toast, show: false })}
+              className="flex-shrink-0 ml-auto -mt-1 -mr-1 text-gray-400 hover:text-gray-600"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        </motion.div>
+      </div>
+    );
+  };
+
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center p-4">
+      {/* Toast de notificación */}
+      <AnimatePresence>{toast.show && <Toast />}</AnimatePresence>
+
       <div className="w-full max-w-2xl bg-white rounded-lg shadow-md p-6 md:p-8 overflow-hidden">
         <AnimatePresence initial={false} custom={direction} mode="wait">
           {renderStepContent()}
