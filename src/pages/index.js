@@ -623,7 +623,7 @@ function App() {
                         <li className="flex items-start">
                           <CheckCircle2 className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
                           <span className="text-gray-700">
-                            Recategorización incluida
+                            Recategorización semestral
                           </span>
                         </li>
                         <li className="flex items-start">
@@ -698,7 +698,7 @@ function App() {
                         <li className="flex items-start">
                           <CheckCircle2 className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
                           <span className="text-gray-700">
-                            Recategorización incluida
+                            Recategorización semestral
                           </span>
                         </li>
                         <li className="flex items-start">
