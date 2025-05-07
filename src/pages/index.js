@@ -27,6 +27,15 @@ function App() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const images = ["/1.jpg", "/2.jpeg", "/3.jpeg", "/4.jpeg"];
 
+  // Estado para el formulario de contacto
+  const [contacto, setContacto] = useState({
+    nombre: "",
+    email: "",
+    mensaje: "",
+  });
+  const [enviando, setEnviando] = useState(false);
+  const [feedback, setFeedback] = useState(null);
+
   const scrollToSection = (e, sectionId) => {
     e.preventDefault();
     const element = document.getElementById(sectionId);
@@ -51,6 +60,40 @@ function App() {
 
     return () => clearInterval(interval);
   }, []);
+
+  // Handler para cambios en los campos
+  const handleContactoChange = (e) => {
+    const { name, value } = e.target;
+    setContacto((prev) => ({ ...prev, [name]: value }));
+  };
+
+  // Handler para submit
+  const handleContactoSubmit = async (e) => {
+    e.preventDefault();
+    setEnviando(true);
+    setFeedback(null);
+    try {
+      const res = await fetch("/api/contacto", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(contacto),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setFeedback({ tipo: "ok", mensaje: "¡Mensaje enviado correctamente!" });
+        setContacto({ nombre: "", email: "", mensaje: "" });
+      } else {
+        setFeedback({
+          tipo: "error",
+          mensaje: data.message || "Error al enviar mensaje",
+        });
+      }
+    } catch (err) {
+      setFeedback({ tipo: "error", mensaje: "Error al enviar mensaje" });
+    } finally {
+      setEnviando(false);
+    }
+  };
 
   return (
     <>
@@ -855,14 +898,21 @@ function App() {
                 threshold={0.1}
                 className="max-w-2xl mx-auto relative"
               >
-                <form className="relative bg-gradient-to-br from-[#0066FF]/5 to-transparent rounded-2xl p-8 space-y-6">
+                <form
+                  onSubmit={handleContactoSubmit}
+                  className="relative bg-gradient-to-br from-[#0066FF]/5 to-transparent rounded-2xl p-8 space-y-6"
+                >
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <ScrollReveal variant="slideRight" delay={0.1}>
                       <div className="relative">
                         <input
                           type="text"
+                          name="nombre"
                           placeholder="Nombre"
+                          value={contacto.nombre}
+                          onChange={handleContactoChange}
                           className="w-full px-4 py-3 rounded-lg bg-white border-none text-[#1E293B] placeholder-[#6B7280] focus:outline-none focus:ring-2 focus:ring-[#E5F0FF] focus:border-transparent transition-all duration-300"
+                          required
                         />
                         <motion.div
                           initial={{ scaleX: 0 }}
@@ -877,8 +927,12 @@ function App() {
                       <div className="relative">
                         <input
                           type="email"
+                          name="email"
                           placeholder="Email"
+                          value={contacto.email}
+                          onChange={handleContactoChange}
                           className="w-full px-4 py-3 rounded-lg bg-white border-none text-[#1E293B] placeholder-[#6B7280] focus:outline-none focus:ring-2 focus:ring-[#E5F0FF] focus:border-transparent transition-all duration-300"
+                          required
                         />
                         <motion.div
                           initial={{ scaleX: 0 }}
@@ -893,9 +947,13 @@ function App() {
                   <ScrollReveal variant="slideUp" delay={0.2}>
                     <div className="relative">
                       <textarea
+                        name="mensaje"
                         placeholder="Tu mensaje"
                         rows="4"
+                        value={contacto.mensaje}
+                        onChange={handleContactoChange}
                         className="w-full px-4 py-3 rounded-lg bg-white border-none text-[#1E293B] placeholder-[#6B7280] focus:outline-none focus:ring-2 focus:ring-[#E5F0FF] focus:border-transparent transition-all duration-300"
+                        required
                       ></textarea>
                       <motion.div
                         initial={{ scaleX: 0 }}
@@ -906,14 +964,28 @@ function App() {
                       />
                     </div>
                   </ScrollReveal>
+                  {feedback && (
+                    <div
+                      className={`text-center font-semibold ${
+                        feedback.tipo === "ok"
+                          ? "text-green-500"
+                          : "text-red-500"
+                      }`}
+                    >
+                      {feedback.mensaje}
+                    </div>
+                  )}
                   <ScrollReveal variant="fadeIn" delay={0.3}>
                     <motion.button
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                       type="submit"
                       className="w-full bg-gradient-to-r from-[#E5F0FF] to-white text-[#0066FF] px-8 py-4 rounded-lg font-semibold text-lg transition-all duration-300 shadow-lg hover:shadow-xl relative group overflow-hidden"
+                      disabled={enviando}
                     >
-                      <span className="relative z-10">Enviar mensaje</span>
+                      <span className="relative z-10">
+                        {enviando ? "Enviando..." : "Enviar mensaje"}
+                      </span>
                       <div className="absolute inset-0 bg-gradient-to-r from-white to-[#E5F0FF] transform translate-x-full group-hover:translate-x-0 transition-transform duration-300" />
                     </motion.button>
                   </ScrollReveal>
