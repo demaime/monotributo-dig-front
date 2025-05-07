@@ -76,7 +76,7 @@ export default function FAQ() {
                         <strong>Baja de Monotributo:</strong> $75.000
                       </li>
                       <li>
-                        <strong>Recategorización:</strong> $5.000
+                        <strong>Recategorización:</strong> $50.000
                       </li>
                       <li>
                         <strong>Factura Adicional:</strong> $2.000 cada una
@@ -92,7 +92,7 @@ export default function FAQ() {
                   <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
                     <p>
                       Sí, todos nuestros planes se contratan por semestre. La
-                      facturación se realiza de forma semestral (cada 6 meses).
+                      facturación se realiza cada 6 meses.
                     </p>
                   </dd>
                 </div>
@@ -110,8 +110,8 @@ export default function FAQ() {
                     </p>
                     <p className="mt-2">
                       Para los planes de suscripción, el pago se procesa
-                      automáticamente cada mes mediante el método de pago que
-                      hayas seleccionado al suscribirte.
+                      automáticamente cada seis meses mediante el método de pago
+                      que hayas seleccionado al suscribirte.
                     </p>
                   </dd>
                 </div>
@@ -122,8 +122,7 @@ export default function FAQ() {
                   <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
                     <p>
                       Sí, emitimos factura electrónica por todos los servicios
-                      contratados. La factura se envía automáticamente al correo
-                      electrónico que hayas proporcionado al realizar el pago.
+                      contratados.
                     </p>
                   </dd>
                 </div>
