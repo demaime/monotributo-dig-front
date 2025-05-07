@@ -110,7 +110,7 @@ function App() {
           <div className="container mx-auto px-4">
             {/* Desktop Navigation */}
             <nav className="hidden lg:flex justify-between items-center">
-              <div className="text-[#1E293B] font-bold text-2xl flex items-center gap-2">
+              <div className="text-[#1E293B] font-bold text-2xl flex items-center gap-[0.2rem]">
                 <Image
                   src="/assets/logo.png"
                   alt="Logo"
@@ -189,9 +189,14 @@ function App() {
                   <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
-                    className="text-[#1E293B] font-bold text-2xl flex items-center gap-2"
+                    className="text-[#1E293B] font-bold text-2xl flex items-center gap-[0.2rem]"
                   >
-                    <BarChart2 className="w-8 h-8 text-[#0066FF]" />
+                    <Image
+                      src="/assets/logo.png"
+                      alt="Logo"
+                      width={30}
+                      height={30}
+                    />
                     Tu<span className="text-[#0066FF]">Monotributo</span>Digital
                   </motion.div>
                 </div>

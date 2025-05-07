@@ -16,6 +16,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import Head from "next/head";
+import ReactDOM from "react-dom";
 
 const servicios = [
   { id: "plan_base", nombre: "Plan Base", precio: 150000 },
@@ -352,6 +353,8 @@ export default function Registro() {
     frontDniFile: null,
     backDniFile: null,
     selfieFile: null,
+    // Campo para términos y condiciones
+    aceptaTerminos: false,
   });
   const [direction, setDirection] = useState(1);
   const [cuilFamiliarActual, setCuilFamiliarActual] = useState("");
@@ -373,6 +376,8 @@ export default function Registro() {
   const [transactionId] = useState(
     () => `trans_${Date.now()}_${Math.random().toString(36).substring(2, 10)}`
   );
+  // Estado para modal de términos y condiciones
+  const [isTerminosModalOpen, setIsTerminosModalOpen] = useState(false);
 
   // Efecto para preseleccionar el servicio desde la URL
   useEffect(() => {
@@ -388,8 +393,9 @@ export default function Registro() {
   }, [router.isReady, router.query]);
 
   const handleChange = (e) => {
-    const { name, value, type } = e.target;
-    const val = type === "radio" ? value : value;
+    const { name, value, type, checked } = e.target;
+    const val =
+      type === "checkbox" ? checked : type === "radio" ? value : value;
     setFormData((prev) => {
       let newState = { ...prev, [name]: val };
 
@@ -542,6 +548,15 @@ export default function Registro() {
       ) {
         showToast(
           "Por favor, complete todos los campos requeridos (excepto mensaje).",
+          "warning"
+        );
+        return;
+      }
+
+      // Verificar que se aceptaron los términos y condiciones
+      if (!formData.aceptaTerminos) {
+        showToast(
+          "Debe aceptar los términos y condiciones para continuar.",
           "warning"
         );
         return;
@@ -1031,6 +1046,7 @@ export default function Registro() {
           </label>
         ))}
       </div>
+
       <div className="flex justify-between mt-8">
         <button
           onClick={handleBack}
@@ -1213,6 +1229,39 @@ export default function Registro() {
             ></textarea>
           </div>
         )}
+      </div>
+      {/* Términos y Condiciones */}
+      <div className="mb-6 p-4 bg-amber-100 border-l-4 border-amber-500 rounded-lg shadow-md">
+        <div className="flex items-start">
+          <div className="flex-shrink-0">
+            <AlertCircle className="h-5 w-5 text-amber-600" />
+          </div>
+          <div className="ml-3 flex-1">
+            <div className="flex items-center h-full">
+              <input
+                id="aceptaTerminos"
+                name="aceptaTerminos"
+                type="checkbox"
+                checked={formData.aceptaTerminos}
+                onChange={handleChange}
+                className="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+              />
+              <label
+                htmlFor="aceptaTerminos"
+                className="ml-2 text-base text-sm font-bold text-gray-800"
+              >
+                Acepto los{" "}
+                <button
+                  type="button"
+                  onClick={openTerminosModal}
+                  className="text-blue-700 underline font-bold hover:text-blue-900"
+                >
+                  Términos y Condiciones
+                </button>
+              </label>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div className="flex justify-between mt-8">
@@ -2992,6 +3041,266 @@ export default function Registro() {
     );
   };
 
+  // Funciones para el modal de términos y condiciones
+  const openTerminosModal = () => setIsTerminosModalOpen(true);
+  const closeTerminosModal = () => setIsTerminosModalOpen(false);
+
+  // Modal de Términos y Condiciones
+  const TerminosModal = () => {
+    if (!isTerminosModalOpen) return null;
+
+    return ReactDOM.createPortal(
+      <div className="fixed inset-0 z-50 overflow-hidden flex items-center justify-center p-4">
+        <div
+          className="fixed inset-0 bg-black opacity-50"
+          onClick={closeTerminosModal}
+        ></div>
+        <div className="relative bg-white rounded-lg max-h-[90vh] w-full max-w-3xl flex flex-col shadow-xl">
+          {/* Header - Fixed */}
+          <div className="sticky top-0 z-10 flex items-center justify-between p-4 border-b border-gray-200 bg-white">
+            <h2 className="text-xl font-bold text-[#0066FF]">
+              Términos y Condiciones
+            </h2>
+            <button
+              onClick={closeTerminosModal}
+              className="text-gray-500 hover:text-gray-700"
+            >
+              <X className="h-6 w-6" />
+            </button>
+          </div>
+
+          {/* Body - Scrollable */}
+          <div className="overflow-y-auto p-4 flex-1">
+            <div className="text-gray-600 space-y-6">
+              <section>
+                <p>
+                  Bienvenido a Tu Monotributo Digital. Estos Términos y
+                  Condiciones regulan el uso de nuestro sitio web y servicios.
+                  Al acceder y utilizar nuestro sitio, usted acepta cumplir con
+                  estos términos.
+                </p>
+              </section>
+
+              <section>
+                <h3 className="text-lg font-semibold text-gray-800 mb-2">
+                  1. Información general
+                </h3>
+                <p>
+                  Tu Monotributo Digital es una plataforma que ofrece servicios
+                  de asesoramiento y gestión para el alta en monotributo en
+                  Argentina. Nuestro objetivo es facilitar el proceso y brindar
+                  asistencia profesional para que puedas comenzar tu actividad
+                  económica de manera sencilla y segura.
+                </p>
+              </section>
+
+              <section>
+                <h3 className="text-lg font-semibold text-gray-800 mb-2">
+                  2. Servicios ofrecidos
+                </h3>
+                <p>
+                  Nuestro equipo realiza la gestión y trámites necesarios para
+                  la inscripción en el monotributo, proporcionando asesoramiento
+                  personalizado y acompañamiento durante todo el proceso.
+                </p>
+              </section>
+
+              <section>
+                <h3 className="text-lg font-semibold text-gray-800 mb-2">
+                  3. Uso del sitio
+                </h3>
+                <p>
+                  El usuario se compromete a usar el sitio y los servicios de
+                  buena fe, sin realizar actividades que puedan dañar,
+                  inutilizar, sobrecargar o afectar el funcionamiento del sitio
+                  o los servicios.
+                </p>
+              </section>
+
+              <section>
+                <h3 className="text-lg font-semibold text-gray-800 mb-2">
+                  4. Responsabilidad
+                </h3>
+                <p>
+                  Nos esforzamos por ofrecer información precisa y servicios
+                  confiables, pero no garantizamos resultados específicos ni la
+                  disponibilidad ininterrumpida del sitio. No nos
+                  responsabilizamos por daños o pérdidas derivados del uso de
+                  nuestro sitio o servicios.
+                </p>
+              </section>
+
+              <section>
+                <h3 className="text-lg font-semibold text-gray-800 mb-2">
+                  5. Propiedad intelectual
+                </h3>
+                <p>
+                  Todo el contenido del sitio, incluyendo textos, imágenes,
+                  logos y diseño, es propiedad de Tu Monotributo Digital y está
+                  protegido por las leyes de propiedad intelectual.
+                </p>
+              </section>
+
+              <section>
+                <h3 className="text-lg font-semibold text-gray-800 mb-2">
+                  6. Protección de datos personales
+                </h3>
+                <p>
+                  Al utilizar nuestros servicios, usted acepta nuestra Política
+                  de Privacidad, que forma parte integral de estos Términos y
+                  Condiciones.
+                </p>
+              </section>
+
+              <section>
+                <h3 className="text-lg font-semibold text-gray-800 mb-2">
+                  7. Modificaciones
+                </h3>
+                <p>
+                  Nos reservamos el derecho de modificar estos términos en
+                  cualquier momento. Las modificaciones entrarán en vigencia
+                  desde su publicación en el sitio. Se recomienda revisar esta
+                  sección periódicamente.
+                </p>
+              </section>
+
+              <section>
+                <h3 className="text-lg font-semibold text-gray-800 mb-2">
+                  8. Ley aplicable y jurisdicción
+                </h3>
+                <p>Estos términos se rigen por las leyes de Argentina.</p>
+              </section>
+
+              <section>
+                <h3 className="text-lg font-semibold text-gray-800 mb-2">
+                  Política de Privacidad
+                </h3>
+                <p>
+                  En Tu Monotributo Digital, nos comprometemos a proteger la
+                  privacidad y la seguridad de tus datos personales, cumpliendo
+                  con la Ley 25.326 de Protección de Datos Personales de
+                  Argentina.
+                </p>
+              </section>
+
+              <section>
+                <h3 className="text-lg font-semibold text-gray-800 mb-2">
+                  1. Datos que recopilamos
+                </h3>
+                <p>
+                  Recopilamos los siguientes datos personales cuando utilizas
+                  nuestros servicios:
+                </p>
+                <ul className="list-disc pl-5 mt-2 space-y-1">
+                  <li>Nombre completo</li>
+                  <li>DNI o documento de identidad</li>
+                  <li>Domicilio</li>
+                  <li>Datos de contacto (teléfono, email)</li>
+                  <li>Información fiscal necesaria para el trámite</li>
+                </ul>
+              </section>
+
+              <section>
+                <h3 className="text-lg font-semibold text-gray-800 mb-2">
+                  2. Finalidad de la recopilación
+                </h3>
+                <p>Los datos son utilizados para:</p>
+                <ul className="list-disc pl-5 mt-2 space-y-1">
+                  <li>Gestionar tu alta en el monotributo</li>
+                  <li>Brindarte asesoramiento personalizado</li>
+                  <li>Responder a tus consultas y solicitudes</li>
+                  <li>Mejorar nuestros servicios</li>
+                </ul>
+              </section>
+
+              <section>
+                <h3 className="text-lg font-semibold text-gray-800 mb-2">
+                  3. Consentimiento
+                </h3>
+                <p>
+                  Al aceptar estos términos, autorizas expresamente la
+                  recopilación y tratamiento de tus datos personales para las
+                  finalidades descritas.
+                </p>
+              </section>
+
+              <section>
+                <h3 className="text-lg font-semibold text-gray-800 mb-2">
+                  4. Seguridad de los datos
+                </h3>
+                <p>
+                  Implementamos medidas de seguridad para proteger tus datos
+                  contra accesos no autorizados, pérdida o divulgación indebida.
+                </p>
+              </section>
+
+              <section>
+                <h3 className="text-lg font-semibold text-gray-800 mb-2">
+                  5. Derechos del usuario
+                </h3>
+                <p>Tienes derecho a:</p>
+                <ul className="list-disc pl-5 mt-2 space-y-1">
+                  <li>Acceder a tus datos</li>
+                  <li>Solicitar la rectificación o actualización</li>
+                  <li>Solicitar la cancelación o eliminación de tus datos</li>
+                  <li>Oponerte al tratamiento de tus datos</li>
+                </ul>
+                <p className="mt-2">
+                  Para ejercer estos derechos, puedes contactarnos a través del
+                  correo electrónico o teléfono provistos en la página inicial.
+                </p>
+              </section>
+
+              <section>
+                <h3 className="text-lg font-semibold text-gray-800 mb-2">
+                  6. Transferencias de datos
+                </h3>
+                <p>
+                  No transferimos tus datos a terceros sin tu consentimiento,
+                  salvo obligación legal o en cumplimiento de requisitos
+                  administrativos o judiciales.
+                </p>
+              </section>
+
+              <section>
+                <h3 className="text-lg font-semibold text-gray-800 mb-2">
+                  7. Cookies y tecnologías similares
+                </h3>
+                <p>
+                  Utilizamos cookies y tecnologías similares para mejorar tu
+                  experiencia en nuestro sitio.
+                </p>
+              </section>
+
+              <section>
+                <h3 className="text-lg font-semibold text-gray-800 mb-2">
+                  8. Contacto
+                </h3>
+                <p>
+                  Para consultas relacionadas con tu privacidad, puedes
+                  escribirnos a los medios de contacto mencionados.
+                </p>
+              </section>
+            </div>
+          </div>
+
+          {/* Footer - Fixed */}
+          <div className="border-t border-gray-200 p-4 bg-white">
+            <div className="flex justify-end">
+              <button
+                onClick={closeTerminosModal}
+                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+              >
+                Cerrar
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>,
+      document.body
+    );
+  };
+
   return (
     <>
       <Head>
@@ -3195,6 +3504,7 @@ export default function Registro() {
         </AnimatePresence>
         {/* --- Fin Modales --- */}
       </div>
+      <TerminosModal />
     </>
   );
 }
