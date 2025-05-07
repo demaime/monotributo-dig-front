@@ -853,7 +853,7 @@ function App() {
           </motion.div>
 
           {/* Botón Calcula tu categoría */}
-          <div className="py-16 text-center">
+          <div className="py-16 text-center bg-gray-50">
             <ScrollReveal variant="fadeIn" duration={0.8} threshold={0.1}>
               <motion.button
                 whileHover={{ scale: 1.05, transition: { duration: 0.3 } }}

@@ -116,21 +116,21 @@ const advisoryCards = [
   {
     title: "CUIT y Clave Fiscal",
     shortDescription:
-      "El CUIT y la Clave Fiscal son esenciales. El CUIT lo obtienes al inscribirte en ARCA (ex AFIP), y la Clave Fiscal es tu contraseña para acceder a los servicios online...",
+      "La CUIT y la Clave Fiscal son esenciales. La CUIT la obtienes al inscribirte en ARCA (ex AFIP), y la Clave Fiscal es tu contraseña para acceder a los servicios online...",
     fullDescription: (
       <div className="space-y-4">
         <p>
-          El CUIT (Código Único de Identificación Tributaria) y la Clave Fiscal
+          La CUIT (Clave Única de Identificación Tributaria) y la Clave Fiscal
           son elementos fundamentales para cualquier contribuyente. Te
           explicamos cómo obtenerlos:
         </p>
         <h3 className="text-xl font-semibold text-[#1E293B] mt-6">
-          Obtención del CUIT:
+          Obtención de la CUIT:
         </h3>
         <ul className="list-disc list-inside space-y-2">
           <li>Inscríbete en ARCA (ex AFIP) a través de su sitio web</li>
           <li>Presenta la documentación requerida</li>
-          <li>El CUIT se te asignará automáticamente</li>
+          <li>La CUIT se te asignará automáticamente</li>
           <li>Recibirás el comprobante por correo electrónico</li>
         </ul>
         <h3 className="text-xl font-semibold text-[#1E293B] mt-6">

@@ -623,7 +623,7 @@ export default function Registro() {
         formData.tipoTrabajo === "cooperativa" &&
         !formData.cuitCooperativa.trim()
       ) {
-        showToast("Por favor, ingrese el CUIT de la cooperativa.", "warning");
+        showToast("Por favor, ingrese la CUIT de la cooperativa.", "warning");
         return;
       }
       setCurrentStep(11);
@@ -1322,7 +1322,7 @@ export default function Registro() {
                           onChange={handleChange}
                           required={formData.tipoTrabajo === "cooperativa"}
                           className="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm"
-                          placeholder="Ingrese el CUIT sin guiones"
+                          placeholder="Ingrese la CUIT sin guiones"
                         />
                       </motion.div>
                     )}
@@ -1768,7 +1768,7 @@ export default function Registro() {
               onChange={handleChange}
               required={formData.aporteJubilacion === "dependencia"}
               className="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm"
-              placeholder="Ingrese el CUIT sin guiones"
+              placeholder="Ingrese la CUIT sin guiones"
             />
           </motion.div>
         )}
@@ -1796,7 +1796,7 @@ export default function Registro() {
               onChange={handleChange}
               required={formData.aporteJubilacion === "caja_provincial"}
               className="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm"
-              placeholder="Ingrese el CUIT sin guiones"
+              placeholder="Ingrese la CUIT sin guiones"
             />
           </motion.div>
         )}
