@@ -15,6 +15,7 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import Head from "next/head";
 
 const servicios = [
   { id: "plan_base", nombre: "Plan Base", precio: 150000 },
@@ -2992,202 +2993,208 @@ export default function Registro() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center p-4">
-      {/* Toast de notificación */}
-      <AnimatePresence>{toast.show && <Toast />}</AnimatePresence>
+    <>
+      <Head>
+        <title>Tu Monotributo Digital</title>
+      </Head>
+      <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center p-4">
+        {/* Toast de notificación */}
+        <AnimatePresence>{toast.show && <Toast />}</AnimatePresence>
 
-      <div className="w-full max-w-2xl bg-white rounded-lg shadow-md p-6 md:p-8 overflow-hidden">
-        <AnimatePresence initial={false} custom={direction} mode="wait">
-          {renderStepContent()}
-        </AnimatePresence>
-      </div>
+        <div className="w-full max-w-2xl bg-white rounded-lg shadow-md p-6 md:p-8 overflow-hidden">
+          <AnimatePresence initial={false} custom={direction} mode="wait">
+            {renderStepContent()}
+          </AnimatePresence>
+        </div>
 
-      {/* --- Modales para selección --- */}
-      <AnimatePresence>
-        {/* Modal Obra Social */}
-        {isObraSocialModalOpen && (
-          <motion.div
-            key="osModalOverlay"
-            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={closeObraSocialModal}
-          >
+        {/* --- Modales para selección --- */}
+        <AnimatePresence>
+          {/* Modal Obra Social */}
+          {isObraSocialModalOpen && (
             <motion.div
-              key="osModalContent"
-              className="bg-white rounded-lg shadow-xl w-full max-w-lg max-h-[80vh] flex flex-col overflow-hidden"
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              onClick={(e) => e.stopPropagation()}
+              key="osModalOverlay"
+              className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={closeObraSocialModal}
             >
-              <div className="flex justify-between items-center p-3 border-b border-gray-200">
-                <h3 className="text-md font-medium text-gray-900">
-                  Seleccionar Obra Social
-                </h3>
-                <button
-                  onClick={closeObraSocialModal}
-                  className="text-gray-400 hover:text-gray-600"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-              <div className="p-3 border-b border-gray-200">
-                <input
-                  type="text"
-                  value={obraSocialSearchTerm}
-                  onChange={(e) => setObraSocialSearchTerm(e.target.value)}
-                  placeholder="Buscar por nombre o código..."
-                  className="w-full p-2 border border-gray-300 rounded-md text-sm focus:ring-blue-500 focus:border-blue-500"
-                />
-              </div>
-              <div className="p-3 overflow-y-auto">
-                <div className="space-y-1">
-                  {opcionesObraSocial
-                    .filter((os) => {
-                      const searchTerm = obraSocialSearchTerm.toLowerCase();
-                      const denominacion = os.denominacion.toLowerCase();
-                      const rnos = String(os.rnos);
-                      return (
-                        denominacion.includes(searchTerm) ||
-                        rnos.includes(searchTerm)
-                      );
-                    })
-                    .map((os) => {
-                      const osValue = `${os.rnos} - ${os.denominacion}`;
-                      const isSelected =
-                        formData.obraSocialSeleccionada === osValue;
+              <motion.div
+                key="osModalContent"
+                className="bg-white rounded-lg shadow-xl w-full max-w-lg max-h-[80vh] flex flex-col overflow-hidden"
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.9, opacity: 0 }}
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="flex justify-between items-center p-3 border-b border-gray-200">
+                  <h3 className="text-md font-medium text-gray-900">
+                    Seleccionar Obra Social
+                  </h3>
+                  <button
+                    onClick={closeObraSocialModal}
+                    className="text-gray-400 hover:text-gray-600"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+                <div className="p-3 border-b border-gray-200">
+                  <input
+                    type="text"
+                    value={obraSocialSearchTerm}
+                    onChange={(e) => setObraSocialSearchTerm(e.target.value)}
+                    placeholder="Buscar por nombre o código..."
+                    className="w-full p-2 border border-gray-300 rounded-md text-sm focus:ring-blue-500 focus:border-blue-500"
+                  />
+                </div>
+                <div className="p-3 overflow-y-auto">
+                  <div className="space-y-1">
+                    {opcionesObraSocial
+                      .filter((os) => {
+                        const searchTerm = obraSocialSearchTerm.toLowerCase();
+                        const denominacion = os.denominacion.toLowerCase();
+                        const rnos = String(os.rnos);
+                        return (
+                          denominacion.includes(searchTerm) ||
+                          rnos.includes(searchTerm)
+                        );
+                      })
+                      .map((os) => {
+                        const osValue = `${os.rnos} - ${os.denominacion}`;
+                        const isSelected =
+                          formData.obraSocialSeleccionada === osValue;
+                        return (
+                          <button
+                            key={os.rnos}
+                            type="button"
+                            onClick={() => handleSelectObraSocial(osValue)}
+                            className={`w-full text-left p-1.5 rounded text-sm transition-colors ${
+                              isSelected
+                                ? "bg-blue-100 text-blue-700 font-semibold"
+                                : "hover:bg-blue-50"
+                            }`}
+                          >
+                            {osValue}
+                          </button>
+                        );
+                      })}
+                  </div>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+
+          {/* Modal Superficie */}
+          {isSuperficieModalOpen && (
+            <motion.div
+              key="superficieModalOverlay"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+              onClick={closeSuperficieModal}
+            >
+              <motion.div
+                key="superficieModalContent"
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.9, opacity: 0 }}
+                className="bg-white rounded-lg shadow-xl w-full max-w-sm max-h-[70vh] flex flex-col overflow-hidden"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="flex justify-between items-center p-3 border-b border-gray-200">
+                  <h3 className="text-md font-medium text-gray-900">
+                    Seleccionar Superficie Afectada
+                  </h3>
+                  <button
+                    onClick={closeSuperficieModal}
+                    className="text-gray-400 hover:text-gray-600"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+                <div className="p-3 overflow-y-auto">
+                  <div className="space-y-1">
+                    {opcionesSuperficie.map((opcion, index) => {
+                      const isSelected = formData.superficieAfectada === opcion;
                       return (
                         <button
-                          key={os.rnos}
+                          key={index}
                           type="button"
-                          onClick={() => handleSelectObraSocial(osValue)}
+                          onClick={() => handleSelectSuperficie(opcion)}
                           className={`w-full text-left p-1.5 rounded text-sm transition-colors ${
                             isSelected
                               ? "bg-blue-100 text-blue-700 font-semibold"
                               : "hover:bg-blue-50"
                           }`}
                         >
-                          {osValue}
+                          {opcion}
                         </button>
                       );
                     })}
+                  </div>
                 </div>
-              </div>
+              </motion.div>
             </motion.div>
-          </motion.div>
-        )}
+          )}
 
-        {/* Modal Superficie */}
-        {isSuperficieModalOpen && (
-          <motion.div
-            key="superficieModalOverlay"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
-            onClick={closeSuperficieModal}
-          >
+          {/* Modal Consumo Energía */}
+          {isConsumoModalOpen && (
             <motion.div
-              key="superficieModalContent"
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-white rounded-lg shadow-xl w-full max-w-sm max-h-[70vh] flex flex-col overflow-hidden"
-              onClick={(e) => e.stopPropagation()}
+              key="consumoModalOverlay"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+              onClick={closeConsumoModal}
             >
-              <div className="flex justify-between items-center p-3 border-b border-gray-200">
-                <h3 className="text-md font-medium text-gray-900">
-                  Seleccionar Superficie Afectada
-                </h3>
-                <button
-                  onClick={closeSuperficieModal}
-                  className="text-gray-400 hover:text-gray-600"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-              <div className="p-3 overflow-y-auto">
-                <div className="space-y-1">
-                  {opcionesSuperficie.map((opcion, index) => {
-                    const isSelected = formData.superficieAfectada === opcion;
-                    return (
-                      <button
-                        key={index}
-                        type="button"
-                        onClick={() => handleSelectSuperficie(opcion)}
-                        className={`w-full text-left p-1.5 rounded text-sm transition-colors ${
-                          isSelected
-                            ? "bg-blue-100 text-blue-700 font-semibold"
-                            : "hover:bg-blue-50"
-                        }`}
-                      >
-                        {opcion}
-                      </button>
-                    );
-                  })}
+              <motion.div
+                key="consumoModalContent"
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.9, opacity: 0 }}
+                className="bg-white rounded-lg shadow-xl w-full max-w-sm max-h-[70vh] flex flex-col overflow-hidden"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="flex justify-between items-center p-3 border-b border-gray-200">
+                  <h3 className="text-md font-medium text-gray-900">
+                    Seleccionar Consumo Anual de Energía
+                  </h3>
+                  <button
+                    onClick={closeConsumoModal}
+                    className="text-gray-400 hover:text-gray-600"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
                 </div>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-
-        {/* Modal Consumo Energía */}
-        {isConsumoModalOpen && (
-          <motion.div
-            key="consumoModalOverlay"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
-            onClick={closeConsumoModal}
-          >
-            <motion.div
-              key="consumoModalContent"
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-white rounded-lg shadow-xl w-full max-w-sm max-h-[70vh] flex flex-col overflow-hidden"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="flex justify-between items-center p-3 border-b border-gray-200">
-                <h3 className="text-md font-medium text-gray-900">
-                  Seleccionar Consumo Anual de Energía
-                </h3>
-                <button
-                  onClick={closeConsumoModal}
-                  className="text-gray-400 hover:text-gray-600"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-              <div className="p-3 overflow-y-auto">
-                <div className="space-y-1">
-                  {opcionesConsumoEnergia.map((opcion, index) => {
-                    const isSelected = formData.consumoEnergiaAnual === opcion;
-                    return (
-                      <button
-                        key={index}
-                        type="button"
-                        onClick={() => handleSelectConsumo(opcion)}
-                        className={`w-full text-left p-1.5 rounded text-sm transition-colors ${
-                          isSelected
-                            ? "bg-blue-100 text-blue-700 font-semibold"
-                            : "hover:bg-blue-50"
-                        }`}
-                      >
-                        {opcion}
-                      </button>
-                    );
-                  })}
+                <div className="p-3 overflow-y-auto">
+                  <div className="space-y-1">
+                    {opcionesConsumoEnergia.map((opcion, index) => {
+                      const isSelected =
+                        formData.consumoEnergiaAnual === opcion;
+                      return (
+                        <button
+                          key={index}
+                          type="button"
+                          onClick={() => handleSelectConsumo(opcion)}
+                          className={`w-full text-left p-1.5 rounded text-sm transition-colors ${
+                            isSelected
+                              ? "bg-blue-100 text-blue-700 font-semibold"
+                              : "hover:bg-blue-50"
+                          }`}
+                        >
+                          {opcion}
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
-              </div>
+              </motion.div>
             </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-      {/* --- Fin Modales --- */}
-    </div>
+          )}
+        </AnimatePresence>
+        {/* --- Fin Modales --- */}
+      </div>
+    </>
   );
 }
