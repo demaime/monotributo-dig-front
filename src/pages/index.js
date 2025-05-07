@@ -453,30 +453,44 @@ function App() {
                 <div className="w-20 h-1 bg-[#E5F0FF] mx-auto rounded-full mb-8"></div>
               </ScrollReveal>
 
-              <div className="max-w-4xl mx-auto text-white/90 text-lg leading-relaxed space-y-8">
+              <div className="max-w-5xl mx-auto text-white/90 text-lg leading-relaxed space-y-8">
                 <ScrollReveal variant="fadeIn" delay={0.1}>
                   <p>
-                    Somos un equipo de contadores públicos matriculados,
-                    especializados en el régimen de monotributo y en
-                    asesoramiento fiscal para trabajadores independientes,
-                    emprendedores y pequeños negocios.
+                    Somos un equipo de{" "}
+                    <strong className="text-gray-50">
+                      contadores públicos matriculados
+                    </strong>
+                    , especializados en el régimen de monotributo y en
+                    asesoramiento fiscal para{" "}
+                    <strong className="text-gray-50">
+                      trabajadores independientes, emprendedores y pequeños
+                      negocios.
+                    </strong>
                   </p>
                 </ScrollReveal>
                 <ScrollReveal variant="fadeIn" delay={0.2}>
                   <p>
                     Con años de experiencia en el rubro, ofrecemos un servicio
-                    profesional, ágil y confiable para ayudarte a realizar tu
-                    alta en monotributo sin demoras ni complicaciones. Nos
-                    encargamos de todo el proceso, desde la recopilación de
-                    datos hasta la presentación final ante ARCA.
+                    <strong className="text-gray-50">
+                      {" "}
+                      profesional, ágil y confiable
+                    </strong>{" "}
+                    para ayudarte a realizar tu alta en monotributo sin demoras
+                    ni complicaciones. Nos encargamos de todo el proceso, desde
+                    la recopilación de datos hasta la presentación final ante
+                    ARCA.
                   </p>
                 </ScrollReveal>
                 <ScrollReveal variant="fadeIn" delay={0.3}>
                   <p>
-                    Nos destacamos por brindar una atención personalizada, con
-                    tarifas claras y sin sorpresas, y por acompañarte en cada
-                    paso para que empieces a facturar cuanto antes, con la
-                    tranquilidad de estar en manos expertas.
+                    Nos destacamos por brindar una{" "}
+                    <strong className="text-gray-50">
+                      atención personalizada, con tarifas claras y sin
+                      sorpresas,
+                    </strong>{" "}
+                    y por acompañarte en cada paso para que empieces a facturar
+                    cuanto antes, con la tranquilidad de estar en manos
+                    expertas.
                   </p>
                 </ScrollReveal>
               </div>
@@ -853,7 +867,7 @@ function App() {
           </motion.div>
 
           {/* Botón Calcula tu categoría */}
-          <div className="py-16 text-center bg-gray-50">
+          <div className="py-16 text-center bg-gradient-to-b from-gray-50 to-[#E5F0FF]">
             <ScrollReveal variant="fadeIn" duration={0.8} threshold={0.1}>
               <motion.button
                 whileHover={{ scale: 1.05, transition: { duration: 0.3 } }}
