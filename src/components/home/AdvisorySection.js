@@ -3,6 +3,7 @@ import { FileText, CheckCircle2, CreditCard, Key } from "lucide-react";
 import Modal from "../ui/Modal";
 import ScrollReveal from "../ui/ScrollReveal";
 import { motion } from "framer-motion";
+import Link from "next/link";
 
 const advisoryCards = [
   {
@@ -22,7 +23,20 @@ const advisoryCards = [
           <li>
             Un componente previsional (aportes jubilatorios y obra social)
           </li>
-          <li>Un componente de Ingresos Brutos</li>
+          <li>
+            Un componente de Ingresos Brutos (
+            <Link
+              className="text-blue-500"
+              href={
+                "https://www.argentina.gob.ar/economia/politicatributaria/armonizacion/monotributounificado"
+              }
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              No en todas las provincias
+            </Link>
+            )
+          </li>
         </ul>
         <p>
           La ventaja principal es que todos estos componentes se pagan en una
@@ -53,8 +67,8 @@ const advisoryCards = [
         </ul>
         <p>
           Es importante destacar que los límites de facturación se actualizan
-          periódicamente por la AFIP, por lo que es fundamental mantenerse
-          informado sobre los valores vigentes.
+          periódicamente por ARCA (ex AFIP), por lo que es fundamental
+          mantenerse informado sobre los valores vigentes.
         </p>
       </div>
     ),
@@ -68,15 +82,25 @@ const advisoryCards = [
       <div className="space-y-4">
         <p>
           El Monotributo incluye el pago de Ingresos Brutos como parte de su
-          composición. Este componente se paga mensualmente junto con el
-          componente impositivo y previsional.
+          composición (
+          <Link
+            className="text-blue-500"
+            href={
+              "https://www.argentina.gob.ar/economia/politicatributaria/armonizacion/monotributounificado"
+            }
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            No en todas las provincias
+          </Link>
+          )
         </p>
         <p>
           Características importantes sobre el componente de Ingresos Brutos:
         </p>
         <ul className="list-disc list-inside space-y-2">
           <li>Se encuentra incluido en la cuota mensual del monotributo</li>
-          <li>No requiere declaración jurada adicional</li>
+          <li>No requiere declaración jurada mensual (únicamente anual)</li>
           <li>El monto varía según la categoría del monotributo</li>
           <li>Se actualiza automáticamente cuando cambia la categoría</li>
         </ul>
@@ -92,7 +116,7 @@ const advisoryCards = [
   {
     title: "CUIT y Clave Fiscal",
     shortDescription:
-      "El CUIT y la Clave Fiscal son esenciales. El CUIT lo obtienes al inscribirte en AFIP, y la Clave Fiscal es tu contraseña para acceder a los servicios online...",
+      "El CUIT y la Clave Fiscal son esenciales. El CUIT lo obtienes al inscribirte en ARCA (ex AFIP), y la Clave Fiscal es tu contraseña para acceder a los servicios online...",
     fullDescription: (
       <div className="space-y-4">
         <p>
@@ -104,7 +128,7 @@ const advisoryCards = [
           Obtención del CUIT:
         </h3>
         <ul className="list-disc list-inside space-y-2">
-          <li>Inscríbete en AFIP a través de su sitio web</li>
+          <li>Inscríbete en ARCA (ex AFIP) a través de su sitio web</li>
           <li>Presenta la documentación requerida</li>
           <li>El CUIT se te asignará automáticamente</li>
           <li>Recibirás el comprobante por correo electrónico</li>
@@ -113,7 +137,7 @@ const advisoryCards = [
           Obtención de la Clave Fiscal:
         </h3>
         <ul className="list-disc list-inside space-y-2">
-          <li>Regístrate en el sistema de AFIP</li>
+          <li>Regístrate en el sistema de ARCA (ex AFIP)</li>
           <li>Elige una clave segura</li>
           <li>Configura preguntas de seguridad</li>
           <li>Activa la autenticación de dos factores (recomendado)</li>

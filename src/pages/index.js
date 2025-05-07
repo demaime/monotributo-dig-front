@@ -821,7 +821,7 @@ function App() {
                     Ajustamos tu categoría según tus ingresos.
                   </p>
                   <span className="text-blue-600 font-medium text-sm hover:underline">
-                    Solicitar por $5.000
+                    Solicitar por $50.000
                   </span>
                 </motion.div>
 
