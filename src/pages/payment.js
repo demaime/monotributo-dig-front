@@ -7,7 +7,7 @@ import { AlertTriangle } from "lucide-react";
 
 // Importar la URL base de API desde utils/api.js o definirla aquí
 const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api";
+  process.env.NEXT_PUBLIC_API_URL;
 const MP_PUBLIC_KEY = process.env.NEXT_PUBLIC_MERCADO_PAGO_PUBLIC_KEY;
 
 export default function Payment() {

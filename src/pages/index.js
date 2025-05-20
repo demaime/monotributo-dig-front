@@ -410,21 +410,21 @@ function App() {
                   ))}
                 </div>
                 <div className="grid grid-cols-2 gap-4 absolute -bottom-20 mx-4 w-[calc(100%-2rem)]">
-                  <div className="bg-[#E5F0FF] shadow-lg rounded-xl p-4">
-                    <FileText className="w-6 h-6 text-[#0066FF] mb-2" />
-                    <h3 className="text-[#1E293B] font-semibold text-sm">
+                  <div className="bg-[#0066ff] shadow-lg rounded-xl p-4">
+                    <FileText className="w-6 h-6 text-blue-200 mb-2" />
+                    <h3 className="text-white font-semibold text-sm">
                       Gestión Digital
                     </h3>
-                    <p className="text-[#6B7280] text-xs">
+                    <p className="text-blue-200 text-xs">
                       Todo tu monotributo en un solo lugar
                     </p>
                   </div>
-                  <div className="bg-white shadow-lg rounded-xl p-4">
-                    <CreditCard className="w-6 h-6 text-[#0066FF] mb-2" />
-                    <h3 className="text-[#1E293B] font-semibold text-sm">
+                  <div className="bg-[#0066ff] shadow-lg rounded-xl p-4">
+                    <CreditCard className="w-6 h-6 text-blue-200 mb-2" />
+                    <h3 className="text-white font-semibold text-sm">
                       Pagos Online
                     </h3>
-                    <p className="text-[#6B7280] text-xs">
+                    <p className="text-blue-200 text-xs">
                       Paga tus impuestos sin moverte de tu casa
                     </p>
                   </div>
