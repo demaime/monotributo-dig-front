@@ -18,6 +18,14 @@ export default function Document() {
             `,
           }}
         />
+        <meta property="og:title" content="Monotributo Digital" />
+        <meta
+          property="og:description"
+          content="Gestioná tu monotributo de forma simple y rápida."
+        />
+        <meta property="og:image" content="/assets/logo.png" />
+        <meta property="og:url" content="https://monotributo.digital/" />
+        <meta name="twitter:card" content="summary_large_image" />
       </Head>
       <body className="antialiased">
         <Main />
