@@ -25,7 +25,9 @@ export default function Document() {
         />
         <meta property="og:image" content="/assets/logo.png" />
         <meta property="og:url" content="https://monotributo.digital/" />
-        <meta name="twitter:card" content="summary" />
+        <meta property="og:type" content="website" />
+        <meta property="og:site_name" content="Monotributo Digital" />
+        <link rel="icon" type="image/x-icon" href="/favicon.ico" />
       </Head>
       <body className="antialiased">
         <Main />
