@@ -1,7 +1,8 @@
 import React from "react";
 import { motion } from "framer-motion";
 
-const WhatsAppButton = ({ phoneNumber = "549111234567" }) => {
+const WhatsAppButton = () => {
+  const phoneNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER;
   // Placeholder number
   const whatsappLink = `https://wa.me/${phoneNumber}`;
 
