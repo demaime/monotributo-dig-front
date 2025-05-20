@@ -2,17 +2,17 @@ import { useRouter } from "next/router";
 import Head from "next/head";
 import Link from "next/link";
 
-export default function SubscriptionSuccess() {
+export default function SemesterPlanSuccess() {
   const router = useRouter();
-  const { preapproval_id } = router.query;
+  const { preference_id } = router.query;
 
   return (
     <>
       <Head>
-        <title>Suscripción Exitosa - Monotributo Digital</title>
+        <title>Plan Semestral - Monotributo Digital</title>
         <meta
           name="description"
-          content="Suscripción exitosa a Monotributo Digital"
+          content="Pago de plan semestral exitoso - Monotributo Digital"
         />
       </Head>
 
@@ -36,15 +36,15 @@ export default function SubscriptionSuccess() {
               </svg>
             </div>
             <h2 className="mt-6 text-3xl font-extrabold text-gray-900">
-              ¡Suscripción Exitosa!
+              ¡Pago Exitoso!
             </h2>
             <p className="mt-2 text-sm text-gray-600">
-              Tu suscripción mensual a Monotributo Digital ha sido procesada
-              correctamente.
+              Tu pago del plan semestral de Monotributo Digital ha sido
+              procesado correctamente.
             </p>
-            {preapproval_id && (
+            {preference_id && (
               <p className="mt-2 text-xs text-gray-500">
-                ID de Suscripción: {preapproval_id}
+                ID de Pago: {preference_id}
               </p>
             )}
           </div>
@@ -69,8 +69,8 @@ export default function SubscriptionSuccess() {
                 </div>
                 <div className="ml-3">
                   <p className="text-sm font-medium text-green-800">
-                    Tu pago se ha procesado correctamente. Recibirás un correo
-                    electrónico con los detalles de tu suscripción.
+                    Tu pago se ha procesado correctamente en 6 cuotas. Recibirás
+                    un correo electrónico con los detalles de tu plan semestral.
                   </p>
                 </div>
               </div>

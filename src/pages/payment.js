@@ -12,27 +12,19 @@ const MP_PUBLIC_KEY = process.env.NEXT_PUBLIC_MERCADO_PAGO_PUBLIC_KEY;
 
 export default function Payment() {
   const router = useRouter();
-  const {
-    service,
-    price: priceQuery,
-    isSubscription,
-    minMonths,
-    transactionId,
-  } = router.query;
+  const { service, price: priceQuery, transactionId } = router.query;
 
-  // --- Define isActuallySubscription in the main component scope ---
-  const isActuallySubscription =
+  // Define if this is a semestral plan
+  const isSemesterPlan =
     router.isReady && // Ensure router query is available
     (service === "plan_base" ||
       service === "plan_full" ||
-      service === "plan_premium" ||
-      service === "mensual");
-  // --------------------------------------------------------------
+      service === "plan_premium");
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [showMpEmailModal, setShowMpEmailModal] = useState(false);
-  const [mpEmail, setMpEmail] = useState("");
+  const [showEmailModal, setShowEmailModal] = useState(false);
+  const [contactEmail, setContactEmail] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
@@ -42,56 +34,52 @@ export default function Payment() {
     setError(null);
     setIsProcessing(true);
     setLoading(true);
-    setShowMpEmailModal(false);
+    setShowEmailModal(false);
 
     try {
       console.log("Iniciando proceso de pago...", {
         service,
         price: priceQuery,
-        isSubscriptionQuery: isSubscription, // Log original query param
-        isActuallySubscription: isActuallySubscription, // Log calculated boolean
+        isSemesterPlan,
       });
 
       if (!service || priceQuery <= 0) {
         throw new Error("Datos de servicio o precio inválidos.");
       }
 
-      // Guardar el email de MP en localStorage si es una suscripción
-      if (isActuallySubscription && mpEmail) {
-        localStorage.setItem("userEmail", mpEmail);
+      // Guardar el email en localStorage
+      if (contactEmail) {
+        localStorage.setItem("userEmail", contactEmail);
       }
 
       // Use the calculated boolean for endpoint selection
-      const endpoint = isActuallySubscription
+      const endpoint = isSemesterPlan
         ? `${API_BASE_URL}/payments/create-plan`
         : `${API_BASE_URL}/payments/create-preference`;
 
       const requestData = {
         title:
           service ||
-          (isActuallySubscription // Use calculated boolean
-            ? "Suscripción Semestral"
-            : "Servicio Monotributo Digital"),
+          (isSemesterPlan ? "Plan Semestral" : "Servicio Monotributo Digital"),
         price: priceQuery,
-        description: isActuallySubscription // Use calculated boolean
-          ? "Suscripción semestral Monotributo Digital"
+        description: isSemesterPlan
+          ? "Plan semestral Monotributo Digital"
           : `Servicio ${service}`,
         serviceType: service || "general",
         email: email, // User's contact email (initially)
         userName: name,
-        minMonths: Number(minMonths) || 6, // Default to 6 months for semestrales
         transactionId: transactionId,
+        installments: true, // Enable installments for all payments
       };
 
-      // Use the calculated boolean for MP Email validation
-      if (isActuallySubscription) {
-        if (!mpEmail || !/\S+@\S+\.\S+/.test(mpEmail)) {
-          // This error should now only trigger for actual subscriptions if email is bad
+      // Use the calculated boolean for email validation
+      if (isSemesterPlan) {
+        if (!contactEmail || !/\S+@\S+\.\S+/.test(contactEmail)) {
           throw new Error(
-            "Es necesario un email válido asociado a una cuenta de Mercado Pago para continuar con la suscripción."
+            "Es necesario un email válido para continuar con el plan semestral."
           );
         }
-        requestData.email = mpEmail; // Overwrite email with MP email for subscriptions
+        requestData.email = contactEmail; // Use contact email for semester plans
       }
 
       console.log("Enviando datos al backend:", endpoint, requestData);
@@ -120,9 +108,7 @@ export default function Payment() {
         }
         throw new Error(
           `Error ${response.status} al crear ${
-            isActuallySubscription
-              ? "plan de suscripción"
-              : "preferencia de pago"
+            isSemesterPlan ? "plan semestral" : "preferencia de pago"
           }. Detalles: ${parsedError}`
         );
       }
@@ -143,9 +129,7 @@ export default function Payment() {
       } else {
         console.error("Respuesta del backend no contiene init_point:", data);
         setError(
-          `No se pudo iniciar el proceso de pago (${
-            isActuallySubscription ? "suscripción" : "pago único"
-          }). Falta init_point. Intente nuevamente.`
+          `No se pudo iniciar el proceso de pago. Falta init_point. Intente nuevamente.`
         );
       }
     } catch (err) {
@@ -168,15 +152,13 @@ export default function Payment() {
     setError(null);
 
     if (service && priceQuery > 0) {
-      // Verificar si es una suscripción tanto por el parámetro como por el tipo de servicio
-      const shouldShowEmailModal =
-        isSubscription === "true" ||
-        ["plan_base", "plan_full", "plan_premium"].includes(service);
+      // Verificar si es un plan semestral
+      const shouldShowEmailModal = isSemesterPlan;
 
       if (shouldShowEmailModal) {
         const suggestedEmail = localStorage.getItem("userEmail") || "";
-        setMpEmail(suggestedEmail);
-        setShowMpEmailModal(true);
+        setContactEmail(suggestedEmail);
+        setShowEmailModal(true);
         setLoading(false);
       } else {
         processPayment();
@@ -189,7 +171,7 @@ export default function Payment() {
       setError("Faltan datos necesarios o válidos para procesar el pago");
       setLoading(false);
     }
-  }, [router.isReady, service, priceQuery, isSubscription]);
+  }, [router.isReady, service, priceQuery]);
 
   useEffect(() => {
     // Validar cuando cambian los inputs
@@ -221,10 +203,8 @@ export default function Payment() {
     }
   }, [router.isReady, service, priceQuery]);
 
-  // Use the component-scoped isActuallySubscription variable here
-  const paymentTypeText = isActuallySubscription
-    ? "Suscripción Semestral"
-    : "Pago Único";
+  // Use the component-scoped isSemesterPlan variable here
+  const paymentTypeText = isSemesterPlan ? "Plan Semestral" : "Pago Único";
 
   return (
     <>
@@ -237,7 +217,7 @@ export default function Payment() {
       </Head>
 
       <div className="min-h-screen bg-[#E5F0FF] flex items-center justify-center p-4 relative">
-        {showMpEmailModal && (
+        {showEmailModal && (
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -249,94 +229,152 @@ export default function Payment() {
                 <Image
                   src="/assets/mp-logo.png"
                   alt="Mercado Pago"
-                  width={160}
-                  height={40}
-                  className="h-10 w-auto"
+                  width={120}
+                  height={60}
+                  className="h-12 w-auto"
                 />
               </div>
-              <h3 className="text-lg font-semibold text-gray-800 mb-2 text-center">
-                Confirmación Requerida
-              </h3>
-              <p className="text-sm text-gray-600 mb-4 text-center">
-                Para continuar con la suscripción semestral, ingresa el email de
-                tu cuenta de Mercado Pago.
-                <br />
-                <span className="font-semibold text-red-600">
-                  IMPORTANTE: Este email debe pertenecer a una cuenta válida de
-                  Mercado Pago desde la cual se descontará el pago de tu plan
-                  semestral.
-                </span>
-              </p>
-              <div className="relative mb-4">
-                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-                <input
-                  type="email"
-                  value={mpEmail}
-                  onChange={(e) => setMpEmail(e.target.value)}
-                  placeholder="tu-email@mercadopago.com"
-                  className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  disabled={isProcessing}
-                />
+              <h2 className="text-xl font-bold text-center mb-4">
+                Datos para tu Plan Semestral
+              </h2>
+              <div className="space-y-3">
+                <div>
+                  <label
+                    htmlFor="email"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
+                    Email de contacto
+                  </label>
+                  <input
+                    type="email"
+                    id="email"
+                    className="w-full p-2 border border-gray-300 rounded-md"
+                    value={contactEmail}
+                    onChange={(e) => setContactEmail(e.target.value)}
+                    placeholder="tu@email.com"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Este email se usará para contactarte sobre tu plan
+                    semestral.
+                  </p>
+                </div>
               </div>
-              {error && <p className="text-sm text-red-600 mb-4">{error}</p>}
-              <div className="flex justify-end space-x-3">
+              <div className="flex justify-between mt-6">
                 <button
-                  onClick={() => router.back()}
-                  disabled={isProcessing}
-                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 disabled:opacity-50"
+                  onClick={() => {
+                    setShowEmailModal(false);
+                    router.push("/");
+                  }}
+                  className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
                 >
                   Cancelar
                 </button>
                 <button
-                  onClick={processPayment}
-                  disabled={isProcessing || !mpEmail}
-                  className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                  onClick={() => {
+                    if (contactEmail && contactEmail.includes("@")) {
+                      processPayment();
+                    } else {
+                      setError(
+                        "Por favor ingresa un email válido para continuar."
+                      );
+                    }
+                  }}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700"
                 >
-                  {isProcessing ? "Procesando..." : "Confirmar y Continuar"}
+                  Continuar
                 </button>
               </div>
             </div>
           </motion.div>
         )}
 
-        {(!showMpEmailModal || isProcessing) && (
-          <div className="max-w-md w-full space-y-8 p-8 bg-white rounded-lg shadow-lg">
-            <div className="text-center">
-              <h2 className="mt-6 text-3xl font-extrabold text-gray-900">
-                Procesando Pago
-              </h2>
-              <p className="mt-2 text-sm text-gray-600">
-                {paymentTypeText}
-                {service && ` - Servicio: ${service}`}
-                {priceQuery && ` - Monto: $${priceQuery}`}
-              </p>
+        {!showEmailModal && (
+          <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-6">
+            <div className="flex justify-between items-center mb-6">
+              <h1 className="text-xl font-bold">Procesando Pago</h1>
+              <div className="text-sm text-gray-500">{paymentTypeText}</div>
             </div>
 
-            {loading && (
-              <div className="mt-8 flex justify-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
-                <p className="ml-4 text-gray-600 self-center">
-                  {isProcessing
-                    ? "Iniciando conexión con Mercado Pago..."
-                    : "Cargando..."}
-                </p>
+            {error && (
+              <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-6">
+                <div className="flex items-center">
+                  <AlertTriangle className="h-5 w-5 text-red-500" />
+                  <div className="ml-3">
+                    <p className="text-sm text-red-700">{error}</p>
+                  </div>
+                </div>
               </div>
             )}
 
-            {error && !showMpEmailModal && (
-              <div className="mt-8 text-center bg-red-50 p-4 rounded-md">
-                <div className="flex items-center justify-center text-red-600">
-                  <p className="font-medium">Error al procesar el pago</p>
-                </div>
-                <p className="mt-2 text-sm text-red-700">{error}</p>
-                <button
-                  onClick={() => router.back()}
-                  className="mt-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
-                >
-                  Volver
-                </button>
+            <div className="space-y-4 mb-6">
+              <div>
+                <span className="text-sm font-medium text-gray-500">
+                  Servicio:
+                </span>
+                <p className="font-medium">
+                  {service === "plan_base" && "Plan Base Semestral"}
+                  {service === "plan_full" && "Plan Full Semestral"}
+                  {service === "plan_premium" && "Plan Premium Semestral"}
+                  {service === "alta" && "Servicio de Alta Monotributo"}
+                  {service === "baja" && "Servicio de Baja Monotributo"}
+                  {service === "recategorizacion" &&
+                    "Servicio de Recategorización"}
+                  {service !== "plan_base" &&
+                    service !== "plan_full" &&
+                    service !== "plan_premium" &&
+                    service !== "alta" &&
+                    service !== "baja" &&
+                    service !== "recategorizacion" &&
+                    service}
+                </p>
               </div>
-            )}
+              <div>
+                <span className="text-sm font-medium text-gray-500">
+                  Precio:
+                </span>
+                <p className="font-medium">
+                  ${new Intl.NumberFormat("es-AR").format(priceQuery || 0)}
+                </p>
+              </div>
+              <div>
+                <span className="text-sm font-medium text-gray-500">
+                  Método:
+                </span>
+                <p className="font-medium flex items-center">
+                  <img
+                    src="/assets/mp-logo.png"
+                    alt="Mercado Pago"
+                    className="h-5 w-auto mr-2"
+                  />
+                  Mercado Pago (6 cuotas)
+                </p>
+              </div>
+            </div>
+
+            <div className="flex justify-center">
+              {loading ? (
+                <div className="flex flex-col items-center">
+                  <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-blue-500"></div>
+                  <p className="mt-3 text-sm text-gray-500">
+                    {isProcessing
+                      ? "Generando preferencia de pago..."
+                      : "Cargando..."}
+                  </p>
+                </div>
+              ) : (
+                <button
+                  onClick={processPayment}
+                  disabled={isProcessing}
+                  className={`w-full py-3 px-6 text-white font-medium rounded-md shadow-sm ${
+                    isProcessing
+                      ? "bg-blue-400"
+                      : "bg-blue-600 hover:bg-blue-700"
+                  }`}
+                >
+                  {isProcessing ? "Procesando..." : "Proceder al pago"}
+                </button>
+              )}
+            </div>
           </div>
         )}
       </div>
