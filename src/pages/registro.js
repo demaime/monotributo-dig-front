@@ -553,7 +553,14 @@ export default function Registro() {
         return;
       }
 
-      // Verificar que se aceptaron los términos y condiciones      if (!formData.aceptaTerminos) {        // Hacemos un return aquí para evitar múltiples notificaciones        if (toast.show) return;                showToast(          "Debe aceptar los términos y condiciones para continuar.",          "warning"        );        return;      }
+      // Verificar que se aceptaron los términos y condiciones
+      if (!formData.aceptaTerminos) {
+        showToast(
+          "Debe aceptar los términos y condiciones para continuar.",
+          "warning"
+        );
+        return;
+      }
 
       if (serviciosFlujoCorto.includes(selectedService)) {
         // Generar ID de transacción
@@ -1082,6 +1089,7 @@ export default function Registro() {
           {servicios.find((s) => s.id === selectedService)?.nombre}
         </span>
       </p>
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
         <div>
           <label
@@ -1222,49 +1230,40 @@ export default function Registro() {
           </div>
         )}
       </div>
-      {/* Términos y Condiciones */}{" "}
+      {/* Términos y Condiciones */}
       <div className="mb-6 p-4 bg-amber-100 border-l-4 border-amber-500 rounded-lg shadow-md">
-        {" "}
         <div className="flex items-start">
-          {" "}
           <div className="flex-shrink-0">
-            {" "}
-            <AlertCircle className="h-5 w-5 text-amber-600" />{" "}
-          </div>{" "}
+            <AlertCircle className="h-5 w-5 text-amber-600" />
+          </div>
           <div className="ml-3 flex-1">
-            {" "}
-            <div className="flex flex-col sm:flex-row sm:items-center">
-              {" "}
-              <div className="flex items-center mb-2 sm:mb-0 sm:mr-2">
-                {" "}
-                <input
-                  id="aceptaTerminos"
-                  name="aceptaTerminos"
-                  type="checkbox"
-                  checked={formData.aceptaTerminos}
-                  onChange={handleChange}
-                  className="w-6 h-6 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                />{" "}
-                <label
-                  htmlFor="aceptaTerminos"
-                  className="ml-3 text-sm font-bold text-gray-800 cursor-pointer"
-                >
-                  {" "}
-                  Acepto los{" "}
-                </label>{" "}
-              </div>{" "}
-              <button
-                type="button"
-                onClick={openTerminosModal}
-                className="text-blue-700 underline font-bold hover:text-blue-900 text-sm py-1"
+            <div className="flex items-center h-full">
+              <input
+                id="aceptaTerminos"
+                name="aceptaTerminos"
+                type="checkbox"
+                checked={formData.aceptaTerminos}
+                onChange={handleChange}
+                className="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+              />
+              <label
+                htmlFor="aceptaTerminos"
+                className="ml-2 text-base text-sm font-bold text-gray-800"
               >
-                {" "}
-                Términos y Condiciones{" "}
-              </button>{" "}
-            </div>{" "}
-          </div>{" "}
-        </div>{" "}
+                Acepto los{" "}
+                <button
+                  type="button"
+                  onClick={openTerminosModal}
+                  className="text-blue-700 underline font-bold hover:text-blue-900"
+                >
+                  Términos y Condiciones
+                </button>
+              </label>
+            </div>
+          </div>
+        </div>
       </div>
+
       <div className="flex justify-between mt-8">
         <button
           onClick={handleBack}
@@ -3002,10 +3001,10 @@ export default function Registro() {
     if (!toast.show) return null;
 
     const icons = {
-      success: <CheckCircle className="w-5 h-5 text-green-500" />,
-      error: <AlertCircle className="w-5 h-5 text-red-500" />,
-      warning: <AlertCircle className="w-5 h-5 text-amber-500" />,
-      info: <Info className="w-5 h-5 text-blue-500" />,
+      success: <CheckCircle className="w-4 h-4 text-green-500" />,
+      error: <AlertCircle className="w-4 h-4 text-red-500" />,
+      warning: <AlertCircle className="w-4 h-4 text-amber-500" />,
+      info: <Info className="w-4 h-4 text-blue-500" />,
     };
 
     const colors = {
@@ -3016,25 +3015,25 @@ export default function Registro() {
     };
 
     return (
-      <div className="fixed top-4 left-0 right-0 mx-auto z-50 w-[90%] max-w-sm">
+      <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 w-full max-w-sm">
         <motion.div
           initial={{ y: -100, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: -100, opacity: 0 }}
-          className={`p-4 rounded-md shadow-lg border-l-4 ${
+          className={`p-3 rounded-md shadow-md border-l-4 ${
             colors[toast.type]
           }`}
         >
           <div className="flex items-start">
-            <div className="flex-shrink-0 mr-3 mt-0.5">{icons[toast.type]}</div>
-            <div className="ml-1 mr-6 flex-1">
-              <p className="text-sm font-medium">{toast.message}</p>
+            <div className="flex-shrink-0 mr-2 mt-0.5">{icons[toast.type]}</div>
+            <div className="ml-2 mr-6 flex-1">
+              <p className="text-sm">{toast.message}</p>
             </div>
             <button
               onClick={() => setToast({ ...toast, show: false })}
-              className="flex-shrink-0 ml-auto -mt-1 -mr-1 p-1 text-gray-400 hover:text-gray-600"
+              className="flex-shrink-0 ml-auto -mt-1 -mr-1 text-gray-400 hover:text-gray-600"
             >
-              <X className="w-5 h-5" />
+              <X className="w-4 h-4" />
             </button>
           </div>
         </motion.div>
@@ -3051,14 +3050,14 @@ export default function Registro() {
     if (!isTerminosModalOpen) return null;
 
     return ReactDOM.createPortal(
-      <div className="fixed inset-0 z-50 overflow-hidden flex items-center justify-center">
+      <div className="fixed inset-0 z-50 overflow-hidden flex items-center justify-center p-4">
         <div
           className="fixed inset-0 bg-black opacity-50"
           onClick={closeTerminosModal}
         ></div>
-        <div className="relative bg-white rounded-lg max-h-[90vh] w-[95%] max-w-3xl flex flex-col shadow-xl m-2">
+        <div className="relative bg-white rounded-lg max-h-[90vh] w-full md:max-w-3xl max-w-md flex flex-col shadow-xl">
           {/* Header - Fixed */}
-          <div className="sticky top-0 z-10 flex items-center justify-between p-4 border-b border-gray-200 bg-white rounded-t-lg">
+          <div className="sticky top-0 z-10 flex items-center justify-between p-4 border-b border-gray-200 bg-white">
             <h2 className="text-xl font-bold text-[#0066FF]">
               Términos y Condiciones
             </h2>
@@ -3071,7 +3070,7 @@ export default function Registro() {
           </div>
 
           {/* Body - Scrollable */}
-          <div className="overflow-y-auto p-4 flex-1 pb-6">
+          <div className="overflow-y-auto p-4 flex-1">
             <div className="text-gray-600 space-y-6">
               <section>
                 <p>
