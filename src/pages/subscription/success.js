@@ -69,8 +69,8 @@ export default function SemesterPlanSuccess() {
                 </div>
                 <div className="ml-3">
                   <p className="text-sm font-medium text-green-800">
-                    Tu pago se ha procesado correctamente en 6 cuotas. Recibirás
-                    un correo electrónico con los detalles de tu plan semestral.
+                    Tu pago se ha procesado correctamente. Recibirás un correo
+                    electrónico con los detalles de tu plan semestral.
                   </p>
                 </div>
               </div>
