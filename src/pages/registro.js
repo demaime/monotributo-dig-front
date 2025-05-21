@@ -11,6 +11,8 @@ import {
   Trash2,
   AlertCircle,
   Info,
+  Eye,
+  EyeOff,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import DatePicker from "react-datepicker";
@@ -318,6 +320,7 @@ export default function Registro() {
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState(1);
   const [selectedService, setSelectedService] = useState(null);
+  const [showPassword, setShowPassword] = useState(false); // <--- Nuevo estado para visibilidad de contraseña
   const [formData, setFormData] = useState({
     apellido: "",
     nombre: "",
@@ -394,8 +397,25 @@ export default function Registro() {
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    const val =
-      type === "checkbox" ? checked : type === "radio" ? value : value;
+    let val = type === "checkbox" ? checked : type === "radio" ? value : value;
+
+    // Validaciones de entrada para campos específicos
+    if (
+      [
+        "dni",
+        "telefono",
+        "cuitCooperativa",
+        "montoAlquilerAnual",
+        "cuitEmpleador",
+        "cuitCajaPrevisional",
+        "cuitConyuge",
+        "cuilFamiliarActual",
+      ].includes(name)
+    ) {
+      // Permitir solo números
+      val = val.replace(/\D/g, "");
+    }
+
     setFormData((prev) => {
       let newState = { ...prev, [name]: val };
 
@@ -450,17 +470,21 @@ export default function Registro() {
 
   const handleAddFamiliar = () => {
     const cuilToAdd = cuilFamiliarActual.trim();
-    if (cuilToAdd && !formData.familiaresCuil.includes(cuilToAdd)) {
-      setFormData((prev) => ({
-        ...prev,
-        familiaresCuil: [...prev.familiaresCuil, cuilToAdd],
-      }));
-      setCuilFamiliarActual("");
-    } else if (!cuilToAdd) {
-      showToast("Ingrese el CUIL del familiar.", "warning");
-    } else {
-      showToast("Este CUIL ya fue agregado.", "warning");
+    // Validar que el CUIL tenga 11 dígitos
+    if (!cuilToAdd || cuilToAdd.length !== 11) {
+      showToast("El CUIL debe tener 11 números.", "warning");
+      return;
     }
+    if (formData.familiaresCuil.includes(cuilToAdd)) {
+      showToast("Este CUIL ya fue agregado.", "warning");
+      return;
+    }
+    // Si pasa las validaciones, lo agregamos
+    setFormData((prev) => ({
+      ...prev,
+      familiaresCuil: [...prev.familiaresCuil, cuilToAdd],
+    }));
+    setCuilFamiliarActual(""); // Limpiar el input
   };
 
   const handleRemoveFamiliar = (cuilToRemove) => {
@@ -557,6 +581,16 @@ export default function Registro() {
       if (!formData.aceptaTerminos) {
         showToast(
           "Debe aceptar los términos y condiciones para continuar.",
+          "warning"
+        );
+        return;
+      }
+
+      // Validación de Email
+      const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
+      if (!emailRegex.test(formData.email)) {
+        showToast(
+          "Por favor, ingrese un correo electrónico válido.",
           "warning"
         );
         return;
@@ -1227,15 +1261,31 @@ export default function Registro() {
               (?)
             </a>
           </label>
-          <input
-            type="password"
-            id="claveFiscal"
-            name="claveFiscal"
-            value={formData.claveFiscal}
-            onChange={handleChange}
-            required
-            className="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm"
-          />
+          <div className="relative">
+            <input
+              type={showPassword ? "text" : "password"}
+              id="claveFiscal"
+              name="claveFiscal"
+              value={formData.claveFiscal}
+              onChange={handleChange}
+              required
+              className="w-full p-2 pr-10 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute inset-y-0 right-0 px-3 flex items-center text-gray-500 hover:text-gray-700"
+              aria-label={
+                showPassword ? "Ocultar clave fiscal" : "Mostrar clave fiscal"
+              }
+            >
+              {showPassword ? (
+                <EyeOff className="h-4 w-4" />
+              ) : (
+                <Eye className="h-4 w-4" />
+              )}
+            </button>
+          </div>
         </div>
 
         <div>
@@ -2203,9 +2253,13 @@ export default function Registro() {
                 type="text"
                 id="cuilFamiliarActual"
                 value={cuilFamiliarActual}
-                onChange={(e) => setCuilFamiliarActual(e.target.value)}
+                onChange={(e) => {
+                  const numericValue = e.target.value.replace(/\D/g, "");
+                  setCuilFamiliarActual(numericValue);
+                }}
                 className="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm"
                 placeholder="CUIL sin guiones"
+                maxLength={11} // Opcional: limitar longitud visualmente
               />
             </div>
             <button
