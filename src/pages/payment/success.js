@@ -55,8 +55,3 @@ export default function PaymentSuccess() {
     </>
   );
 }
-
-// Necesitamos importar motion para la animación, si no está ya global
-// import { motion } from 'framer-motion';
-// Si WhatsAppButton no está en esa ruta, ajustarla.
-// Considera agregar el componente Layout si tienes uno para la navegación y el footer.

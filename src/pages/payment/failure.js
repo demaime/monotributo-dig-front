@@ -33,15 +33,10 @@ export default function PaymentFailure() {
             href="/"
             className="inline-flex items-center justify-center px-8 py-4 bg-white text-red-600 font-semibold rounded-lg shadow-xl hover:bg-gray-100 transition-transform transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-opacity-75"
           >
-            <Home className="w-5 h-5 mr-2" /> Volver al Inicio e Intentar
-            Nuevamente
+            <Home className="w-5 h-5 mr-2" /> Volver al Inicio
           </Link>
         </div>
       </div>
     </>
   );
 }
-
-// Necesitamos importar motion para la animación, si no está ya global
-// import { motion } from 'framer-motion';
-// Considera agregar el componente Layout si tienes uno para la navegación y el footer.
