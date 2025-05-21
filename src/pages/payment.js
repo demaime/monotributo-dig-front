@@ -6,7 +6,7 @@ import { motion } from "framer-motion";
 import { AlertTriangle } from "lucide-react";
 
 // Importar la URL base de API desde utils/api.js o definirla aquí
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+// const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL; // Ya no se usará directamente aquí
 const MP_PUBLIC_KEY = process.env.NEXT_PUBLIC_MERCADO_PAGO_PUBLIC_KEY;
 
 export default function Payment() {
@@ -42,8 +42,8 @@ export default function Payment() {
 
       // Use the calculated boolean for endpoint selection
       const endpoint = isSemesterPlan
-        ? `${API_BASE_URL}/payments/create-plan`
-        : `${API_BASE_URL}/payments/create-preference`;
+        ? `/api/payments/create-plan`
+        : `/api/payments/create-preference`;
 
       // Get stored email if available
       const userEmail = localStorage.getItem("userEmail") || "";

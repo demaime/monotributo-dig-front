@@ -583,8 +583,7 @@ export default function Registro() {
         // Enviar la información al backend
         const submitFormData = async () => {
           try {
-            const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
-            const response = await fetch(`${API_BASE_URL}/submit-form`, {
+            const response = await fetch(`/api/submit-form`, {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
@@ -854,8 +853,7 @@ export default function Registro() {
         }
 
         try {
-          const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
-          const response = await fetch(`${API_BASE_URL}/upload-documents`, {
+          const response = await fetch(`/api/upload-documents`, {
             method: "POST",
             body: formDataFiles,
           });
@@ -874,8 +872,7 @@ export default function Registro() {
       // Luego enviamos los datos del formulario
       const submitFormData = async () => {
         try {
-          const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
-          const response = await fetch(`${API_BASE_URL}/submit-form`, {
+          const response = await fetch(`/api/submit-form`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
