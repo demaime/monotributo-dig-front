@@ -2,6 +2,7 @@ import React from "react";
 import Link from "next/link";
 import Head from "next/head";
 import { XCircle, AlertTriangle, Home } from "lucide-react";
+import { motion } from "framer-motion";
 
 export default function PaymentFailure() {
   return (

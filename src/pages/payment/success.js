@@ -3,6 +3,7 @@ import Link from "next/link";
 import Head from "next/head";
 import { CheckCircle, MessageSquare, Mail, Home } from "lucide-react";
 import WhatsAppButton from "../../components/WhatsAppButton"; // Asumiendo que la ruta es correcta
+import { motion } from "framer-motion";
 
 export default function PaymentSuccess() {
   return (
