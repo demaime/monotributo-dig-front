@@ -6,8 +6,7 @@ import { motion } from "framer-motion";
 import { AlertTriangle } from "lucide-react";
 
 // Importar la URL base de API desde utils/api.js o definirla aquí
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL;
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 const MP_PUBLIC_KEY = process.env.NEXT_PUBLIC_MERCADO_PAGO_PUBLIC_KEY;
 
 export default function Payment() {
@@ -209,7 +208,7 @@ export default function Payment() {
                   alt="Mercado Pago"
                   className="h-5 w-auto mr-2"
                 />
-                Mercado Pago (6 cuotas)
+                Mercado Pago
               </p>
             </div>
           </div>
