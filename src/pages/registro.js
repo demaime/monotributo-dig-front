@@ -873,19 +873,16 @@ export default function Registro() {
 
       // Primero subimos los archivos
       const uploadFiles = async () => {
-        if (
-          Object.keys(files).length === 0 &&
-          documentosObligatoriosCompletos()
-        ) {
-          showToast(
-            "No hay nuevos archivos para subir o los obligatorios ya fueron cargados.",
-            "info"
+        // Función auxiliar para verificar si los documentos obligatorios están cargados
+        const documentosObligatoriosCompletos = () => {
+          return (
+            formData.frontDniFile && formData.backDniFile && formData.selfieFile
           );
-          return true; // No hay archivos para subir o ya están
-        }
+        };
+
         if (!documentosObligatoriosCompletos()) {
           showToast(
-            "Por favor, carga todos los documentos obligatorios.",
+            "Por favor, carga todos los documentos obligatorios (frente DNI, dorso DNI y selfie).",
             "error"
           );
           return false;
@@ -893,30 +890,31 @@ export default function Registro() {
 
         const formDataFiles = new FormData();
         formDataFiles.append("transactionId", transactionId);
-        Object.entries(files).forEach(([key, file]) => {
-          if (file) {
-            formDataFiles.append(key, file);
-          }
-        });
 
-        // Si no hay archivos en formDataFiles después de filtrar, no hacer la llamada
-        if (
-          [...formDataFiles.entries()].length <= 1 &&
-          Object.keys(files).length > 0
-        ) {
-          // <=1 porque transactionId siempre está
-          showToast(
-            "No hay archivos válidos seleccionados para subir.",
-            "info"
-          );
-          // Esto puede pasar si solo se seleccionaron archivos que luego se quitaron o eran inválidos.
-          // O si solo se seleccionaron documentos opcionales y no se desea forzar su subida aquí.
-          // Considerar si se debe permitir continuar o no. Por ahora, si no hay archivos, no se sube.
-          return true;
+        if (formData.frontDniFile) {
+          formDataFiles.append("frontDni", formData.frontDniFile);
+        }
+        if (formData.backDniFile) {
+          formDataFiles.append("backDni", formData.backDniFile);
+        }
+        if (formData.selfieFile) {
+          formDataFiles.append("selfie", formData.selfieFile);
         }
 
-        setLoadingMessage("Subiendo documentos...");
-        setIsLoading(true);
+        // Verificar si realmente hay archivos para subir, además del transactionId
+        if ([...formDataFiles.entries()].length <= 1) {
+          showToast(
+            "No se encontraron archivos para subir. Asegúrate de haber cargado el frente y dorso del DNI, y la selfie.",
+            "warning"
+          );
+          // Esto podría pasar si, por alguna razón, los archivos no se cargaron correctamente en formData
+          // Opcionalmente, se podría retornar true si se considera que no hay error y simplemente no hay archivos opcionales.
+          // Pero para el flujo de alta, los 3 son obligatorios.
+          return false;
+        }
+
+        setSubmitError(null); // Limpiar errores previos
+        setIsSubmitting(true); // Usar el estado de submitting general
 
         try {
           const response = await fetch(`/api/upload-documents`, {
@@ -930,7 +928,6 @@ export default function Registro() {
             let userMessage =
               "Ocurrió un error al subir los archivos. Intenta nuevamente.";
             if (response.status === 400) {
-              // Bad Request
               if (
                 result.message &&
                 result.message.toLowerCase().includes("file type")
@@ -938,30 +935,23 @@ export default function Registro() {
                 userMessage =
                   "Error: Uno o más archivos tienen un formato no admitido. Solo se permiten PDF, JPG, JPEG o PNG.";
               } else if (result.message) {
-                // Si el backend manda un mensaje específico para el usuario, podríamos usarlo.
-                // Por ahora, usamos uno genérico para otros errores 400.
                 userMessage = `Error al procesar la solicitud: ${result.message}. Por favor, revisa los datos e intenta de nuevo.`;
               }
             } else if (response.status === 500) {
               userMessage =
                 "Error interno del servidor al subir los archivos. Por favor, intenta más tarde.";
             }
-            // Podrías agregar más mapeos de errores aquí si el backend devuelve otros status codes.
-
             showToast(userMessage, "error");
-            setLoadingMessage(null);
-            setIsLoading(false);
+            // No necesitamos setLoadingMessage(null) porque usamos setSubmitError y el mensaje del toast
+            setIsSubmitting(false);
             console.error("Error response from /api/upload-documents:", result);
             return false;
           }
 
           showToast("Documentos subidos correctamente.", "ok");
-          setUploadedFileTypes((prev) => ({
-            ...prev,
-            ...result.uploadedFiles,
-          }));
-          setLoadingMessage(null);
-          setIsLoading(false);
+          // No hay un estado setUploadedFileTypes, los archivos ya están en formData y se envían en submitFormData
+          // setLoadingMessage(null);
+          setIsSubmitting(false);
           return true;
         } catch (error) {
           console.error("Catch block error in uploadFiles:", error);
@@ -969,8 +959,8 @@ export default function Registro() {
             "Error de conexión al subir archivos. Verifica tu conexión e intenta de nuevo.",
             "error"
           );
-          setLoadingMessage(null);
-          setIsLoading(false);
+          // setLoadingMessage(null);
+          setIsSubmitting(false);
           return false;
         }
       };
