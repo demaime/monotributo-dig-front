@@ -62,7 +62,6 @@ export default function Payment() {
         installments: true, // Enable installments for all payments
       };
 
-      console.log("Enviando datos al backend:", endpoint, requestData);
 
       const response = await fetch(endpoint, {
         method: "POST",
@@ -70,11 +69,6 @@ export default function Payment() {
         body: JSON.stringify(requestData),
       });
 
-      console.log(
-        "Respuesta del backend:",
-        response.status,
-        response.statusText
-      );
 
       if (!response.ok) {
         const errorBody = await response.text();
@@ -94,7 +88,7 @@ export default function Payment() {
       }
 
       const data = await response.json();
-      console.log("Datos recibidos del backend:", data);
+
 
       const initPoint =
         data.init_point ||

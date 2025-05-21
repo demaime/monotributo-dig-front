@@ -12,12 +12,6 @@ export default function SubscriptionCallback() {
     // Process the callback
     const processCallback = async () => {
       try {
-        // We would typically update our own database here with the subscription status
-        console.log("Procesando callback de suscripción:", {
-          preapproval_id,
-          status,
-        });
-
         if (status === "authorized") {
           // Subscription was successful, redirect to success page
           router.push(`/subscription/success?preapproval_id=${preapproval_id}`);

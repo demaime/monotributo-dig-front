@@ -361,7 +361,6 @@ const CalcularCategoria = () => {
       // Último paso: Calcular y mostrar resultados (YA NO GUARDA EN STORAGE)
       const resultado = calcularCategoriaYCuota(respuestas);
       setResultadoCalculo(resultado);
-      console.log("Resultado del cálculo:", resultado);
     }
   };
 
@@ -532,9 +531,6 @@ const CalcularCategoria = () => {
       }
 
       // 2. Navegar con parámetros en URL
-      console.log(
-        `Navegando a /registro con servicio=alta y categoria=${categoria}`
-      );
       router.push(`/registro?servicio=alta&categoria=${categoria}`);
     };
 

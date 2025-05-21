@@ -631,11 +631,6 @@ export default function Registro() {
       if (serviciosFlujoCorto.includes(selectedService)) {
         // Generar ID de transacción
         const transId = transactionId;
-        console.log("Datos del formulario (Flujo Corto):", {
-          ...formData,
-          servicio: selectedService,
-          transactionId: transId,
-        });
 
         // Obtener el precio del servicio seleccionado
         const servicioSeleccionado = servicios.find(
@@ -784,11 +779,7 @@ export default function Registro() {
         showToast("Ingrese CUIT de la Caja Previsional.", "warning");
         return;
       }
-      console.log("Datos Paso 12:", {
-        aporte: formData.aporteJubilacion,
-        cuitE: formData.cuitEmpleador,
-        cuitC: formData.cuitCajaPrevisional,
-      });
+
       if (formData.aporteJubilacion === "activo") {
         setCurrentStep(13);
       } else {
@@ -803,7 +794,7 @@ export default function Registro() {
         showToast("Seleccione una Obra Social.", "warning");
         return;
       }
-      console.log("Datos Paso 13:", { os: formData.obraSocialSeleccionada });
+
       setCurrentStep(14);
     } else if (
       currentStep === 14 &&
@@ -821,11 +812,7 @@ export default function Registro() {
         showToast("Ingrese el CUIL del cónyuge.", "warning");
         return;
       }
-      console.log("Datos Paso 14:", {
-        conyuge: formData.sumarAportesConyuge,
-        cuil: formData.cuitConyuge,
-        familiares: formData.familiaresCuil,
-      });
+
       setCurrentStep(15);
     } else if (
       currentStep === 15 &&
@@ -866,13 +853,7 @@ export default function Registro() {
         );
         return;
       }
-      console.log("Datos Paso 15:", {
-        otraJ: formData.aportaOtraJurisdiccion,
-        donde: formData.jurisdiccionDonde,
-        cual: formData.jurisdiccionCual,
-        coincideDni: formData.dniCoincideActividad,
-        domAct: formData.domicilioActividad,
-      });
+
       // Después del paso 15, ahora vamos al paso de adjuntar archivos
       setCurrentStep(16);
     } else if (
