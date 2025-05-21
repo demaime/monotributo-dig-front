@@ -116,11 +116,6 @@ export default function FAQ() {
             transferencias bancarias y otros métodos disponibles en la
             plataforma.
           </p>
-          <p>
-            Para los planes de suscripción, el pago se procesa automáticamente
-            cada seis meses mediante el método de pago que hayas seleccionado al
-            suscribirte.
-          </p>
         </div>
       ),
     },
