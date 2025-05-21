@@ -529,12 +529,44 @@ export default function Registro() {
   // Función para manejar la selección de archivos
   const handleFileChange = (e) => {
     const { name, files } = e.target;
+    const acceptedTypes = ["image/jpeg", "image/jpg", "image/png"];
+    const maxFileSize = 5 * 1024 * 1024; // 5MB
 
     if (files && files[0]) {
+      const file = files[0];
+
+      // Validar tipo de archivo
+      if (!acceptedTypes.includes(file.type)) {
+        showToast(
+          `Error: El archivo "${file.name}" tiene un formato no admitido. Solo se permiten JPG, JPEG o PNG.`,
+          "error"
+        );
+        e.target.value = null; // Limpiar el input para permitir volver a seleccionar
+        // Opcionalmente, también limpiar el estado si ya se había guardado algo:
+        // setFormData((prev) => ({ ...prev, [`${name}File`]: null }));
+        return;
+      }
+
+      // Validar tamaño de archivo (opcional, pero recomendado)
+      if (file.size > maxFileSize) {
+        showToast(
+          `Error: El archivo "${file.name}" es demasiado grande. El tamaño máximo es 5MB.`,
+          "error"
+        );
+        e.target.value = null; // Limpiar el input
+        return;
+      }
+
       // Actualizar el estado del archivo
       setFormData((prev) => ({
         ...prev,
-        [`${name}File`]: files[0],
+        [`${name}File`]: file,
+      }));
+    } else {
+      // Si no hay archivo o se canceló la selección, asegurarse de limpiar el estado
+      setFormData((prev) => ({
+        ...prev,
+        [`${name}File`]: null,
       }));
     }
   };
@@ -2526,12 +2558,15 @@ export default function Registro() {
       animate="visible"
       exit="exit"
     >
-      <h1 className="text-lg font-bold text-gray-900 mb-4 text-center">
+      <h1 className="text-lg font-bold text-gray-900 mb-2 text-center">
         Documentación Requerida
       </h1>
-      <p className="text-xs text-gray-600 mb-3">
+      <p className="text-xs text-gray-600 mb-1 text-center">
         Para completar el trámite de alta, por favor suba las siguientes
-        fotografías:
+        fotografías.
+      </p>
+      <p className="text-xs text-blue-600 mb-3 text-center font-medium">
+        Formatos admitidos: JPG, JPEG, PNG.
       </p>
 
       <div className="space-y-3">
