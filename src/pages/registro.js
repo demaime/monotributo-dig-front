@@ -839,32 +839,104 @@ export default function Registro() {
 
       // Primero subimos los archivos
       const uploadFiles = async () => {
+        if (
+          Object.keys(files).length === 0 &&
+          documentosObligatoriosCompletos()
+        ) {
+          showToast(
+            "No hay nuevos archivos para subir o los obligatorios ya fueron cargados.",
+            "info"
+          );
+          return true; // No hay archivos para subir o ya están
+        }
+        if (!documentosObligatoriosCompletos()) {
+          showToast(
+            "Por favor, carga todos los documentos obligatorios.",
+            "error"
+          );
+          return false;
+        }
+
         const formDataFiles = new FormData();
         formDataFiles.append("transactionId", transactionId);
+        Object.entries(files).forEach(([key, file]) => {
+          if (file) {
+            formDataFiles.append(key, file);
+          }
+        });
 
-        if (formData.frontDniFile) {
-          formDataFiles.append("frontDni", formData.frontDniFile);
+        // Si no hay archivos en formDataFiles después de filtrar, no hacer la llamada
+        if (
+          [...formDataFiles.entries()].length <= 1 &&
+          Object.keys(files).length > 0
+        ) {
+          // <=1 porque transactionId siempre está
+          showToast(
+            "No hay archivos válidos seleccionados para subir.",
+            "info"
+          );
+          // Esto puede pasar si solo se seleccionaron archivos que luego se quitaron o eran inválidos.
+          // O si solo se seleccionaron documentos opcionales y no se desea forzar su subida aquí.
+          // Considerar si se debe permitir continuar o no. Por ahora, si no hay archivos, no se sube.
+          return true;
         }
-        if (formData.backDniFile) {
-          formDataFiles.append("backDni", formData.backDniFile);
-        }
-        if (formData.selfieFile) {
-          formDataFiles.append("selfie", formData.selfieFile);
-        }
+
+        setLoadingMessage("Subiendo documentos...");
+        setIsLoading(true);
 
         try {
           const response = await fetch(`/api/upload-documents`, {
             method: "POST",
             body: formDataFiles,
           });
+
           const result = await response.json();
-          if (!result.success) {
-            throw new Error(result.message || "Error al subir los archivos");
+
+          if (!response.ok) {
+            let userMessage =
+              "Ocurrió un error al subir los archivos. Intenta nuevamente.";
+            if (response.status === 400) {
+              // Bad Request
+              if (
+                result.message &&
+                result.message.toLowerCase().includes("file type")
+              ) {
+                userMessage =
+                  "Error: Uno o más archivos tienen un formato no admitido. Solo se permiten PDF, JPG, JPEG o PNG.";
+              } else if (result.message) {
+                // Si el backend manda un mensaje específico para el usuario, podríamos usarlo.
+                // Por ahora, usamos uno genérico para otros errores 400.
+                userMessage = `Error al procesar la solicitud: ${result.message}. Por favor, revisa los datos e intenta de nuevo.`;
+              }
+            } else if (response.status === 500) {
+              userMessage =
+                "Error interno del servidor al subir los archivos. Por favor, intenta más tarde.";
+            }
+            // Podrías agregar más mapeos de errores aquí si el backend devuelve otros status codes.
+
+            showToast(userMessage, "error");
+            setLoadingMessage(null);
+            setIsLoading(false);
+            console.error("Error response from /api/upload-documents:", result);
+            return false;
           }
+
+          showToast("Documentos subidos correctamente.", "ok");
+          setUploadedFileTypes((prev) => ({
+            ...prev,
+            ...result.uploadedFiles,
+          }));
+          setLoadingMessage(null);
+          setIsLoading(false);
           return true;
         } catch (error) {
-          console.error("Error al subir archivos:", error);
-          setSubmitError("Error al subir los archivos: " + error.message);
+          console.error("Catch block error in uploadFiles:", error);
+          showToast(
+            "Error de conexión al subir archivos. Verifica tu conexión e intenta de nuevo.",
+            "error"
+          );
+          setLoadingMessage(null);
+          setIsLoading(false);
           return false;
         }
       };

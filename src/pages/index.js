@@ -78,18 +78,63 @@ function App() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(contacto),
       });
-      const data = await res.json();
-      if (data.success) {
-        setFeedback({ tipo: "ok", mensaje: "¡Mensaje enviado correctamente!" });
-        setContacto({ nombre: "", email: "", mensaje: "" });
-      } else {
+
+      // Intentar parsear la respuesta como JSON
+      let data;
+      try {
+        data = await res.json();
+      } catch (parseError) {
+        // Si el parseo falla, es un error del servidor que no devuelve JSON válido
+        console.error(
+          "Error parsing JSON response from /api/contacto:",
+          parseError
+        );
         setFeedback({
           tipo: "error",
-          mensaje: data.message || "Error al enviar mensaje",
+          mensaje: "Error de comunicación con el servidor. Intenta más tarde.",
         });
+        setEnviando(false);
+        return;
+      }
+
+      if (res.ok && data.success) {
+        setFeedback({
+          tipo: "ok",
+          mensaje: "¡Mensaje enviado correctamente! Gracias por contactarnos.",
+        });
+        setContacto({ nombre: "", email: "", mensaje: "" });
+      } else {
+        // Si res.ok es falso, o data.success es falso
+        let userMessage =
+          "No se pudo enviar tu mensaje. Por favor, inténtalo de nuevo más tarde.";
+        if (data && data.message) {
+          // Podríamos verificar data.message por palabras clave si el backend da errores específicos
+          // pero para un formulario de contacto, un error genérico suele ser suficiente.
+          // Ejemplo: si el backend valida el email y falla, podría enviar un mensaje específico.
+          // userMessage = data.message; // Usar con precaución si data.message puede ser técnico.
+          console.warn(
+            "Error from /api/contacto (data.message):",
+            data.message
+          );
+        }
+        setFeedback({
+          tipo: "error",
+          mensaje: userMessage,
+        });
+        console.error(
+          "Error response or data.success false from /api/contacto:",
+          data,
+          "Status:",
+          res.status
+        );
       }
     } catch (err) {
-      setFeedback({ tipo: "error", mensaje: "Error al enviar mensaje" });
+      console.error("Catch block error in handleContactoSubmit:", err);
+      setFeedback({
+        tipo: "error",
+        mensaje:
+          "Error de conexión al enviar el mensaje. Verifica tu conexión e intenta de nuevo.",
+      });
     } finally {
       setEnviando(false);
     }
