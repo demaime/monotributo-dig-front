@@ -344,11 +344,11 @@ function App() {
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  onClick={() => router.push("/registro?servicio=plan_base")}
-                  className="group flex items-center gap-3 bg-gradient-to-r from-[#0066FF] to-[#0040FF] text-white px-12 py-6 rounded-full font-bold text-3xl hover:shadow-[0_0_30px_rgba(0,102,255,0.3)] transition-all duration-300 shadow-lg"
+                  onClick={(e) => scrollToSection(e, "servicios")}
+                  className="group flex flex-col items-center justify-center bg-gradient-to-r from-[#0066FF] to-[#0040FF] text-white px-12 py-4 rounded-full font-bold hover:shadow-[0_0_30px_rgba(0,102,255,0.3)] transition-all duration-300 shadow-lg"
                 >
-                  DATE DE ALTA
-                  <ArrowRight className="w-8 h-8 inline-block group-hover:translate-x-1 transition-transform" />
+                  <span className="text-3xl">DATE DE ALTA</span>
+                  <span className="text-sm font-normal">en el Monotributo</span>
                 </motion.button>
               </div>
 
@@ -431,11 +431,11 @@ function App() {
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  onClick={() => router.push("/registro?servicio=plan_base")}
-                  className="group flex items-center justify-center w-full bg-gradient-to-r from-[#0066FF] to-[#0040FF] text-white px-8 py-6 rounded-full font-bold text-2xl hover:shadow-[0_0_30px_rgba(0,102,255,0.3)] transition-all duration-300 shadow-lg"
+                  onClick={(e) => scrollToSection(e, "servicios")}
+                  className="group flex flex-col items-center justify-center w-full bg-gradient-to-r from-[#0066FF] to-[#0040FF] text-white px-8 py-4 rounded-full font-bold hover:shadow-[0_0_30px_rgba(0,102,255,0.3)] transition-all duration-300 shadow-lg"
                 >
-                  DATE DE ALTA
-                  <ArrowRight className="w-6 h-6 hidden md:inline-block ml-2 group-hover:translate-x-1 transition-transform" />
+                  <span className="text-2xl">DATE DE ALTA</span>
+                  <span className="text-xs font-normal">en el Monotributo</span>
                 </motion.button>
               </div>
 
