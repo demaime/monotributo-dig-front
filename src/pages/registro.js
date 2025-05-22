@@ -529,7 +529,12 @@ export default function Registro() {
   // Función para manejar la selección de archivos
   const handleFileChange = (e) => {
     const { name, files } = e.target;
-    const acceptedTypes = ["image/jpeg", "image/jpg", "image/png"];
+    const acceptedTypes = [
+      "image/jpeg",
+      "image/jpg",
+      "image/png",
+      "application/pdf",
+    ];
     const maxFileSize = 5 * 1024 * 1024; // 5MB
 
     if (files && files[0]) {
@@ -538,7 +543,7 @@ export default function Registro() {
       // Validar tipo de archivo
       if (!acceptedTypes.includes(file.type)) {
         showToast(
-          `Error: El archivo "${file.name}" tiene un formato no admitido. Solo se permiten JPG, JPEG o PNG.`,
+          `Error: El archivo "${file.name}" tiene un formato no admitido. Solo se permiten JPG, JPEG, PNG o PDF.`,
           "error"
         );
         e.target.value = null; // Limpiar el input para permitir volver a seleccionar
@@ -942,11 +947,14 @@ export default function Registro() {
               "Ocurrió un error al subir los archivos. Intenta nuevamente.";
             if (response.status === 400) {
               if (
-                result.message &&
-                result.message.toLowerCase().includes("file type")
+                (result.message &&
+                  result.message.toLowerCase().includes("file type")) ||
+                result.message
+                  .toLowerCase()
+                  .includes("formato de archivo no válido")
               ) {
                 userMessage =
-                  "Error: Uno o más archivos tienen un formato no admitido. Solo se permiten PDF, JPG, JPEG o PNG.";
+                  "Error: Uno o más archivos tienen un formato no admitido. Solo se permiten JPG, JPEG, PNG o PDF.";
               } else if (result.message) {
                 userMessage = `Error al procesar la solicitud: ${result.message}. Por favor, revisa los datos e intenta de nuevo.`;
               }
@@ -2544,10 +2552,10 @@ export default function Registro() {
       </h1>
       <p className="text-xs text-gray-600 mb-1 text-center">
         Para completar el trámite de alta, por favor suba las siguientes
-        fotografías.
+        fotografías o documentos PDF.
       </p>
       <p className="text-xs text-blue-600 mb-3 text-center font-medium">
-        Formatos admitidos: JPG, JPEG, PNG.
+        Formatos admitidos: JPG, JPEG, PNG, PDF.
       </p>
 
       <div className="space-y-3">
@@ -2578,7 +2586,7 @@ export default function Registro() {
                   id="frontDni"
                   name="frontDni"
                   type="file"
-                  accept="image/*"
+                  accept="image/jpeg, image/jpg, image/png, application/pdf"
                   className="hidden"
                   onChange={handleFileChange}
                 />
@@ -2624,7 +2632,7 @@ export default function Registro() {
                   id="backDni"
                   name="backDni"
                   type="file"
-                  accept="image/*"
+                  accept="image/jpeg, image/jpg, image/png, application/pdf"
                   className="hidden"
                   onChange={handleFileChange}
                 />
@@ -2670,7 +2678,7 @@ export default function Registro() {
                   id="selfie"
                   name="selfie"
                   type="file"
-                  accept="image/*"
+                  accept="image/jpeg, image/jpg, image/png, application/pdf"
                   className="hidden"
                   onChange={handleFileChange}
                 />
